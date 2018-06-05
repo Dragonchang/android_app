@@ -1,0 +1,891 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0062)http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script async="" src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/widget"></script>
+
+<title>SQLite入门与分析(一)---简介 - YY哥 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/bundle-ClassicBlue.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/hustcat/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/hustcat/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/hustcat/wlwmanifest.xml">
+<script async="" src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/analytics.js"></script><script src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'hustcat', cb_enable_mathjax=false;</script>
+<script src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/blog-common.js" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/hustcat/"><img id="blogLogo" src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/hustcat/">YY哥的技术随笔</a></h1>
+<h2>——关注Linux、数据库和云计算</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/hustcat/">首页</a></li>
+<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://msg.cnblogs.com/send/YY%E5%93%A5">联系</a></li>
+<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/hustcat/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/hustcat/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+<!--done-->
+随笔- 125&nbsp;
+文章- 114&nbsp;
+评论- 378&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/SQLite入门与分析(一)---简介 - YY哥 - 博客园.html">SQLite入门与分析(一)---简介</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p> </p>
+<p style="margin-left: 24pt; text-indent: -24pt; color: red;"></p>
+<p>&nbsp;写在前面：出于项目的需要,最近打算对SQLite的内核进行一个完整的剖析,在此希望和对SQLite有兴趣的一起交流。我知道，这是一个漫长的过程，就像曾经去读Linux内核一样，这个过程也将是辛苦的，但我相信结果一定是美好的... ...接下来是第一章。</p>
+<p style="color: red;"></p>
+<p><span style="color: red;">1、SQLite介绍</span></p>
+自几十年前出现的商业应用程序以来，数据库就成为软件应用程序的主要组成部分。正与数据库管理系统非常关键一样，它们也变得非常庞大，并占用了相当多的系统资源，增加了管理的复杂性。随着软件应用程序逐渐模块模块化，一种新型数据库会比大型复杂的传统数据库管理系统更适应。嵌入式数据库直接在应用程序进程中运行，提供了零配置（zero-configuration）运行模式，并且资源占用非常少。<br>
+SQLite是一个开源的嵌入式关系数据库，它在2000年由D. Richard Hipp发布，它的减少应用程序管理数据的开销，SQLite可移植性好，很容易使用，很小，高效而且可靠。<br>
+SQLite嵌入到使用它的应用程序中，它们共用相同的进程空间，而不是单独的一个进程。从外部看，它并不像一个RDBMS，但在进程内部，它却是完整的，自包含的数据库引擎。<br>
+<p>嵌入式数据库的一大好处就是在你的程序内部不需要网络配置，也不需要管理。因为客户端和服务器在同一进程空间运行。SQLite 的数据库权限只依赖于文件系统，没有用户帐户的概念。SQLite 有数据库级锁定，没有网络服务器。它需要的内存，其它开销很小，适合用于嵌入式设备。你需要做的仅仅是把它正确的编译到你的程序。</p>
+<p>&nbsp;</p>
+<p><span style="color: red;">2、架构(architecture)</span> <br>
+</p>
+SQLite采用了模块的设计，它由三个子系统，包括8个独立的模块构成。<br>
+&nbsp;<img alt="" src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/sqlite01-1.JPG" width="634" height="411"><br>
+2.1、接口(Interface)<br>
+接口由SQLite C API组成，也就是说不管是程序、脚本语言还是库文件，最终都是通过它与SQLite交互的(我们通常用得较多的ODBC/JDBC最后也会转化为相应C API的调用)。<br>
+<br>
+2.2、编译器(Compiler)<br>
+在编译器中，分词器（Tokenizer）和分析器(Parser)对SQL进行语法检查，然后把它转化为底层能更方便处理的分层的数据结构---语法树，然后把语法树传给代码生成器(code generator)进行处理。而代码生成器根据它生成一种针对SQLite的汇编代码，最后由虚拟机(Virtual Machine)执行。<br>
+<br>
+2.3、虚拟机(Virtual Machine)<br>
+架构中最核心的部分是虚拟机，或者叫做虚拟数据库引擎(Virtual Database Engine,VDBE)。它和Java虚拟机相似，解释执行字节代码。VDBE的字节代码由128个操作码(opcodes)构成，它们主要集中在数据库操作。它的每一条指令都用来完成特定的数据库操作(比如打开一个表的游标)或者为这些操作栈空间的准备(比如压入参数)。总之，所有的这些指令都是为了满足SQL命令的要求(关于VM，后面会做详细介绍)。<br>
+&nbsp;<br>
+2.4、后端(Back-End)<br>
+后端由B-树(B-tree)，页缓存(page cache，pager)和操作系统接口(即系统调用)构成。B-tree和page cache共同对数据进行管理。B-tree的主要功能就是索引，它维护着各个页面之间的复杂的关系，便于快速找到所需数据。而pager的主要作用就是通过OS接口在B-tree和Disk之间传递页面。<br>
+<br>
+<span style="color: red;">3、SQLite的特点(SQLite’s Features and Philosophy)</span><br>
+3.1、零配置(Zero Configuration)<br>
+3.2、可移植(Portability)：<br>
+它是运行在Windows,Linux,BSD,Mac OS X和一些商用Unix系统，比如Sun的Solaris,IBM的AIX，同样，它也可以工作在许多嵌入式操作系统下，比如QNX,VxWorks,Palm OS, Symbin和Windows CE。<br>
+3.3、Compactness：<br>
+SQLite是被设计成轻量级，自包含的。one header file, one library, and you’re relational, no external database server required<br>
+3.4、简单(Simplicity)<br>
+3.5、灵活(Flexibility)<br>
+3.6、可靠(Reliability)：<br>
+SQLite的核心大约有3万行标准C代码，这些代码都是模块化的，很容易阅读。<br>
+<br>
+<p>主要参考:The Definitive Guide to SQLite </p>
+<p>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+<a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1389448,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+<a id="green_channel_follow" onclick="c_follow();" href="javascript:void(0);">关注我</a>
+<a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a><a id="green_channel_contact" href="http://msg.cnblogs.com/send/YY%E5%93%A5" target="_blank">联系我</a>
+<a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/icon_weibo_24.png" alt=""></a>
+<a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+<div id="author_profile_info" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/" target="_blank"><img src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/sample_face.gif" class="author_avatar" alt=""></a>
+<div id="author_profile_detail" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followees">关注 - 2</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followers">粉丝 - 528</a>
+</div>
+</div>
+<div class="clear"></div>
+<div id="author_profile_honor"></div>
+<div id="author_profile_follow">
+    <a href="javascript:void(0);" onclick="c_follow();return false;">+加关注</a>
+</div>
+</div>
+<div id="div_digg">										
+    <div class="diggit" onclick="votePost(1389448,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">13</span>
+    </div>
+	<div class="buryit" onclick="votePost(1389448,&#39;Bury&#39;)"> 
+		<span class="burynum" id="bury_count">0</span>
+	</div>
+	<div class="clear"></div>	
+	<div class="diggword" id="digg_tips">
+    (请您对文章做出评价)
+    </div>	
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/11/1388515.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/02/11/1388515.html" title="发布于2009-02-11 18:35">sqlite-3.6.10的vs2005 编译错误</a><br><a href="http://www.cnblogs.com/hustcat/archive/2009/02/13/1390340.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/02/13/1390340.html" title="发布于2009-02-13 22:43">SQLite入门与分析(二)---设计与概念</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2009-02-12 21:27</span> <a href="http://www.cnblogs.com/hustcat/">YY哥</a> 阅读(<span id="post_view_count">51844</span>) 评论(<span id="post_comment_count">31</span>)  <a href="http://i.cnblogs.com/EditPosts.aspx?postid=1389448" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#" onclick="AddToWz(1389448);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=26761,cb_entryId=1389448,cb_blogApp=currentBlogApp,cb_blogUserGuid='a9743d0b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2009/2/12 21:27:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1449826" class="layer">#1楼</a><a name="1449826" id="comment_anchor_1449826"></a>  <span class="comment_date">2009-02-12 23:20</span> <a id="a_comment_author_1449826" href="http://www.cnblogs.com/5207/" target="_blank">5207</a> <a href="http://msg.cnblogs.com/send/5207" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1449826" class="blog_comment_body">期待下文，看看能不能在WinCE下方便的应用！望楼主关注一下</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1449826,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1449826,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1449847" class="layer">#2楼</a><a name="1449847" id="comment_anchor_1449847"></a>  <span class="comment_date">2009-02-13 01:37</span> <a id="a_comment_author_1449847" href="http://www.cnblogs.com/kvspas/" target="_blank">梁逸晨</a> <a href="http://msg.cnblogs.com/send/%E6%A2%81%E9%80%B8%E6%99%A8" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1449847" class="blog_comment_body">这是代替ACCESS的完美方案</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1449847,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1449847,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1449847_avatar" style="display:none;">http://pic.cnblogs.com/face/u20738.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1449879" class="layer">#3楼</a><a name="1449879" id="comment_anchor_1449879"></a>  <span class="comment_date">2009-02-13 08:51</span> <a id="a_comment_author_1449879" href="http://www.cnblogs.com/darkluck99/" target="_blank">巫云</a> <a href="http://msg.cnblogs.com/send/%E5%B7%AB%E4%BA%91" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1449879" class="blog_comment_body">俺就喜欢看有深度的文章，大哥加油！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1449879,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1449879,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1449879_avatar" style="display:none;">http://pic.cnblogs.com/face/u16978.gif</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1449891" class="layer">#4楼</a><a name="1449891" id="comment_anchor_1449891"></a>  <span class="comment_date">2009-02-13 09:01</span> <a id="ctl00_CommentList_NameLink_3" target="_blank">vb1980[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1449891" class="blog_comment_body">喜欢看，继续。
+<br>通过log4net把运行日志写入到sqlite中，虽然数据很多了，但是查询速度还是很快。</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1449898" class="layer">#5楼</a><a name="1449898" id="comment_anchor_1449898"></a>  <span class="comment_date">2009-02-13 09:07</span> <a id="ctl00_CommentList_NameLink_4" target="_blank">Rexzhou[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1449898" class="blog_comment_body">现在代码接近10万行了</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1449923" class="layer">#6楼</a><a name="1449923" id="comment_anchor_1449923"></a>  <span class="comment_date">2009-02-13 09:22</span> <a id="a_comment_author_1449923" href="http://www.cnblogs.com/igtea/" target="_blank">冰绿茶</a> <a href="http://msg.cnblogs.com/send/%E5%86%B0%E7%BB%BF%E8%8C%B6" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1449923" class="blog_comment_body">不错，期待下文~</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1449923,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1449923,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1449923_avatar" style="display:none;">http://pic.cnblogs.com/face/u13275.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1449937" class="layer">#7楼</a><a name="1449937" id="comment_anchor_1449937"></a>  <span class="comment_date">2009-02-13 09:29</span> <a id="a_comment_author_1449937" href="http://www.cnblogs.com/Kevin-moon/" target="_blank">Kevin-moon</a> <a href="http://msg.cnblogs.com/send/Kevin-moon" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1449937" class="blog_comment_body">@梁逸晨
+<br>这是代替ACCESS的完美方案
+<br>-----------------------------------
+<br>不一定吧,楼主有没有做过SQLite的性能分析
+<br>我拿Access和Firebird做过  Access全面胜出
+<br>不过如果数据量大的话(大于2G) 就别用Access了</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1449937,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1449937,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1449937_avatar" style="display:none;">http://pic.cnblogs.com/face/u29302.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450028" class="layer">#8楼</a><a name="1450028" id="comment_anchor_1450028"></a>  <span class="comment_date">2009-02-13 10:25</span> <a id="ctl00_CommentList_NameLink_7" target="_blank">chanzuo[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450028" class="blog_comment_body">期待你的虚拟机部分</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450105" class="layer">#9楼</a><a name="1450105" id="comment_anchor_1450105"></a>  <span class="comment_date">2009-02-13 11:14</span> <a id="a_comment_author_1450105" href="http://www.cnblogs.com/flysoft/" target="_blank">daweibalaomao</a> <a href="http://msg.cnblogs.com/send/daweibalaomao" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450105" class="blog_comment_body">如果用来做web系统的数据库，会不会有并发问题？</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1450105,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1450105,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450216" class="layer">#10楼</a><a name="1450216" id="comment_anchor_1450216"></a>  <span class="comment_date">2009-02-13 13:00</span> <a id="a_comment_author_1450216" href="http://www.cnblogs.com/PoplarYoung/" target="_blank">Poplar.Young</a> <a href="http://msg.cnblogs.com/send/Poplar.Young" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450216" class="blog_comment_body">期待你的后续文章</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1450216,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1450216,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1450216_avatar" style="display:none;">http://pic.cnblogs.com/face/u30495.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450301" class="layer">#11楼</a><a name="1450301" id="comment_anchor_1450301"></a>  <span class="comment_date">2009-02-13 13:57</span> <a id="a_comment_author_1450301" href="http://www.cnblogs.com/aierong/" target="_blank">aierong</a> <a href="http://msg.cnblogs.com/send/aierong" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450301" class="blog_comment_body">Adobe AIR中自带sqlite
+<br>我最近也在学习
+<br>
+<br><a href="http://www.cnblogs.com/aierong/archive/2009/01/22/flex_Sqlite_1.html" target="_new">http://www.cnblogs.com/aierong/archive/2009/01/22/flex_Sqlite_1.html</a></div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1450301,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1450301,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1450301_avatar" style="display:none;">http://pic.cnblogs.com/face/u732.gif</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450561" class="layer">#12楼</a><a name="1450561" id="comment_anchor_1450561"></a>  <span class="comment_date">2009-02-13 17:13</span> <a id="a_comment_author_1450561" href="http://www.cnblogs.com/pc-funning/" target="_blank">魔尊年少时</a> <a href="http://msg.cnblogs.com/send/%E9%AD%94%E5%B0%8A%E5%B9%B4%E5%B0%91%E6%97%B6" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450561" class="blog_comment_body">和BerkeleyDB的比较？</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1450561,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1450561,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1450561_avatar" style="display:none;">http://pic.cnblogs.com/face/u33324.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450610" class="layer">#13楼</a><a name="1450610" id="comment_anchor_1450610"></a>  <span class="comment_date">2009-02-13 18:08</span> <a id="a_comment_author_1450610" href="http://www.cnblogs.com/yukaizhao/" target="_blank">玉开</a> <a href="http://msg.cnblogs.com/send/%E7%8E%89%E5%BC%80" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450610" class="blog_comment_body">我的博客中有5篇sqlite相关的随笔，请参考
+<br><a href="http://www.cnblogs.com/yukaizhao/tag/sqlite/" target="_new">http://www.cnblogs.com/yukaizhao/tag/sqlite/</a></div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1450610,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1450610,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1450610_avatar" style="display:none;">http://pic.cnblogs.com/face/u11387.bmp</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450612" class="layer">#14楼</a><a name="1450612" id="comment_anchor_1450612"></a>  <span class="comment_date">2009-02-13 18:09</span> <a id="a_comment_author_1450612" href="http://www.cnblogs.com/yukaizhao/" target="_blank">玉开</a> <a href="http://msg.cnblogs.com/send/%E7%8E%89%E5%BC%80" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450612" class="blog_comment_body">--引用--------------------------------------------------
+<br>魔尊年少时: 和BerkeleyDB的比较？
+<br>--------------------------------------------------------
+<br>BerkeleyDB是键值对型的，没有sql语句；而sqlite更像关系型数据库，而且支持大多数sql语句，语法上和mysql更像一些，有limit，有last_insert_rowid()
+<br></div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1450612,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1450612,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1450612_avatar" style="display:none;">http://pic.cnblogs.com/face/u11387.bmp</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450748" class="layer">#15楼</a><a name="1450748" id="comment_anchor_1450748"></a>  <span class="comment_date">2009-02-13 22:20</span> <a id="a_comment_author_1450748" href="http://www.cnblogs.com/coderzh/" target="_blank">CoderZh</a> <a href="http://msg.cnblogs.com/send/CoderZh" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450748" class="blog_comment_body">SQLite确实不错！Python2.5以后都已经自带了SQLite，使用起来非常方便，效率也不错。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1450748,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1450748,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1450748_avatar" style="display:none;">http://pic.cnblogs.com/face/u16913.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1450758" class="layer">#16楼</a><a name="1450758" id="comment_anchor_1450758"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2009-02-13 22:57</span> <a id="a_comment_author_1450758" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1450758" class="blog_comment_body">@代码勤杂工<br>Concurrency. SQLite has coarse-grained locking, which allows multiple readers but <br>only one writer at a time. Writers exclusively lock the database during writes and no one<br>else has access during that time. SQLite does take steps to minimize the amount of time<br>in which exclusive locks are held. Generally, locks in SQLite are kept for only a few milli<br>seconds. But as a general rule of thumb, if your application has high write concurrency<br>(many connections competing to write to the same database) and it is time critical, you<br>probably need another database. It is really a matter of testing your application to know<br>what kind of performance you can get. I have seen SQLite handle over 500 transactions<br>per second for 100 concurrent connections in simple web applications. But even the <br>notion of a transaction is vague. Transactions are a function of the number of records <br>being modified, as well as the number and complexity of the queries involved. Acceptable<br>concurrency all depends on your particular application, and can only be determined <br>empirically by direct testing. In general, this is true with any database: you don’t know <br>what kind of performance your application will get until you do real-world tests.</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1450758,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1450758,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1452089" class="layer">#17楼</a><a name="1452089" id="comment_anchor_1452089"></a>  <span class="comment_date">2009-02-16 09:45</span> <a id="a_comment_author_1452089" href="http://www.cnblogs.com/aierong/" target="_blank">aierong</a> <a href="http://msg.cnblogs.com/send/aierong" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1452089" class="blog_comment_body">您好，请教一个问题 
+<br>我想在sqlite中，写一个这样的sql语句怎么写？ 
+<br>就是某个查询不存在时，往表里面插入数据 
+<br>
+<br>下面是我在sql2000中的写法： 
+<br>IF NOT EXISTS (SELECT * FROM mydata WHERE data='abc' ) 
+<br>BEGIN 
+<br>INSERT INTO mydata(Data) SELECT '1' 
+<br>END 
+<br>
+<br>或者是： 
+<br>
+<br>SELECT * FROM mydata WHERE data='abc' 
+<br>IF (@@ROWCOUNT=0) 
+<br>BEGIN 
+<br>INSERT INTO mydata(Data) SELECT '1' 
+<br>END 
+<br>
+<br>您看看sqlite中有没有类似这样的sql语句?
+<br></div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1452089,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1452089,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1452089_avatar" style="display:none;">http://pic.cnblogs.com/face/u732.gif</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1452835" class="layer">#18楼</a><a name="1452835" id="comment_anchor_1452835"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2009-02-16 19:09</span> <a id="a_comment_author_1452835" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1452835" class="blog_comment_body">@aierong<br>我不知道SQLite目前是否支持这样的语法,你可以试一下,或者查一下相关文档.</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1452835,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1452835,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1481789" class="layer">#19楼</a><a name="1481789" id="comment_anchor_1481789"></a>  <span class="comment_date">2009-03-19 23:25</span> <a id="a_comment_author_1481789" href="http://www.cnblogs.com/bottomline/" target="_blank">bottomline</a> <a href="http://msg.cnblogs.com/send/bottomline" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1481789" class="blog_comment_body">学习了.看你的SQLite系列文章.</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1481789,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1481789,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1542074" class="layer">#20楼</a><a name="1542074" id="comment_anchor_1542074"></a>  <span class="comment_date">2009-05-30 22:21</span> <a id="ctl00_CommentList_NameLink_19" href="http://space.cnblogs.com/65527/" target="_blank">Grove.Chu</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1542074" class="blog_comment_body">桌面数据库还是不错的。</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1650885" class="layer">#21楼</a><a name="1650885" id="comment_anchor_1650885"></a>  <span class="comment_date">2009-09-18 12:09</span> <a id="a_comment_author_1650885" href="http://home.cnblogs.com/u/63943/" target="_blank">just_go_for_it</a> <a href="http://msg.cnblogs.com/send/just_go_for_it" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1650885" class="blog_comment_body">支持！！！！！！！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1650885,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1650885,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1651427" class="layer">#22楼</a><a name="1651427" id="comment_anchor_1651427"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2009-09-18 20:00</span> <a id="a_comment_author_1651427" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1651427" class="blog_comment_body"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1650885" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,1650885);">@</a>just_go_for_it<br>thanks</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1651427,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1651427,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1660368" class="layer">#23楼</a><a name="1660368" id="comment_anchor_1660368"></a>  <span class="comment_date">2009-09-28 10:52</span> <a id="a_comment_author_1660368" href="http://www.cnblogs.com/niunan/" target="_blank">牛腩</a> <a href="http://msg.cnblogs.com/send/%E7%89%9B%E8%85%A9" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1660368" class="blog_comment_body">我买的空间只支持ACCESS的。。。不知道这个SQLLITE能不能放到空间上用啊。。。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1660368,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1660368,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1660368_avatar" style="display:none;">http://pic.cnblogs.com/face/u41249.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1661929" class="layer">#24楼</a><a name="1661929" id="comment_anchor_1661929"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2009-09-29 18:43</span> <a id="a_comment_author_1661929" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1661929" class="blog_comment_body"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1660368" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,1660368);">@</a>牛腩<br>我想只要允许上传dll文件，就应该可以用吧。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1661929,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1661929,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1757323" class="layer">#25楼</a><a name="1757323" id="comment_anchor_1757323"></a>  <span class="comment_date">2010-01-30 10:32</span> <a id="a_comment_author_1757323" href="http://www.cnblogs.com/september/" target="_blank">I'm September</a> <a href="http://msg.cnblogs.com/send/I%27m%20September" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1757323" class="blog_comment_body">谢谢，很好的文章。第一次接触SQLLite，不知道支不支持存储过程？</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1757323,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1757323,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1757329" class="layer">#26楼</a><a name="1757329" id="comment_anchor_1757329"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2010-01-30 10:43</span> <a id="a_comment_author_1757329" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1757329" class="blog_comment_body"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#1757323" title="查看所回复的评论" onclick="commentManager.renderComments(0,50,1757323);">@</a>september<br>目前，似乎还不支持吧。<br>具体的可以见<br><a href="http://www.sqlite.org/lang.html" target="_blank">http://www.sqlite.org/lang.html</a></div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1757329,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1757329,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#2059871" class="layer">#27楼</a><a name="2059871" id="comment_anchor_2059871"></a>  <span class="comment_date">2011-04-01 10:34</span> <a id="a_comment_author_2059871" href="http://www.cnblogs.com/helong/" target="_blank">helong</a> <a href="http://msg.cnblogs.com/send/helong" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2059871" class="blog_comment_body">看了，就留下脚印，写的不错</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2059871,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2059871,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#2262292" class="layer">#28楼</a><a name="2262292" id="comment_anchor_2262292"></a>  <span class="comment_date">2011-12-05 20:45</span> <a id="a_comment_author_2262292" href="http://home.cnblogs.com/u/357978/" target="_blank">五子棋</a> <a href="http://msg.cnblogs.com/send/%E4%BA%94%E5%AD%90%E6%A3%8B" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2262292" class="blog_comment_body">不知道SQLite跟Access比，哪个速度更快一些。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2262292,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2262292,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#2284906" class="layer">#29楼</a><a name="2284906" id="comment_anchor_2284906"></a>  <span class="comment_date">2012-01-01 22:20</span> <a id="a_comment_author_2284906" href="http://home.cnblogs.com/u/93066/" target="_blank">tunpishuang</a> <a href="http://msg.cnblogs.com/send/tunpishuang" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2284906" class="blog_comment_body">good.</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2284906,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2284906,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#2338081" class="layer">#30楼</a><a name="2338081" id="comment_anchor_2338081"></a>  <span class="comment_date">2012-03-23 11:35</span> <a id="a_comment_author_2338081" href="http://www.cnblogs.com/c5daocaoren/" target="_blank">江逸尘</a> <a href="http://msg.cnblogs.com/send/%E6%B1%9F%E9%80%B8%E5%B0%98" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2338081" class="blog_comment_body">您好！您的文章我看了几篇，写的很好很专业，我很佩服你，我是一名软件工程专业大四的学生，最近毕业设计在做将SQLite到ucos 的移植，这方面资料很少，看了您的文章觉得您对SQLite还是很了解的，您能否给我一些指导和建议。或者留一下您的QQ，我们可不可以交个朋友。我的QQ805816949</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2338081,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2338081,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2338081_avatar" style="display:none;">http://pic.cnblogs.com/face/u337387.jpg?id=01213348</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#3180564" class="layer">#31楼</a><a name="3180564" id="comment_anchor_3180564"></a><span id="comment-maxId" style="display:none;">3180564</span><span id="comment-maxDate" style="display:none;">2015/5/11 10:54:56</span>  <span class="comment_date">2015-05-11 10:54</span> <a id="a_comment_author_3180564" href="http://www.cnblogs.com/napolar/" target="_blank">nana0424</a> <a href="http://msg.cnblogs.com/send/nana0424" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3180564" class="blog_comment_body">很好的文章，支持！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3180564,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3180564,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－专注为 App 开发者提供IM云服务</a><br><a href="http://click.aliyun.com/m/3037/" target="_blank">【阿里云SSD云盘】速度行业领先</a><br></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"><a href="http://job.cnblogs.com/offer/51018/" target="_blank"><img width="300" height="250" src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/35695-20160215151750532-1876432241.png" alt="招聘ASP.NET 5开发工程师" title="招聘ASP.NET 5开发工程师"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/539687/" target="_blank">怎样交付业余项目</a><br> ·  <a href="http://news.cnblogs.com/n/539774/" target="_blank">《黑暗之魂3》新预告片公布 国区Steam预购仅199元</a><br> ·  <a href="http://news.cnblogs.com/n/539773/" target="_blank">梅西暖人一幕：送签名球衣圆梦塑料男孩</a><br> ·  <a href="http://news.cnblogs.com/n/539772/" target="_blank">中国科学家培育出人工精子 给不育男士带来福音</a><br> ·  <a href="http://news.cnblogs.com/n/539771/" target="_blank">市场份额已不足1% Opera欲推新浏览器摆脱困境</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/538249/" target="_blank">谷歌背后的数学</a><br> ·  <a href="http://kb.cnblogs.com/page/533808/" target="_blank">Medium开发团队谈架构设计</a><br> ·  <a href="http://kb.cnblogs.com/page/539274/" target="_blank">理解“渐进增强(Progressive Enhancement)”</a><br> ·  <a href="http://kb.cnblogs.com/page/534571/" target="_blank">为什么说DOM操作很慢</a><br> ·  <a href="http://kb.cnblogs.com/page/527518/" target="_blank">为什么你应该尝试全栈</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);    
+});
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><p><strong>
+</strong></p><div align="center"><strong><img border="0" alt="" src="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/jim_gray.jpg" width="160" height="268"></strong></div>
+<p>&nbsp;</p>
+<p><strong>个人简介</strong></p>
+<p>专业打杂程序员  @<a href="http://hustcat.github.io/">github</a></p><p>
+<br>
+</p><p><strong>联系方式</strong></p>
+<p><a title="新浪微博" href="http://weibo.com/hustcat"><span style="font-family: Courier">新浪微博</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a title="腾讯微博" href="http://t.qq.com/hustcat">腾讯微博</a></p>
+<p><br></p>
+<p><!-- 博客园新闻频道引用代码 num-显示条数 --><a href="http://news.cnblogs.com/" target="_blank">IT新闻:</a><br></p><div style="display: none" id="__document_write_ajax_div-1"></div><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>园龄：<a href="http://home.cnblogs.com/u/hustcat/" title="入园时间：2007-05-23">8年9个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/hustcat/followers/">528</a><br>关注：<a href="http://home.cnblogs.com/u/hustcat/followees/">2</a><div id="p_b_follow"></div><div style="display: none" id="__document_write_ajax_div-2"></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/01/01&#39;);return false;">&lt;</a></td><td align="center">2009年2月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/03/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">25</td><td class="CalOtherMonthDay" align="center">26</td><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td class="CalOtherMonthDay" align="center">31</td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/01.html"><u>1</u></a></td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td class="CalWeekendDay" align="center">7</td></tr><tr><td class="CalWeekendDay" align="center">8</td><td align="center">9</td><td align="center">10</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/11.html"><u>11</u></a></td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12.html"><u>12</u></a></td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/13.html"><u>13</u></a></td><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/14.html"><u>14</u></a></td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/15.html"><u>15</u></a></td><td align="center">16</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/17.html"><u>17</u></a></td><td align="center">18</td><td align="center">19</td><td align="center">20</td><td class="CalWeekendDay" align="center">21</td></tr><tr><td class="CalWeekendDay" align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26.html"><u>26</u></a></td><td align="center">27</td><td class="CalWeekendDay" align="center">28</td></tr><tr><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/hustcat/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/hustcat/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/hustcat/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/hustcat/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/hustcat/tag/" title="我的博客的标签列表">我的标签</a></li>
+<li><a id="itemListLink" onclick="this.blur();WarpClass(&#39;itemListLink&#39;, &#39;itemListLin_con&#39;);return false;" href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html#">更多链接</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/hustcat/category/191424.html">Linux相关(26)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/hustcat/category/214566.html">MySQL(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/hustcat/category/175619.html">Others(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/hustcat/category/139956.html">Web技术(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/hustcat/category/183836.html">编程语言(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/hustcat/category/605980.html">存储(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/hustcat/category/130051.html">数据结构与算法(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术(30)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/hustcat/category/196365.html">系统相关(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/hustcat/category/427554.html">云计算与虚拟化(10)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/hustcat/archive/2014/11.html">2014年11月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/hustcat/archive/2014/10.html">2014年10月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/hustcat/archive/2014/09.html">2014年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/hustcat/archive/2014/08.html">2014年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/hustcat/archive/2014/07.html">2014年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/hustcat/archive/2014/03.html">2014年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/hustcat/archive/2013/09.html">2013年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/hustcat/archive/2013/08.html">2013年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/hustcat/archive/2013/02.html">2013年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/hustcat/archive/2012/11.html">2012年11月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/hustcat/archive/2012/01.html">2012年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/hustcat/archive/2011/12.html">2011年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/hustcat/archive/2011/10.html">2011年10月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/hustcat/archive/2011/03.html">2011年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/hustcat/archive/2010/09.html">2010年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/hustcat/archive/2010/08.html">2010年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/hustcat/archive/2010/07.html">2010年7月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/hustcat/archive/2010/06.html">2010年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/hustcat/archive/2010/05.html">2010年5月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/hustcat/archive/2010/04.html">2010年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/hustcat/archive/2010/03.html">2010年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/hustcat/archive/2010/01.html">2010年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="http://www.cnblogs.com/hustcat/archive/2009/12.html">2009年12月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="http://www.cnblogs.com/hustcat/archive/2009/10.html">2009年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="http://www.cnblogs.com/hustcat/archive/2009/09.html">2009年9月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="http://www.cnblogs.com/hustcat/archive/2009/08.html">2009年8月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="http://www.cnblogs.com/hustcat/archive/2009/06.html">2009年6月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="http://www.cnblogs.com/hustcat/archive/2009/05.html">2009年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="http://www.cnblogs.com/hustcat/archive/2009/04.html">2009年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="http://www.cnblogs.com/hustcat/archive/2009/03.html">2009年3月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="http://www.cnblogs.com/hustcat/archive/2009/02.html">2009年2月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="http://www.cnblogs.com/hustcat/archive/2008/10.html">2008年10月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="http://www.cnblogs.com/hustcat/archive/2008/08.html">2008年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="http://www.cnblogs.com/hustcat/archive/2008/07.html">2008年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="http://www.cnblogs.com/hustcat/archive/2008/06.html">2008年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="http://www.cnblogs.com/hustcat/archive/2008/05.html">2008年5月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="http://www.cnblogs.com/hustcat/archive/2008/04.html">2008年4月 (5)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_kernel" class="catListkernel sidebar-block">
+<h3 class="catListTitle">kernel</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_2_Link_0" href="http://wiki.zh-kernel.org/" rel="nofollow">kernel中文社区</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_1" href="http://ldn.linuxfoundation.org/" rel="nofollow">LDN</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_2" href="http://www.tldp.org/" rel="nofollow">The Linux Document Project</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_3" href="http://www.kernel.org/" rel="nofollow">The Linux Kernel Archives</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links210847" class="catList sidebar-block">
+<h3 class="catListTitle">manual</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_3_Link_0" href="http://www.cppreference.com/wiki/" rel="nofollow">cppreference</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_1" href="http://gcc.gnu.org/onlinedocs/" rel="nofollow">gcc manual</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_2" href="http://dev.mysql.com/doc/refman/5.1/zh/index.html" rel="nofollow">mysql manual</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links198983" class="catList sidebar-block">
+<h3 class="catListTitle">sites</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_4_Link_0" href="http://www.databasejournal.com/" rel="nofollow">Database Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_1" href="http://mirrors.fedoraproject.org/publiclist/Fedora/" rel="nofollow">Fedora镜象</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_2" href="http://highscalability.com/" rel="nofollow">highscalability</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_3" href="https://eprints.kfupm.edu.sa/" rel="nofollow">KFUPM ePrints</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_4" href="http://www.die.net/" rel="nofollow">Linux docs</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_5" href="http://www.linuxjournal.com/" rel="nofollow">Linux Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_6" href="http://nosql-database.org/" rel="nofollow">NoSQL</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_7" href="http://www.sqlite.org/" rel="nofollow">SQLite</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_technology website" class="catListtechnology website sidebar-block">
+<h3 class="catListTitle">技术社区</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_5_Link_0" href="http://www.apache.org/" rel="nofollow">apache</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_1" href="http://www.csdn.net/" rel="nofollow">CSDN</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_2" href="http://www.ibm.com/developerworks/cn/" rel="nofollow">IBM-developerworks</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_3" href="http://www.lucene.com.cn/" rel="nofollow">lucene中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_4" href="http://www.nutchchina.com/" rel="nofollow">nutch中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_5" href="http://www.oldlinux.org/oldlinux/index.php" rel="nofollow">oldlinux</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_6" href="http://forums.oracle.com/forums/main.jspa?categoryID=84" rel="nofollow">oracle's forum</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/3993712.html#3345657">1. Re:Docker实践(6)—CentOS7上部署Kubernetes</a></li>
+    <li class="recent_comment_body">Mark</li>
+    <li class="recent_comment_author">--Ant</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/4004889.html#3343804">2. Re:深入学习golang(4)—new与make</a></li>
+    <li class="recent_comment_body">讲的让我懂了，反正我顶</li>
+    <li class="recent_comment_author">--一页天书不分说</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568738.html#3336424">3. Re:Linux网络协议栈(一)——Socket入门(1)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568765.html#3336421">4. Re:Linux网络协议栈(一)——Socket入门(2)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html#3269030">5. Re:理解MySQL——索引与优化</a></li>
+    <li class="recent_comment_body">楼主我收藏了</li>
+    <li class="recent_comment_author">--Ｍ&amp;amp;N</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(166180)</a></li><li><a href="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/SQLite入门与分析(一)---简介 - YY哥 - 博客园.html">2. SQLite入门与分析(一)---简介(51843)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/12/19/1627525.html">3. 理解MySQL——复制(Replication)(45305)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">4. libevent源码分析(39126)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2008/04/09/1144645.html">5. 算法系列---回溯算法(25309)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/06/02/1494311.html">1. (i++)+(i++)与(++i)+(++i)(40)</a></li><li><a href="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/SQLite入门与分析(一)---简介 - YY哥 - 博客园.html">2. SQLite入门与分析(一)---简介(31)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">3. 理解MySQL——索引与优化(23)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/01/27/1657821.html">4. 浅谈SQLite——实现与应用(21)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/05/14/1735774.html">5. 一道算法题,求更好的解法(18)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(30)</a></li><li><a href="./SQLite入门与分析(一)---简介 - YY哥 - 博客园_files/SQLite入门与分析(一)---简介 - YY哥 - 博客园.html">2. SQLite入门与分析(一)---简介(13)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">3. libevent源码分析(12)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/06/23/1762987.html">4. 浅谈SQLite——查询处理及优化(10)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2012/01/11/2319249.html">5. 乱谈服务器编程(10)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2016 YY哥
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+</body></html>

@@ -1,0 +1,791 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0062)http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script async="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/widget"></script>
+
+<title>SQLite入门与分析(四)---Page Cache之事务处理(2)  - YY哥 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/bundle-ClassicBlue.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/hustcat/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/hustcat/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/hustcat/wlwmanifest.xml">
+<script async="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/analytics.js"></script><script type="text/javascript" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/encoder.js"></script><script src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'hustcat', cb_enable_mathjax=false;</script>
+<script src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/blog-common.js" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/hustcat/"><img id="blogLogo" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/hustcat/">YY哥的技术随笔</a></h1>
+<h2>——关注Linux、数据库和云计算</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/hustcat/">首页</a></li>
+<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://msg.cnblogs.com/send/YY%E5%93%A5">联系</a></li>
+<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/hustcat/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/hustcat/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+<!--done-->
+随笔- 125&nbsp;
+文章- 114&nbsp;
+评论- 378&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园.html">SQLite入门与分析(四)---Page Cache之事务处理(2) </a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p><font face="Verdana">写在前面：个人认为pager层是SQLite实现最为核心的模块，它具有四大功能：I/O，页面缓存，并发控制</font><font face="Verdana">和日志恢复。而这些功能不仅是上层Btree的基础，而且对系统的性能和健壮性有关至关重要的影响。其</font><font face="Verdana">中并发控制和日志恢复是事务处理实现的基础。SQLite并发控制的机制非常简单——封锁机制；别外，它</font><font face="Verdana">的查询优化机制也非常简单——基于索引。这一切使得整个SQLite的实现变得简单，SQLite变得很小，运</font><font face="Verdana">行速度也非常快，所以，特别适合嵌入式设备。好了，接下来讨论事务的剩余部分。<br>
+<font face="Verdana"><span style="color: red"><font face="Verdana">6、修改位于用户进程空间的页面(Changing Database Pages In User Space)</font></span><br>
+页面的原始数据写入日志之后，就可以修改页面了——位于用户进程空间。每个数据库连接都有自己私有的空间，所以页面的变化只对该连接可见，而对其它连接的数据仍然是磁盘缓存中的数据。<span style="color: red">从这里可以明白一件事：一个进程在修改页面数据的同时，其它进程可以继续进行读操作。</span>图中的红色表示修改的页面。</font></font></p>
+<font face="Verdana"><font face="Verdana">
+<p><br>
+<font face="Verdana"><span style="color: red"><font face="Verdana"><img height="351" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/commit-5.gif" width="295" border="0"></font></span></font></p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana">7、日志文件刷入磁盘(Flushing The Rollback Journal File To Mass Storage)</font></span><br>
+接下来把日志文件的内容刷入磁盘，这对于数据库从意外中恢复来说是至关重要的一步。而且这通常也是一个耗时的操作，因为磁盘I/O速度很慢。<br>
+这个步骤不只把日志文件刷入磁盘那么简单，它的实现实际上分成两步：首先把日志文件的内容刷入磁盘（即页面数据）；然后把日志文件中页面的数目写入日志文件头，再把header刷入磁盘（<span style="color: red">这一过程在代码中清晰可见</span>）。</font></p>
+<p>&nbsp;</p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana"><img height="351" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/commit-6.gif" width="295" border="0"></font></span></font></p>
+<p><font face="Verdana"><span style="color: red">代码如下：</span></font></p>
+<p><font face="Verdana"><span style="color: red">&nbsp;</span></font></p><font face="Verdana">
+<div class="cnblogs_code"><img id="Code_Closed_Image_141238" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_141238&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_141238&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_141238&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/ContractedBlock.gif" width="11" align="top"><img id="Code_Open_Image_141238" style="display: none" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_141238&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_141238&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_141238&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/ExpandedBlockStart.gif" width="11" align="top"><span class="cnblogs_code_Collapse" id="Code_Closed_Text_141238">Code</span><span id="Code_Open_Text_141238" style="display: none"><br>
+<!--<br /><br />Code highlighting produced by Actipro CodeHighlighter (freeware)<br />http://www.CodeHighlighter.com/<br /><br />--><span style="color: #008000">/*</span><span style="color: #008000"><br>
+**Sync日志文件,保证所有的脏页面写入磁盘日志文件<br>
+</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+</span><span style="color: #0000ff">static</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;syncJournal(Pager&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPager){<br>
+&nbsp;&nbsp;PgHdr&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPg;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Sync&nbsp;the&nbsp;journal&nbsp;before&nbsp;modifying&nbsp;the&nbsp;main&nbsp;database<br>
+&nbsp;&nbsp;**&nbsp;(assuming&nbsp;there&nbsp;is&nbsp;a&nbsp;journal&nbsp;and&nbsp;it&nbsp;needs&nbsp;to&nbsp;be&nbsp;synced.)<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">needSync&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">tempFile&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalOpen&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;assert(&nbsp;!pPager-&gt;noSync&nbsp;);&nbsp;//&nbsp;noSync&nbsp;might&nbsp;be&nbsp;set&nbsp;if&nbsp;synchronous<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;was&nbsp;turned&nbsp;off&nbsp;after&nbsp;the&nbsp;transaction&nbsp;was&nbsp;started.&nbsp;&nbsp;Ticket&nbsp;#615&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+#ifndef&nbsp;NDEBUG<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Make&nbsp;sure&nbsp;the&nbsp;pPager-&gt;nRec&nbsp;counter&nbsp;we&nbsp;are&nbsp;keeping&nbsp;agrees<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;with&nbsp;the&nbsp;nRec&nbsp;computed&nbsp;from&nbsp;the&nbsp;size&nbsp;of&nbsp;the&nbsp;journal&nbsp;file.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i64&nbsp;jSz;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsFileSize(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">jfd,&nbsp;</span><span style="color: #000000">&amp;</span><span style="color: #000000">jSz);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalOff</span><span style="color: #000000">==</span><span style="color: #000000">jSz&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Write&nbsp;the&nbsp;nRec&nbsp;value&nbsp;into&nbsp;the&nbsp;journal&nbsp;file&nbsp;header.&nbsp;If&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;full-synchronous&nbsp;mode,&nbsp;sync&nbsp;the&nbsp;journal&nbsp;first.&nbsp;This&nbsp;ensures&nbsp;that<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;all&nbsp;data&nbsp;has&nbsp;really&nbsp;hit&nbsp;the&nbsp;disk&nbsp;before&nbsp;nRec&nbsp;is&nbsp;updated&nbsp;to&nbsp;mark<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;it&nbsp;as&nbsp;a&nbsp;candidate&nbsp;for&nbsp;rollback.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">fullSync&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRACE2(</span><span style="color: #800000">"</span><span style="color: #800000">SYNC&nbsp;journal&nbsp;of&nbsp;%d\n</span><span style="color: #800000">"</span><span style="color: #000000">,&nbsp;PAGERID(pPager));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">首先保证脏页面中所有的数据都已经写入日志文件</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsSync(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">jfd,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsSeek(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">jfd,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalHdr&nbsp;</span><span style="color: #000000">+</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">sizeof</span><span style="color: #000000">(aJournalMagic));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">页面的数目写入日志文件</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;write32bits(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">jfd,&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nRec);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsSeek(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">jfd,&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalOff);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRACE2(</span><span style="color: #800000">"</span><span style="color: #800000">SYNC&nbsp;journal&nbsp;of&nbsp;%d\n</span><span style="color: #800000">"</span><span style="color: #000000">,&nbsp;PAGERID(pPager));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsSync(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">jfd,&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">full_fsync);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalStarted&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">needSync&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Erase&nbsp;the&nbsp;needSync&nbsp;flag&nbsp;from&nbsp;every&nbsp;page.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">清除needSync标志位</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(pPg</span><span style="color: #000000">=</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pAll;&nbsp;pPg;&nbsp;pPg</span><span style="color: #000000">=</span><span style="color: #000000">pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pNextAll){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">needSync&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pFirstSynced&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pFirst;<br>
+&nbsp;&nbsp;}<br>
+<br>
+#ifndef&nbsp;NDEBUG<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;the&nbsp;Pager.needSync&nbsp;flag&nbsp;is&nbsp;clear&nbsp;then&nbsp;the&nbsp;PgHdr.needSync<br>
+&nbsp;&nbsp;**&nbsp;flag&nbsp;must&nbsp;also&nbsp;be&nbsp;clear&nbsp;for&nbsp;all&nbsp;pages.&nbsp;&nbsp;Verify&nbsp;that&nbsp;this<br>
+&nbsp;&nbsp;**&nbsp;invariant&nbsp;is&nbsp;true.<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(pPg</span><span style="color: #000000">=</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pAll;&nbsp;pPg;&nbsp;pPg</span><span style="color: #000000">=</span><span style="color: #000000">pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pNextAll){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">needSync</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pFirstSynced</span><span style="color: #000000">==</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pFirst&nbsp;);<br>
+&nbsp;&nbsp;}<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+}</span></span></div>
+</font><p><font face="Verdana"></font>&nbsp;</p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana">8、获取排斥锁（Obtaining An Exclusive Lock）</font></span><br>
+在对数据库文件进行修改之前(注：这里不是内存中的页面),我们必须得到数据库文件的排斥锁(Exclusive Lock)。得到排斥锁的过程可分为两步：首先得到Pending lock；然后Pending lock升级到exclusive lock。<br>
+Pending lock允许其它已经存在的Shared lock继续读数据库文件，但是不允许产生新的shared lock，这样做目的是为了防止写操作发生饿死情况。一旦所有的shared lock完成操作，则pending lock升级到exclusive lock。</font></p>
+<p>&nbsp;</p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana"><img height="351" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/commit-7.gif" width="295" border="0"></font></span></font></p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana">9、修改的页面写入文件(Writing Changes To The Database File)</font></span><br>
+一旦得到exclusive lock，其它的进程就不能进行读操作，此时就可以把修改的页面写回数据库文件，但是通常OS都把结果暂时保存到磁盘缓存中，直到某个时刻才会真正把结果写入磁盘。</font></p>
+<p>&nbsp;</p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana"><img height="351" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/commit-8.gif" width="295" border="0"></font></span></font></p>
+<p><font face="Verdana"><span style="color: red">以上两步的实现代码：</span></font></p>
+<p><font face="Verdana"><span style="color: red">&nbsp;</span></font></p><font face="Verdana">
+<div class="cnblogs_code"><img id="Code_Closed_Image_141423" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_141423&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_141423&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_141423&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/ContractedBlock.gif" width="11" align="top"><img id="Code_Open_Image_141423" style="display: none" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_141423&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_141423&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_141423&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/ExpandedBlockStart.gif" width="11" align="top"><span class="cnblogs_code_Collapse" id="Code_Closed_Text_141423">Code</span><span id="Code_Open_Text_141423" style="display: none"><br>
+<!--<br /><br />Code highlighting produced by Actipro CodeHighlighter (freeware)<br />http://www.CodeHighlighter.com/<br /><br />--><span style="color: #008000">//</span><span style="color: #008000">把所有的脏页面写入数据库<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">到这里开始获取EXCLUSIVEQ锁，并将页面写回操作系统文件</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">static</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;pager_write_pagelist(PgHdr&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pList){<br>
+&nbsp;&nbsp;Pager&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPager;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc;<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pList</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;pPager&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pPager;<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;At&nbsp;this&nbsp;point&nbsp;there&nbsp;may&nbsp;be&nbsp;either&nbsp;a&nbsp;RESERVED&nbsp;or&nbsp;EXCLUSIVE&nbsp;lock&nbsp;on&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;database&nbsp;file.&nbsp;If&nbsp;there&nbsp;is&nbsp;already&nbsp;an&nbsp;EXCLUSIVE&nbsp;lock,&nbsp;the&nbsp;following<br>
+&nbsp;&nbsp;**&nbsp;calls&nbsp;to&nbsp;sqlite3OsLock()&nbsp;are&nbsp;no-ops.<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;Moving&nbsp;the&nbsp;lock&nbsp;from&nbsp;RESERVED&nbsp;to&nbsp;EXCLUSIVE&nbsp;actually&nbsp;involves&nbsp;going<br>
+&nbsp;&nbsp;**&nbsp;through&nbsp;an&nbsp;intermediate&nbsp;state&nbsp;PENDING.&nbsp;&nbsp;&nbsp;A&nbsp;PENDING&nbsp;lock&nbsp;prevents&nbsp;new<br>
+&nbsp;&nbsp;**&nbsp;readers&nbsp;from&nbsp;attaching&nbsp;to&nbsp;the&nbsp;database&nbsp;but&nbsp;is&nbsp;unsufficient&nbsp;for&nbsp;us&nbsp;to<br>
+&nbsp;&nbsp;**&nbsp;write.&nbsp;&nbsp;The&nbsp;idea&nbsp;of&nbsp;a&nbsp;PENDING&nbsp;lock&nbsp;is&nbsp;to&nbsp;prevent&nbsp;new&nbsp;readers&nbsp;from<br>
+&nbsp;&nbsp;**&nbsp;coming&nbsp;in&nbsp;while&nbsp;we&nbsp;wait&nbsp;for&nbsp;existing&nbsp;readers&nbsp;to&nbsp;clear.<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;While&nbsp;the&nbsp;pager&nbsp;is&nbsp;in&nbsp;the&nbsp;RESERVED&nbsp;state,&nbsp;the&nbsp;original&nbsp;database&nbsp;file<br>
+&nbsp;&nbsp;**&nbsp;is&nbsp;unchanged&nbsp;and&nbsp;we&nbsp;can&nbsp;rollback&nbsp;without&nbsp;having&nbsp;to&nbsp;playback&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;journal&nbsp;into&nbsp;the&nbsp;original&nbsp;database&nbsp;file.&nbsp;&nbsp;Once&nbsp;we&nbsp;transition&nbsp;to<br>
+&nbsp;&nbsp;**&nbsp;EXCLUSIVE,&nbsp;it&nbsp;means&nbsp;the&nbsp;database&nbsp;file&nbsp;has&nbsp;been&nbsp;changed&nbsp;and&nbsp;any&nbsp;rollback<br>
+&nbsp;&nbsp;**&nbsp;will&nbsp;require&nbsp;a&nbsp;journal&nbsp;playback.<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">加EXCLUSIVE_LOCK锁</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_wait_on_lock(pPager,&nbsp;EXCLUSIVE_LOCK);<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">while</span><span style="color: #000000">(&nbsp;pList&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dirty&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsSeek(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">fd,&nbsp;(pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pgno</span><span style="color: #000000">-</span><span style="color: #800080">1</span><span style="color: #000000">)</span><span style="color: #000000">*</span><span style="color: #000000">(i64)pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pageSize);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;there&nbsp;are&nbsp;dirty&nbsp;pages&nbsp;in&nbsp;the&nbsp;page&nbsp;cache&nbsp;with&nbsp;page&nbsp;numbers&nbsp;greater<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;than&nbsp;Pager.dbSize,&nbsp;this&nbsp;means&nbsp;sqlite3pager_truncate()&nbsp;was&nbsp;called&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;make&nbsp;the&nbsp;file&nbsp;smaller&nbsp;(presumably&nbsp;by&nbsp;auto-vacuum&nbsp;code).&nbsp;Do&nbsp;not&nbsp;write<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;any&nbsp;such&nbsp;pages&nbsp;to&nbsp;the&nbsp;file.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pgno</span><span style="color: #000000">&lt;=</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dbSize&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">char</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pData&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;CODEC2(pPager,&nbsp;PGHDR_TO_DATA(pList),&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pgno,&nbsp;</span><span style="color: #800080">6</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRACE3(</span><span style="color: #800000">"</span><span style="color: #800000">STORE&nbsp;%d&nbsp;page&nbsp;%d\n</span><span style="color: #800000">"</span><span style="color: #000000">,&nbsp;PAGERID(pPager),&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pgno);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">写入文件</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsWrite(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">fd,&nbsp;pData,&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pageSize);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TEST_INCR(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nWrite);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+#ifndef&nbsp;NDEBUG<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRACE3(</span><span style="color: #800000">"</span><span style="color: #800000">NOSTORE&nbsp;%d&nbsp;page&nbsp;%d\n</span><span style="color: #800000">"</span><span style="color: #000000">,&nbsp;PAGERID(pPager),&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pgno);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc&nbsp;)&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">设置dirty</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dirty&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+#ifdef&nbsp;SQLITE_CHECK_PAGES<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pageHash&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_pagehash(pList);<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+</span><span style="color: #008000">//</span><span style="color: #008000">指向下一个脏页面</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;pList&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pList</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pDirty;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+}</span></span></div>
+</font><p><font face="Verdana"></font>&nbsp;</p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana">10、修改结果刷入存储设备(Flushing Changes To Mass Storage)</font></span><br>
+为了保证修改结果真正写入磁盘，这一步必不要少。对于数据库存的完整性，这一步也是关键的一步。由于要进行实际的I/O操作，所以和第7步一样，将花费较多的时间。</font></p>
+<p><img height="351" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/commit-9.gif" width="295" border="0"></p>
+<p>最后来看看这几步是如何实现的：</p>
+<p>其实以上以上几步是在函数<font face="Verdana">sqlite3BtreeSync</font>()---btree.c中调用的(而关于该函数的调用后面再讲)。</p>
+<p>代码如下：</p>
+<p>&nbsp;</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_141510" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_141510&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_141510&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_141510&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/ContractedBlock.gif" width="11" align="top"><img id="Code_Open_Image_141510" style="display: none" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_141510&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_141510&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_141510&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/ExpandedBlockStart.gif" width="11" align="top"><span class="cnblogs_code_Collapse" id="Code_Closed_Text_141510">Code</span><span id="Code_Open_Text_141510" style="display: none"><br>
+<!--<br /><br />Code highlighting produced by Actipro CodeHighlighter (freeware)<br />http://www.CodeHighlighter.com/<br /><br />--><span style="color: #008000">//</span><span style="color: #008000">同步btree对应的数据库文件<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">该函数返回之后，只需要提交写事务,删除日志文件</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;sqlite3BtreeSync(Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">p,&nbsp;</span><span style="color: #0000ff">const</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">char</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">zMaster){<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inTrans</span><span style="color: #000000">==</span><span style="color: #000000">TRANS_WRITE&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;BtShared&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pBt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Pgno&nbsp;nTrunc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+#ifndef&nbsp;SQLITE_OMIT_AUTOVACUUM<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">autoVacuum&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;autoVacuumCommit(pBt,&nbsp;</span><span style="color: #000000">&amp;</span><span style="color: #000000">nTrunc);&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+<br>
+&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">调用pager进行sync</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3pager_sync(pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pPager,&nbsp;zMaster,&nbsp;nTrunc);<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+}<br>
+<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">把pager所有脏页面写回文件</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;sqlite3pager_sync(Pager&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPager,&nbsp;</span><span style="color: #0000ff">const</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">char</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">zMaster,&nbsp;Pgno&nbsp;nTrunc){<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+<br>
+&nbsp;&nbsp;TRACE4(</span><span style="color: #800000">"</span><span style="color: #800000">DATABASE&nbsp;SYNC:&nbsp;File=%s&nbsp;zMaster=%s&nbsp;nTrunc=%d\n</span><span style="color: #800000">"</span><span style="color: #000000">,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">zFilename,&nbsp;zMaster,&nbsp;nTrunc);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;this&nbsp;is&nbsp;an&nbsp;in-memory&nbsp;db,&nbsp;or&nbsp;no&nbsp;pages&nbsp;have&nbsp;been&nbsp;written&nbsp;to,&nbsp;or&nbsp;this<br>
+&nbsp;&nbsp;**&nbsp;function&nbsp;has&nbsp;already&nbsp;been&nbsp;called,&nbsp;it&nbsp;is&nbsp;a&nbsp;no-op.<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">pager不处于PAGER_SYNCED状态,dirtyCache为1,<br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">则进行sync操作</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">state</span><span style="color: #000000">!=</span><span style="color: #000000">PAGER_SYNCED&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">MEMDB&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dirtyCache&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PgHdr&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPg;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalOpen&nbsp;);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;a&nbsp;master&nbsp;journal&nbsp;file&nbsp;name&nbsp;has&nbsp;already&nbsp;been&nbsp;written&nbsp;to&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;journal&nbsp;file,&nbsp;then&nbsp;no&nbsp;sync&nbsp;is&nbsp;required.&nbsp;This&nbsp;happens&nbsp;when&nbsp;it&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;written,&nbsp;then&nbsp;the&nbsp;process&nbsp;fails&nbsp;to&nbsp;upgrade&nbsp;from&nbsp;a&nbsp;RESERVED&nbsp;to&nbsp;an<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;EXCLUSIVE&nbsp;lock.&nbsp;The&nbsp;next&nbsp;time&nbsp;the&nbsp;process&nbsp;tries&nbsp;to&nbsp;commit&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;transaction&nbsp;the&nbsp;m-j&nbsp;name&nbsp;will&nbsp;have&nbsp;already&nbsp;been&nbsp;written.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">setMaster&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">pager修改计数</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_incr_changecounter(pPager);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;)&nbsp;</span><span style="color: #0000ff">goto</span><span style="color: #000000">&nbsp;sync_exit;<br>
+#ifndef&nbsp;SQLITE_OMIT_AUTOVACUUM<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;nTrunc</span><span style="color: #000000">!=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;this&nbsp;transaction&nbsp;has&nbsp;made&nbsp;the&nbsp;database&nbsp;smaller,&nbsp;then&nbsp;all&nbsp;pages<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;being&nbsp;discarded&nbsp;by&nbsp;the&nbsp;truncation&nbsp;must&nbsp;be&nbsp;written&nbsp;to&nbsp;the&nbsp;journal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;file.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pgno&nbsp;i;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">void</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPage;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;iSkip&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;PAGER_MJ_PGNO(pPager);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(&nbsp;i</span><span style="color: #000000">=</span><span style="color: #000000">nTrunc</span><span style="color: #000000">+</span><span style="color: #800080">1</span><span style="color: #000000">;&nbsp;i</span><span style="color: #000000">&lt;=</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">origDbSize;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aInJournal[i</span><span style="color: #000000">/</span><span style="color: #800080">8</span><span style="color: #000000">]&nbsp;</span><span style="color: #000000">&amp;</span><span style="color: #000000">&nbsp;(</span><span style="color: #800080">1</span><span style="color: #000000">&lt;&lt;</span><span style="color: #000000">(i</span><span style="color: #000000">&amp;</span><span style="color: #800080">7</span><span style="color: #000000">)))&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;i</span><span style="color: #000000">!=</span><span style="color: #000000">iSkip&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3pager_get(pPager,&nbsp;i,&nbsp;</span><span style="color: #000000">&amp;</span><span style="color: #000000">pPage);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;)&nbsp;</span><span style="color: #0000ff">goto</span><span style="color: #000000">&nbsp;sync_exit;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3pager_write(pPage);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3pager_unref(pPage);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;)&nbsp;</span><span style="color: #0000ff">goto</span><span style="color: #000000">&nbsp;sync_exit;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;writeMasterJournal(pPager,&nbsp;zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;)&nbsp;</span><span style="color: #0000ff">goto</span><span style="color: #000000">&nbsp;sync_exit;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">sync日志文件</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;syncJournal(pPager);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;)&nbsp;</span><span style="color: #0000ff">goto</span><span style="color: #000000">&nbsp;sync_exit;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+#ifndef&nbsp;SQLITE_OMIT_AUTOVACUUM<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;nTrunc</span><span style="color: #000000">!=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3pager_truncate(pPager,&nbsp;nTrunc);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;)&nbsp;</span><span style="color: #0000ff">goto</span><span style="color: #000000">&nbsp;sync_exit;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Write&nbsp;all&nbsp;dirty&nbsp;pages&nbsp;to&nbsp;the&nbsp;database&nbsp;file&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPg&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_get_all_dirty_pages(pPager);<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">把所有脏页面写回操作系统文件</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_write_pagelist(pPg);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;)&nbsp;</span><span style="color: #0000ff">goto</span><span style="color: #000000">&nbsp;sync_exit;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Sync&nbsp;the&nbsp;database&nbsp;file.&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">sync数据库文件</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">noSync&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsSync(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">fd,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">state&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;PAGER_SYNCED;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;MEMDB&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;nTrunc</span><span style="color: #000000">!=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3pager_truncate(pPager,&nbsp;nTrunc);<br>
+&nbsp;&nbsp;}<br>
+<br>
+sync_exit:<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+}</span></span></div>
+<p>&nbsp;</p>
+<p>下图可以进一步解释该过程：</p>
+<p>&nbsp;</p>
+<p><img height="180" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/sqlite04-02.GIF" width="349" border="0">&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</font><p><font face="Verdana"></font>&nbsp;</p>
+</font></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+<a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1398774,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+<a id="green_channel_follow" onclick="c_follow();" href="javascript:void(0);">关注我</a>
+<a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a><a id="green_channel_contact" href="http://msg.cnblogs.com/send/YY%E5%93%A5" target="_blank">联系我</a>
+<a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/icon_weibo_24.png" alt=""></a>
+<a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+<div id="author_profile_info" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/" target="_blank"><img src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/sample_face.gif" class="author_avatar" alt=""></a>
+<div id="author_profile_detail" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followees">关注 - 2</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followers">粉丝 - 528</a>
+</div>
+</div>
+<div class="clear"></div>
+<div id="author_profile_honor"></div>
+<div id="author_profile_follow">
+    <a href="javascript:void(0);" onclick="c_follow();return false;">+加关注</a>
+</div>
+</div>
+<div id="div_digg">										
+    <div class="diggit" onclick="votePost(1398774,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">0</span>
+    </div>
+	<div class="buryit" onclick="votePost(1398774,&#39;Bury&#39;)"> 
+		<span class="burynum" id="bury_count">0</span>
+	</div>
+	<div class="clear"></div>	
+	<div class="diggword" id="digg_tips">
+    (请您对文章做出评价)
+    </div>	
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398558.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398558.html" title="发布于2009-02-26 10:45">SQLite入门与分析(四)---Page Cache之事务处理(1) </a><br><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html" title="发布于2009-02-26 14:53">SQLite入门与分析(四)---Page Cache之事务处理(3)</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2009-02-26 14:16</span> <a href="http://www.cnblogs.com/hustcat/">YY哥</a> 阅读(<span id="post_view_count">7566</span>) 评论(<span id="post_comment_count">4</span>)  <a href="http://i.cnblogs.com/EditPosts.aspx?postid=1398774" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html#" onclick="AddToWz(1398774);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=26761,cb_entryId=1398774,cb_blogApp=currentBlogApp,cb_blogUserGuid='a9743d0b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2009/2/26 14:16:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html#1462750" class="layer">#1楼</a><a name="1462750" id="comment_anchor_1462750"></a>  <span class="comment_date">2009-02-27 09:34</span> <a id="ctl00_CommentList_NameLink_0" target="_blank">ajax+u[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1462750" class="blog_comment_body">希望看到的是sqlite虚拟机的实现</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html#1463341" class="layer">#2楼</a><a name="1463341" id="comment_anchor_1463341"></a>  <span class="comment_date">2009-02-27 16:35</span> <a id="a_comment_author_1463341" href="http://www.cnblogs.com/JeasonZhao/" target="_blank">Jeason</a> <a href="http://msg.cnblogs.com/send/Jeason" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1463341" class="blog_comment_body">sqlite虚拟机是什么意思？
+<br>journal 这个文件是不是一个Session一个？还是多个Session共享同一个journal ？</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1463341,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1463341,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html#1463490" class="layer">#3楼</a><a name="1463490" id="comment_anchor_1463490"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2009-02-27 18:32</span> <a id="a_comment_author_1463490" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1463490" class="blog_comment_body">VDBE(或者叫做VM)是SQLite中一的核心模块。<br>关于journal文件，得从SQLite的恢复机制说起，SQLite的恢复机制不同于通用DBMS，它采用的是影子分面技术。总的来说，每开始一个写事务，SQLite就会创建一个journal文件，以备恢复使用，事务成功提交，journal文件就会被删除，事务失败，则在下一个连接开始的时候(打开数据库文件时)会根据journal文件进行恢复操作，之后再将其删除。以后有时间会详细讨论这个问题的。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1463490,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1463490,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html#2737909" class="layer">#4楼</a><a name="2737909" id="comment_anchor_2737909"></a><span id="comment-maxId" style="display:none;">2737909</span><span id="comment-maxDate" style="display:none;">2013/7/29 10:19:51</span>  <span class="comment_date">2013-07-29 10:19</span> <a id="a_comment_author_2737909" href="http://www.cnblogs.com/perfectworld/" target="_blank">hark.perfe</a> <a href="http://msg.cnblogs.com/send/hark.perfe" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2737909" class="blog_comment_body">写的太好了!!!非常有用</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2737909,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2737909,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－专注为 App 开发者提供IM云服务</a><br><a href="http://click.aliyun.com/m/3037/" target="_blank">【阿里云SSD云盘】速度行业领先</a><br></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"><a href="http://job.cnblogs.com/offer/51018/" target="_blank"><img width="300" height="250" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/35695-20160215151750532-1876432241.png" alt="招聘ASP.NET 5开发工程师" title="招聘ASP.NET 5开发工程师"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/539687/" target="_blank">怎样交付业余项目</a><br> ·  <a href="http://news.cnblogs.com/n/539774/" target="_blank">《黑暗之魂3》新预告片公布 国区Steam预购仅199元</a><br> ·  <a href="http://news.cnblogs.com/n/539773/" target="_blank">梅西暖人一幕：送签名球衣圆梦塑料男孩</a><br> ·  <a href="http://news.cnblogs.com/n/539772/" target="_blank">中国科学家培育出人工精子 给不育男士带来福音</a><br> ·  <a href="http://news.cnblogs.com/n/539771/" target="_blank">市场份额已不足1% Opera欲推新浏览器摆脱困境</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/538249/" target="_blank">谷歌背后的数学</a><br> ·  <a href="http://kb.cnblogs.com/page/533808/" target="_blank">Medium开发团队谈架构设计</a><br> ·  <a href="http://kb.cnblogs.com/page/539274/" target="_blank">理解“渐进增强(Progressive Enhancement)”</a><br> ·  <a href="http://kb.cnblogs.com/page/534571/" target="_blank">为什么说DOM操作很慢</a><br> ·  <a href="http://kb.cnblogs.com/page/527518/" target="_blank">为什么你应该尝试全栈</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);    
+});
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><p><strong>
+</strong></p><div align="center"><strong><img border="0" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(2) - YY哥 - 博客园_files/jim_gray.jpg" width="160" height="268"></strong></div>
+<p>&nbsp;</p>
+<p><strong>个人简介</strong></p>
+<p>专业打杂程序员  @<a href="http://hustcat.github.io/">github</a></p><p>
+<br>
+</p><p><strong>联系方式</strong></p>
+<p><a title="新浪微博" href="http://weibo.com/hustcat"><span style="font-family: Courier">新浪微博</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a title="腾讯微博" href="http://t.qq.com/hustcat">腾讯微博</a></p>
+<p><br></p>
+<p><!-- 博客园新闻频道引用代码 num-显示条数 --><a href="http://news.cnblogs.com/" target="_blank">IT新闻:</a><br></p><div style="display: none" id="__document_write_ajax_div-1"></div><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>园龄：<a href="http://home.cnblogs.com/u/hustcat/" title="入园时间：2007-05-23">8年9个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/hustcat/followers/">528</a><br>关注：<a href="http://home.cnblogs.com/u/hustcat/followees/">2</a><div id="p_b_follow"></div><div style="display: none" id="__document_write_ajax_div-2"></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="日历">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/01/01&#39;);return false;">&lt;</a></td><td align="center">2009年2月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/03/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">25</td><td class="CalOtherMonthDay" align="center">26</td><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td class="CalOtherMonthDay" align="center">31</td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/01.html"><u>1</u></a></td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td class="CalWeekendDay" align="center">7</td></tr><tr><td class="CalWeekendDay" align="center">8</td><td align="center">9</td><td align="center">10</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/11.html"><u>11</u></a></td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12.html"><u>12</u></a></td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/13.html"><u>13</u></a></td><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/14.html"><u>14</u></a></td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/15.html"><u>15</u></a></td><td align="center">16</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/17.html"><u>17</u></a></td><td align="center">18</td><td align="center">19</td><td align="center">20</td><td class="CalWeekendDay" align="center">21</td></tr><tr><td class="CalWeekendDay" align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26.html"><u>26</u></a></td><td align="center">27</td><td class="CalWeekendDay" align="center">28</td></tr><tr><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/hustcat/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/hustcat/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/hustcat/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/hustcat/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/hustcat/tag/" title="我的博客的标签列表">我的标签</a></li>
+<li><a id="itemListLink" onclick="this.blur();WarpClass(&#39;itemListLink&#39;, &#39;itemListLin_con&#39;);return false;" href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html#">更多链接</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/hustcat/category/191424.html">Linux相关(26)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/hustcat/category/214566.html">MySQL(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/hustcat/category/175619.html">Others(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/hustcat/category/139956.html">Web技术(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/hustcat/category/183836.html">编程语言(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/hustcat/category/605980.html">存储(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/hustcat/category/130051.html">数据结构与算法(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术(30)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/hustcat/category/196365.html">系统相关(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/hustcat/category/427554.html">云计算与虚拟化(10)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/hustcat/archive/2014/11.html">2014年11月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/hustcat/archive/2014/10.html">2014年10月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/hustcat/archive/2014/09.html">2014年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/hustcat/archive/2014/08.html">2014年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/hustcat/archive/2014/07.html">2014年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/hustcat/archive/2014/03.html">2014年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/hustcat/archive/2013/09.html">2013年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/hustcat/archive/2013/08.html">2013年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/hustcat/archive/2013/02.html">2013年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/hustcat/archive/2012/11.html">2012年11月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/hustcat/archive/2012/01.html">2012年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/hustcat/archive/2011/12.html">2011年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/hustcat/archive/2011/10.html">2011年10月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/hustcat/archive/2011/03.html">2011年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/hustcat/archive/2010/09.html">2010年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/hustcat/archive/2010/08.html">2010年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/hustcat/archive/2010/07.html">2010年7月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/hustcat/archive/2010/06.html">2010年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/hustcat/archive/2010/05.html">2010年5月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/hustcat/archive/2010/04.html">2010年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/hustcat/archive/2010/03.html">2010年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/hustcat/archive/2010/01.html">2010年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="http://www.cnblogs.com/hustcat/archive/2009/12.html">2009年12月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="http://www.cnblogs.com/hustcat/archive/2009/10.html">2009年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="http://www.cnblogs.com/hustcat/archive/2009/09.html">2009年9月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="http://www.cnblogs.com/hustcat/archive/2009/08.html">2009年8月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="http://www.cnblogs.com/hustcat/archive/2009/06.html">2009年6月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="http://www.cnblogs.com/hustcat/archive/2009/05.html">2009年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="http://www.cnblogs.com/hustcat/archive/2009/04.html">2009年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="http://www.cnblogs.com/hustcat/archive/2009/03.html">2009年3月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="http://www.cnblogs.com/hustcat/archive/2009/02.html">2009年2月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="http://www.cnblogs.com/hustcat/archive/2008/10.html">2008年10月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="http://www.cnblogs.com/hustcat/archive/2008/08.html">2008年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="http://www.cnblogs.com/hustcat/archive/2008/07.html">2008年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="http://www.cnblogs.com/hustcat/archive/2008/06.html">2008年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="http://www.cnblogs.com/hustcat/archive/2008/05.html">2008年5月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="http://www.cnblogs.com/hustcat/archive/2008/04.html">2008年4月 (5)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_kernel" class="catListkernel sidebar-block">
+<h3 class="catListTitle">kernel</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_2_Link_0" href="http://wiki.zh-kernel.org/" rel="nofollow">kernel中文社区</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_1" href="http://ldn.linuxfoundation.org/" rel="nofollow">LDN</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_2" href="http://www.tldp.org/" rel="nofollow">The Linux Document Project</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_3" href="http://www.kernel.org/" rel="nofollow">The Linux Kernel Archives</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links210847" class="catList sidebar-block">
+<h3 class="catListTitle">manual</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_3_Link_0" href="http://www.cppreference.com/wiki/" rel="nofollow">cppreference</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_1" href="http://gcc.gnu.org/onlinedocs/" rel="nofollow">gcc manual</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_2" href="http://dev.mysql.com/doc/refman/5.1/zh/index.html" rel="nofollow">mysql manual</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links198983" class="catList sidebar-block">
+<h3 class="catListTitle">sites</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_4_Link_0" href="http://www.databasejournal.com/" rel="nofollow">Database Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_1" href="http://mirrors.fedoraproject.org/publiclist/Fedora/" rel="nofollow">Fedora镜象</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_2" href="http://highscalability.com/" rel="nofollow">highscalability</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_3" href="https://eprints.kfupm.edu.sa/" rel="nofollow">KFUPM ePrints</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_4" href="http://www.die.net/" rel="nofollow">Linux docs</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_5" href="http://www.linuxjournal.com/" rel="nofollow">Linux Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_6" href="http://nosql-database.org/" rel="nofollow">NoSQL</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_7" href="http://www.sqlite.org/" rel="nofollow">SQLite</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_technology website" class="catListtechnology website sidebar-block">
+<h3 class="catListTitle">技术社区</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_5_Link_0" href="http://www.apache.org/" rel="nofollow">apache</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_1" href="http://www.csdn.net/" rel="nofollow">CSDN</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_2" href="http://www.ibm.com/developerworks/cn/" rel="nofollow">IBM-developerworks</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_3" href="http://www.lucene.com.cn/" rel="nofollow">lucene中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_4" href="http://www.nutchchina.com/" rel="nofollow">nutch中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_5" href="http://www.oldlinux.org/oldlinux/index.php" rel="nofollow">oldlinux</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_6" href="http://forums.oracle.com/forums/main.jspa?categoryID=84" rel="nofollow">oracle's forum</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/3993712.html#3345657">1. Re:Docker实践(6)—CentOS7上部署Kubernetes</a></li>
+    <li class="recent_comment_body">Mark</li>
+    <li class="recent_comment_author">--Ant</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/4004889.html#3343804">2. Re:深入学习golang(4)—new与make</a></li>
+    <li class="recent_comment_body">讲的让我懂了，反正我顶</li>
+    <li class="recent_comment_author">--一页天书不分说</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568738.html#3336424">3. Re:Linux网络协议栈(一)——Socket入门(1)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568765.html#3336421">4. Re:Linux网络协议栈(一)——Socket入门(2)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html#3269030">5. Re:理解MySQL——索引与优化</a></li>
+    <li class="recent_comment_body">楼主我收藏了</li>
+    <li class="recent_comment_author">--Ｍ&amp;amp;N</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(166180)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(51843)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/12/19/1627525.html">3. 理解MySQL——复制(Replication)(45305)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">4. libevent源码分析(39126)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2008/04/09/1144645.html">5. 算法系列---回溯算法(25309)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/06/02/1494311.html">1. (i++)+(i++)与(++i)+(++i)(40)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(31)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">3. 理解MySQL——索引与优化(23)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/01/27/1657821.html">4. 浅谈SQLite——实现与应用(21)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/05/14/1735774.html">5. 一道算法题,求更好的解法(18)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(30)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(13)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">3. libevent源码分析(12)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/06/23/1762987.html">4. 浅谈SQLite——查询处理及优化(10)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2012/01/11/2319249.html">5. 乱谈服务器编程(10)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2016 YY哥
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+</body></html>

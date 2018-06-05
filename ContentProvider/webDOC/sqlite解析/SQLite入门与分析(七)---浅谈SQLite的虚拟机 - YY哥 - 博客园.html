@@ -1,0 +1,1227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0062)http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script async="" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/widget"></script>
+
+<title>SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/bundle-ClassicBlue.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/hustcat/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/hustcat/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/hustcat/wlwmanifest.xml">
+<script async="" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/analytics.js"></script><script type="text/javascript" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/encoder.js"></script><script src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'hustcat', cb_enable_mathjax=false;</script>
+<script src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/blog-common.js" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/hustcat/"><img id="blogLogo" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/hustcat/">YY哥的技术随笔</a></h1>
+<h2>——关注Linux、数据库和云计算</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/hustcat/">首页</a></li>
+<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://msg.cnblogs.com/send/YY%E5%93%A5">联系</a></li>
+<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/hustcat/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/hustcat/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+<!--done-->
+随笔- 125&nbsp;
+文章- 114&nbsp;
+评论- 378&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园.html">SQLite入门与分析(七)---浅谈SQLite的虚拟机</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p>&nbsp;写在前面：虚拟机技术在现在是一个非常热的技术，它的历史也很悠久。最早的虚拟机可追溯到IBM的VM/370，到上个世纪90年代，在计算机程序设计语言领域又出现一件革命性的事情——Java语言的出现，它与c++最大的不同在于它必须在Java虚拟机上运行。Java虚拟机掀起了虚拟机技术的热潮，随后，Microsoft也不甘落后，雄心勃勃的推出了.Net平台。由于在这里主要讨论SQLite的虚拟机，不打算对这些做过多评论，但是作为对比，我会先对Java虚拟机作一个概述。好了，下面进入正题。</p>
+<span style="color: #000000;">
+<p><span style="color: #ff0000;">&nbsp;1、概述</span><br>
+所谓虚拟机是指对真实计算机资源环境的一个抽象，它为解释性语言程序提供了一套完整的计算机接口。虚拟机的思想对现在的编译有很大影响，其思路是先编译成虚拟机指令，然后针对不同计算机实现该虚拟机。<br>
+虚拟机定义了一组抽象的逻辑组件，这些组件包括寄存器组、数据栈和指令集等等。虚拟机指令的解释执行包括3步：<br>
+1．获取指令参数；<br>
+2. 执行该指令对应的功能；<br>
+3. 分派下一条指令。<br>
+其中第一步和第三步构成了虚拟机的执行开销。<br>
+很多语言都采用了虚拟机作为运行环境。作为下一代计算平台的竞争者，Sun的Java和微软的.NET平台都采用了虚拟机技术。Java的支撑环境是Java虚拟机（Java Virtual Machine，JVM），.NET的支撑环境是通用语言运行库（Common Language Runtime，CLR）。JVM是典型的虚拟机架构。<br>
+Java平台结构如图所示。从图中可以看出，JVM处于核心位置，它的下方是移植接口。移植接口由依赖平台的和不依赖平台的两部分组成，其中依赖于平台的部分称为适配器。JVM通过移植接口在具体的操作系统上实现。如果在Java操作系统（Java Operation System, JOS）上实现，则不需要依赖于平台的适配器，因为这部分工作已由JOS完成。因此对于JVM来说，操作系统和更低的硬件层是透明的。在JVM的上方，是Java类和Java应用程序接口（Java API）。在Java API上可以编写Java应用程序和Java小程序（applet）。所以对于Java应用程序和applet这一层次来说，操作系统和硬件就更是透明的了。我们编写的Java程序，可以在任何Java平台上运行而无需修改。</p>
+<p>&nbsp;<img alt="" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/sqlite07-1.JPG" width="364" height="223"></p>
+JVM定义了独立于平台的类文件格式和字节码形式的指令集。在任何Java程序的字节码表示形式中，变量和方法的引用都是使用符号，而不是使用具体的数字。由于内存的布局要在运行时才确定，所以类的变量和方法的改变不会影响现存的字节码。例如，一个Java程序引用了其他系统中的某个类，该系统中那个类的更新不会使这个Java程序崩溃。这也提高了Java的平台独立性。<br>
+</span>
+<p style="color: #ff0000;">虚拟机一般都采用了基于栈的架构，这种架构易于实现。虚拟机方法显著提高了程序语言的可移植性和安全性，但同时也导致了执行效率的下降。</p>
+<span style="color: #000000;">
+<p style="color: #000000;"></p>
+</span>
+<p><span style="color: #ff0000;">&nbsp;2、Java虚拟机</span> <br>
+</p>
+<span style="color: #000000;">
+<p style="color: #000000;"><span style="color: #ff0000;">2.1、概述</span><br>
+Java虚拟机的主要任务是装载Class文件并执行其中的字节码。Java虚拟机包含一个类装载器(class&nbsp; loader)，它从程序和API中装载class文件，Java API中只有程序执行时需要的那些类才会被装载，字节码由执行引擎来执行。<br>
+不同的Java虚拟机，执行引擎的实现可能不同。在软件实现的虚拟机中，一般有几下几中实现方式：<br>
+（1）&nbsp;&nbsp; &nbsp;解释执行：实现简单，但速度较慢，这是Java最初阶段的实现方式。<br>
+（2）&nbsp;&nbsp; &nbsp;即时编译(just-in-time)：执行较快，但消耗内存。在这种情况下，第一次执行的字节码会编译成本地机器代码，然后被缓存，以后可以重用。<br>
+（3）&nbsp;&nbsp; &nbsp;自适应优化器：虚拟机开始的时候解释字节码，但是会监视程序的运行，并记录下使用最频繁的代码，然后把这些代码编译成本地代码，而其它的代码仍保持为字节码。该方法既提高的运行速度，又减少了内存开销。<br>
+同样，虚拟机也可由硬件来实现，它用本地方法执行Java字节码。<br>
+<img alt="" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/sqlite07-2.JPG" width="376" height="197"><br>
+</p>
+</span>
+<p style="color: #000000;"><span style="color: #ff0000;">2.2、Java虚拟机</span><br>
+</p>
+<p style="color: #000000;">Java虚拟机的结构分为：类装载子系统，运行时数据区，执行引擎，本地方法接口。其中运行时数据区又分为：方法区，堆，Java栈，PC寄存器，本地方法栈。</p>
+<p>&nbsp;<img alt="" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/sqlite07-3.JPG" width="449" height="364"></p>
+<p style="color: #000000;">关于Java虚拟机就介绍到此,由于Java虚拟机内容庞大，在这里不可能一一介绍，如果想更多了解Java虚拟机，参见《深入Java虚拟机》。<br>
+</p>
+<p><span style="color: red;">3、SQLite虚拟机 </span><br>
+</p>
+<p>&nbsp;在SQLite的后端（backend）的上一层，通常叫做虚拟数据库引擎(virtual database engine)，或者叫做虚拟机(virtual machine)。从作用上来说，它是SQLite的核心。用户程序发出的SQL语句请求，由前端(frontend)编译器（以后会继续介绍）处理，生成字节代码程序（bytecode programs），然后由VM解释执行。VM执行时，又会调用B-tree模块的相关的接口，并输出执行的结果（本节将以一个具体的查询过程来描述这一过程）。</p>
+<p style="color: red;">3.1、虚拟机的内部结构</p>
+<p>先来看一个简单的例子：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;main(</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;argc,&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">**</span><span style="color: #000000;">argv)<br>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;rc,&nbsp;i,&nbsp;&nbsp;id,&nbsp;cid;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">name;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">sql;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">zErr;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlite3&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">db;&nbsp;sqlite3_stmt&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">stmt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sql</span><span style="color: #000000;">=</span><span style="color: #800000;">"</span><span style="color: #800000;">select&nbsp;id,name,cid&nbsp;from&nbsp;episodes</span><span style="color: #800000;">"</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">打开数据库</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;sqlite3_open(</span><span style="color: #800000;">"</span><span style="color: #800000;">test.db</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">编译sql语句</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;sqlite3_prepare(db,&nbsp;sql,&nbsp;strlen(sql),&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">stmt,&nbsp;NULL);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">调用VM，执行VDBE程序</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3_step(stmt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">while</span><span style="color: #000000;">(rc&nbsp;</span><span style="color: #000000;">==</span><span style="color: #000000;">&nbsp;SQLITE_ROW)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3_column_int(stmt,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">)sqlite3_column_text(stmt,&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cid&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3_column_int(stmt,&nbsp;</span><span style="color: #800080;">2</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(name&nbsp;</span><span style="color: #000000;">!=</span><span style="color: #000000;">&nbsp;NULL){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(stderr,&nbsp;</span><span style="color: #800000;">"</span><span style="color: #800000;">Row:&nbsp;&nbsp;id=%i,&nbsp;cid=%i,&nbsp;name='%s'\n</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;id,cid,name);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span style="color: #0000ff;">else</span><span style="color: #000000;">&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Field&nbsp;is&nbsp;NULL&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fprintf(stderr,&nbsp;</span><span style="color: #800000;">"</span><span style="color: #800000;">Row:&nbsp;&nbsp;id=%i,&nbsp;cid=%i,&nbsp;name=NULL\n</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;id,cid);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3_step(stmt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">释放资源</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;sqlite3_finalize(stmt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">关闭数据库</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;sqlite3_close(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+}<br>
+</span><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p> </p>
+<p>&nbsp;这段程序很简单，它的功能就是遍历整个表，并把查询结果输出。<br>
+在SQLite 中，用户发出的SQL语句，都会由编译器生成一个虚拟机实例。在上面的例子中，变量sql代表的SQL语句经过sqlite3_prepare()处理后，便生成一个虚拟机实例——stmt。虚拟机实例从外部看到的结构是sqlite3_stmt所代表的数据结构，而在内部，是一个vdbe数据结构代表的实例。<br>
+关于这点可以看看它们的定义：<br>
+//sqlite3.h<br>
+typedef struct sqlite3_stmt sqlite3_stmt;<br>
+</p>
+<p>vdbe的定义：</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_185312" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_185312&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_185312&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_185312&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ContractedBlock.gif" align="top" width="11" height="16"><img id="Code_Open_Image_185312" style="display: none;" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_185312&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_185312&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_185312&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ExpandedBlockStart.gif" align="top" width="11" height="16"><span id="Code_Closed_Text_185312" class="cnblogs_code_Collapse">Code</span><span id="Code_Open_Text_185312" style="display: none;"><br>
+<!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #008000;">//</span><span style="color: #008000;">虚拟机数据结构&nbsp;vdbeInt.h</span><span style="color: #008000;"><br>
+</span><span style="color: #0000ff;">struct</span><span style="color: #000000;">&nbsp;Vdbe&nbsp;{<br>
+&nbsp;&nbsp;sqlite3&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">db;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;whole&nbsp;database&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Vdbe&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pPrev,</span><span style="color: #000000;">*</span><span style="color: #000000;">pNext;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Linked&nbsp;list&nbsp;of&nbsp;VDBEs&nbsp;with&nbsp;the&nbsp;same&nbsp;Vdbe.db&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;FILE&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">trace;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Write&nbsp;an&nbsp;execution&nbsp;trace&nbsp;here,&nbsp;if&nbsp;not&nbsp;NULL&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nOp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;instructions&nbsp;in&nbsp;the&nbsp;program(指令的条数)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nOpAlloc;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;slots&nbsp;allocated&nbsp;for&nbsp;aOp[]</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Op&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aOp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Space&nbsp;to&nbsp;hold&nbsp;the&nbsp;virtual&nbsp;machine's&nbsp;program(指令)</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nLabel;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;labels&nbsp;used&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nLabelAlloc;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;slots&nbsp;allocated&nbsp;in&nbsp;aLabel[]&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aLabel;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Space&nbsp;to&nbsp;hold&nbsp;the&nbsp;labels&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aStack;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;operand&nbsp;stack,&nbsp;except&nbsp;string&nbsp;values(栈空间)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pTos;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Top&nbsp;entry&nbsp;in&nbsp;the&nbsp;operand&nbsp;stack(栈顶指针)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">**</span><span style="color: #000000;">apArg;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Arguments&nbsp;to&nbsp;currently&nbsp;executing&nbsp;user&nbsp;function&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aColName;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Column&nbsp;names&nbsp;to&nbsp;return&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nCursor;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;slots&nbsp;in&nbsp;apCsr[]&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Cursor&nbsp;</span><span style="color: #000000;">**</span><span style="color: #000000;">apCsr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;One&nbsp;element&nbsp;of&nbsp;this&nbsp;array&nbsp;for&nbsp;each&nbsp;open&nbsp;cursor(游标数组)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nVar;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;entries&nbsp;in&nbsp;aVar[]&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aVar;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Values&nbsp;for&nbsp;the&nbsp;OP_Variable&nbsp;opcode</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">**</span><span style="color: #000000;">azVar;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Name&nbsp;of&nbsp;variables&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;okVar;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;True&nbsp;if&nbsp;azVar[]&nbsp;has&nbsp;been&nbsp;initialized&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;magic;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Magic&nbsp;number&nbsp;for&nbsp;sanity&nbsp;checking&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nMem;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;memory&nbsp;locations&nbsp;currently&nbsp;allocated&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aMem;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;memory&nbsp;locations(保存临时变量的Mem)</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nCallback;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;callbacks&nbsp;invoked&nbsp;so&nbsp;far(回调的次数)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;cacheCtr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Cursor&nbsp;row&nbsp;cache&nbsp;generation&nbsp;counter&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Fifo&nbsp;sFifo;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;A&nbsp;list&nbsp;of&nbsp;ROWIDs&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;contextStackTop;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Index&nbsp;of&nbsp;top&nbsp;element&nbsp;in&nbsp;the&nbsp;context&nbsp;stack&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;contextStackDepth;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;size&nbsp;of&nbsp;the&nbsp;"context"&nbsp;stack&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Context&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">contextStack;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Stack&nbsp;used&nbsp;by&nbsp;opcodes&nbsp;ContextPush&nbsp;&amp;&nbsp;ContextPop</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;pc;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;program&nbsp;counter(初始程序计数器)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;rc;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Value&nbsp;to&nbsp;return(返回结果)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;unsigned&nbsp;uniqueCnt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Used&nbsp;by&nbsp;OP_MakeRecord&nbsp;when&nbsp;P2!=0&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;errorAction;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Recovery&nbsp;action&nbsp;to&nbsp;do&nbsp;in&nbsp;case&nbsp;of&nbsp;an&nbsp;error&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;inTempTrans;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;True&nbsp;if&nbsp;temp&nbsp;database&nbsp;is&nbsp;transactioned&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;returnStack[</span><span style="color: #800080;">100</span><span style="color: #000000;">];&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Return&nbsp;address&nbsp;stack&nbsp;for&nbsp;OP_Gosub&nbsp;&amp;&nbsp;OP_Return&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;returnDepth;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Next&nbsp;unused&nbsp;element&nbsp;in&nbsp;returnStack[]&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nResColumn;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;columns&nbsp;in&nbsp;one&nbsp;row&nbsp;of&nbsp;the&nbsp;result&nbsp;set&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">**</span><span style="color: #000000;">azResColumn;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Values&nbsp;for&nbsp;one&nbsp;row&nbsp;of&nbsp;result&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;">&nbsp;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;popStack;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Pop&nbsp;the&nbsp;stack&nbsp;this&nbsp;much&nbsp;on&nbsp;entry&nbsp;to&nbsp;VdbeExec()(出栈的项数)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">zErrMsg;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Error&nbsp;message&nbsp;written&nbsp;here&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;u8&nbsp;resOnStack;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;True&nbsp;if&nbsp;there&nbsp;are&nbsp;result&nbsp;values&nbsp;on&nbsp;the&nbsp;stack(有结果在栈上则为真)</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;u8&nbsp;explain;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;True&nbsp;if&nbsp;EXPLAIN&nbsp;present&nbsp;on&nbsp;SQL&nbsp;command&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;u8&nbsp;changeCntOn;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;True&nbsp;to&nbsp;update&nbsp;the&nbsp;change-counter&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;u8&nbsp;aborted;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;True&nbsp;if&nbsp;ROLLBACK&nbsp;in&nbsp;another&nbsp;VM&nbsp;causes&nbsp;an&nbsp;abort&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;u8&nbsp;expired;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;True&nbsp;if&nbsp;the&nbsp;VM&nbsp;needs&nbsp;to&nbsp;be&nbsp;recompiled&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;u8&nbsp;minWriteFileFormat;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Minimum&nbsp;file&nbsp;format&nbsp;for&nbsp;writable&nbsp;database&nbsp;files&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nChange;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;db&nbsp;changes&nbsp;made&nbsp;since&nbsp;last&nbsp;reset&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;i64&nbsp;startTime;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Time&nbsp;when&nbsp;query&nbsp;started&nbsp;-&nbsp;used&nbsp;for&nbsp;profiling&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+#ifdef&nbsp;SQLITE_SSE<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;fetchId;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Statement&nbsp;number&nbsp;used&nbsp;by&nbsp;sqlite3_fetch_statement&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;lru;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Counter&nbsp;used&nbsp;for&nbsp;LRU&nbsp;cache&nbsp;replacement&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">#endif</span><span style="color: #000000;"><br>
+};</span></span></div>
+<p>&nbsp;由vdbe的定义，可以总结出SQLite虚拟机的内部结构：<br>
+<br>
+<img alt="" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/sqlite07-4.JPG" width="454" height="364"></p>
+<p>&nbsp;<span style="color: red;">3.2、指令</span></p>
+<div class="cnblogs_code"><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;nOp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;instructions&nbsp;in&nbsp;the&nbsp;program(指令的条数)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+Op&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aOp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Space&nbsp;to&nbsp;hold&nbsp;the&nbsp;virtual&nbsp;machine's&nbsp;program(指令)</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span></div>
+<p>&nbsp;aOp数组保存有SQL经过编译后生成的所有指令，对于上面的例子为：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #800080;">0</span><span style="color: #000000;">、Goto(</span><span style="color: #800080;">0x5b</span><span style="color: #000000;">-</span><span style="color: #800080;">91</span><span style="color: #000000;">)&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #000000;">0c<br>
+</span><span style="color: #800080;">1</span><span style="color: #000000;">、Integer(</span><span style="color: #800080;">0x2d</span><span style="color: #000000;">-</span><span style="color: #800080;">45</span><span style="color: #000000;">)&nbsp;</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">2</span><span style="color: #000000;">、OpenRead(</span><span style="color: #800080;">0x0c</span><span style="color: #000000;">-</span><span style="color: #800080;">12</span><span style="color: #000000;">)</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">2</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">3</span><span style="color: #000000;">、SetNumColumns(</span><span style="color: #800080;">0x64</span><span style="color: #000000;">-</span><span style="color: #800080;">100</span><span style="color: #000000;">)</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">03</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">4</span><span style="color: #000000;">、Rewind(</span><span style="color: #800080;">0x77</span><span style="color: #000000;">-</span><span style="color: #800080;">119</span><span style="color: #000000;">)&nbsp;</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #000000;">0a<br>
+</span><span style="color: #800080;">5</span><span style="color: #000000;">、Rowid(</span><span style="color: #800080;">0x23</span><span style="color: #000000;">-</span><span style="color: #800080;">35</span><span style="color: #000000;">)&nbsp;&nbsp;&nbsp;</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">6</span><span style="color: #000000;">、Column(</span><span style="color: #800080;">0x02</span><span style="color: #000000;">-</span><span style="color: #800080;">2</span><span style="color: #000000;">)&nbsp;&nbsp;&nbsp;</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">1</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">7</span><span style="color: #000000;">、Column(</span><span style="color: #800080;">0x02</span><span style="color: #000000;">-</span><span style="color: #800080;">2</span><span style="color: #000000;">)&nbsp;&nbsp;&nbsp;</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">2</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">8</span><span style="color: #000000;">、Callback(</span><span style="color: #800080;">0x36</span><span style="color: #000000;">-</span><span style="color: #800080;">54</span><span style="color: #000000;">)</span><span style="color: #000000;">|</span><span style="color: #800080;">3</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">9</span><span style="color: #000000;">、Next(</span><span style="color: #800080;">0x68</span><span style="color: #000000;">)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">5</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">10</span><span style="color: #000000;">、Close<br>
+</span><span style="color: #800080;">11</span><span style="color: #000000;">、Halt<br>
+</span><span style="color: #800080;">12</span><span style="color: #000000;">、Transaction(</span><span style="color: #800080;">0x66</span><span style="color: #000000;">-</span><span style="color: #800080;">102</span><span style="color: #000000;">)</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">13</span><span style="color: #000000;">、VerifyCookie(</span><span style="color: #800080;">0x61</span><span style="color: #000000;">-</span><span style="color: #800080;">97</span><span style="color: #000000;">)</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">1</span><span style="color: #000000;"><br>
+</span><span style="color: #800080;">14</span><span style="color: #000000;">、Goto(</span><span style="color: #800080;">0x5b</span><span style="color: #000000;">-</span><span style="color: #800080;">91</span><span style="color: #000000;">)&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #000000;">|</span><span style="color: #800080;">0</span><span style="color: #000000;">|</span><span style="color: #800080;">1</span><span style="color: #000000;">|</span><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;sqlite3_step()引起VDBE解释引擎执行这段代码，下面来分析该段指令的执行过程： <br>
+</p>
+<p>Goto：这是一条跳转指令，它的作用仅仅是跳到第12条指令；<br>
+Transaction：开始一个事务（读事务）；<br>
+Goto：跳到第1条指令；<br>
+Integer：把操作数P1入栈，这里的0表示OpenRead指令打开的数据库的编号；<br>
+OpenRead：打开表的游标,数据库的编号从栈顶中取得，P1为游标的编号，P2为root page。<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果P2&lt;=0,则从栈中取得root page no；<br>
+</p>
+<p>SetNumColumns：对P1确定的游标的列数设置为P2（在这里为3），在OP_Column指令执行前,该指令应该被调用来</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 设置表的列数；</p>
+<p>Rewind：移动当前游标（P1）移到表或索引的第一条记录；<br>
+Rowid：把当前游标（P1）指向的记录的关键字压入栈；<br>
+Column：解析当前游标指定的记录的数据，p1为当前游标索引号，p2为列号，并将结果压入栈中；<br>
+</p>
+<p>Callback：该指令执行后，PC将指向下一条指令。该指令的执行会结束sqlite3_step()的运行，并向其返回</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SQLITE_ROW ——如果存在记录的话；<span style="color: #ff0000;">并将VDBE的PC指针指向下一条指令——即Next指令，所以当</span></p>
+<p><span style="color: #ff0000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 重新 调用sqlite3_step()执行VDBE程序时，会执行Next指令</span>（具体的分析见后面的指令实例分析）；</p>
+<p>Next：将游标移到下一条记录，并将PC指向第5条指令；<br>
+Close：关闭数据库。</p>
+<p style="color: red;">&nbsp;3.3、栈</p>
+<div class="cnblogs_code"><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #000000;">Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aStack;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;operand&nbsp;stack,&nbsp;except&nbsp;string&nbsp;values(栈空间)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pTos;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Top&nbsp;entry&nbsp;in&nbsp;the&nbsp;operand&nbsp;stack(栈顶指针)&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span></div>
+<p>&nbsp;aStack是VDBE执行时使用的栈，它主要用来保指令执行进需要的参数，以及指令执行时产生的中间结果(参见后面的指令实例分析)。<br>
+在计算机硬件领域，基于寄存器的架构已经压倒基于栈的架构成为当今的主流，但是在解释性的虚拟机领域，基于栈架构的实现占了上风。<br>
+1. 从编译的角度来看，许多编程语言可以很容易地被编译成栈架构机器语言。如果采用寄存器架构，编译器为了获得好的性能必须进行优化，如全局寄存器分配（这需要对数据流进行分析）。这种复杂的优化工作使虚拟机的便捷性大打折扣。<br>
+2. 如果采用寄存器架构，<span style="color: #ff0000;">虚拟机必须经常保存和恢复寄存器中的内容</span>。与硬件计算机相比，这些操作在虚拟机中的开销要大得多。因为每一条虚拟机指令都需要进行很费时的指令分派操作。虽然其它的指令也要分派，但是它们的语义内容更丰富。<br>
+3. 采用寄存器架构时，指令对应的操作数位于不同寄存器中，对操作数的寻址也是一个问题。而在基于栈的虚拟机中，操作数位于栈顶或紧跟在虚拟机指令之后。由于基于栈的架构的简便性，一些查询语言的实现也采用了此种架构。<br>
+&nbsp;&nbsp; &nbsp;SQLite的虚拟机就是基于栈架构的实现。每一个vdbe都有一个栈顶指针，它保存着vdbe的初始栈顶值。而在解释引擎中也有一个pTos，<span style="color: #ff0000;">它们是有区别的</span>：<br>
+（1）vdbe的pTos：在一趟vdbe执行的过程中不会变化，直到相应的指令修改它为止，在上面的例子中，Callback指令会修改其值（见指令分析）。<br>
+（2）而解释引擎中的pTos是随着指令的执行而动态变化的,在上面的例子中,Integer,Column指令的执行都会引起解释引擎pTos的改变。</p>
+<p>&nbsp;<span style="color: red;">3.4、指令计数器(PC)</span><br>
+每一个vdbe都有一个程序计数器，用来保存初始的计数器值。和pTos一样，解释引擎也有一个pc，它用来指向VM下一条要执行的指令。<br>
+<br>
+<span style="color: red;">3.5、解释引擎</span><br>
+经过编译器生成的vdbe最终都是由解释引擎解释执行的，SQLite的解释引擎实现的原理非常简单，本质上就是一个包含大量case语句的for循环，但是由于SQLite的指令较多（在version 3.3.6中是139条），所以代码比较庞大。<br>
+SQLite的解释引擎是在一个方法中实现的：<br>
+int sqlite3VdbeExec(<br>
+&nbsp; Vdbe *p&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* The VDBE */<br>
+)<br>
+具体代码如下（为了阅读，去掉了一些不影响阅读的代码，具体见SQLite的源码）：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #008000;">/*</span><span style="color: #008000;">执行VDBE程序.当从数据库中取出一行数据时,该函数会调用回调函数(如果有的话),<br>
+**或者返回SQLITE_ROW.<br>
+</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;sqlite3VdbeExec(<br>
+&nbsp;&nbsp;Vdbe&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">p&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;VDBE&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+){<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">指令计数器</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;pc;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;program&nbsp;counter&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">当前指令</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;Op&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pOp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Current&nbsp;operation&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;SQLITE_OK;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Value&nbsp;to&nbsp;return&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">数据库</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;sqlite3&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">db&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">db;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;database&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;u8&nbsp;encoding&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;ENC(db);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;database&nbsp;encoding&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">栈顶</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pTos;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Top&nbsp;entry&nbsp;in&nbsp;the&nbsp;operand&nbsp;stack&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">magic</span><span style="color: #000000;">!=</span><span style="color: #000000;">VDBE_MAGIC_RUN&nbsp;)&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;SQLITE_MISUSE;<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">当前栈顶指针</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;pTos&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pTos;<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">rc</span><span style="color: #000000;">==</span><span style="color: #000000;">SQLITE_NOMEM&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;This&nbsp;happens&nbsp;if&nbsp;a&nbsp;malloc()&nbsp;inside&nbsp;a&nbsp;call&nbsp;to&nbsp;sqlite3_column_text()&nbsp;or<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;sqlite3_column_text16()&nbsp;failed.&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">goto</span><span style="color: #000000;">&nbsp;no_mem;<br>
+&nbsp;&nbsp;}&nbsp;&nbsp;<br>
+&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;SQLITE_OK;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">如果需要进行出栈操作，则进行出栈操作</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">popStack&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;popStack(</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">pTos,&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">popStack);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">popStack&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">表明栈中没有结果</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">resOnStack&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;db</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">busyHandler.nBusy&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">执行指令</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">for</span><span style="color: #000000;">(pc</span><span style="color: #000000;">=</span><span style="color: #000000;">p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pc;&nbsp;rc</span><span style="color: #000000;">==</span><span style="color: #000000;">SQLITE_OK;&nbsp;pc</span><span style="color: #000000;">++</span><span style="color: #000000;">){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">取出操作码</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;pOp&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aOp[pc];<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">switch</span><span style="color: #000000;">(&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">opcode&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">跳到操作数P2指向的指令</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">case</span><span style="color: #000000;">&nbsp;OP_Goto:&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;no-push&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CHECK_FOR_INTERRUPT;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">设置pc</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p2&nbsp;</span><span style="color: #000000;">-</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">break</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">P1入栈</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">case</span><span style="color: #000000;">&nbsp;OP_Integer:&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">当前栈顶指针上移</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pTos</span><span style="color: #000000;">++</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">设为整型</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">flags&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;MEM_Int;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">取操作数P1,并赋值</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">i&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">break</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">其它指令的实现<img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/dot.gif" alt=""></span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #008000;">//</span><span style="color: #008000;">end&nbsp;switch</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;}</span><span style="color: #008000;">//</span><span style="color: #008000;">end&nbsp;for</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">}</span><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p style="color: red;">3.6、指令实例分析</p>
+<p>&nbsp;由于篇幅限制，仅给出几条的指令的实现，其它具体实现见源码。</p>
+<p>&nbsp;1、Callback指令</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_190913" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_190913&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_190913&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_190913&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ContractedBlock.gif" align="top" width="11" height="16"><img id="Code_Open_Image_190913" style="display: none;" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_190913&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_190913&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_190913&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ExpandedBlockStart.gif" align="top" width="11" height="16"><span id="Code_Closed_Text_190913" class="cnblogs_code_Collapse">Code</span><span id="Code_Open_Text_190913" style="display: none;"><br>
+<!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #008000;">/*</span><span style="color: #008000;">该指令执行后,PC将指向下一条指令.<br>
+**栈中栈顶的P1个值为查询的结果.该指令会导致sqlite3_step()函数将以SQLITE_ROW为返回码<br>
+**而结束运行.此时用户程序就可以通过sqlite3_column_XXX读取位于栈中的数据了.<br>
+**当sqlite3_step()再一次运行时,栈顶的P1个值会在执行Next指令前自动出栈.<br>
+</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">case</span><span style="color: #000000;">&nbsp;OP_Callback:&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;no-push&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pMem;<br>
+&nbsp;&nbsp;Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pFirstColumn;<br>
+&nbsp;&nbsp;assert(&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nResColumn</span><span style="color: #000000;">==</span><span style="color: #000000;">pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1&nbsp;);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Data&nbsp;in&nbsp;the&nbsp;pager&nbsp;might&nbsp;be&nbsp;moved&nbsp;or&nbsp;changed&nbsp;out&nbsp;from&nbsp;under&nbsp;us<br>
+&nbsp;&nbsp;**&nbsp;in&nbsp;between&nbsp;the&nbsp;return&nbsp;from&nbsp;this&nbsp;sqlite3_step()&nbsp;call&nbsp;and&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;next&nbsp;call&nbsp;to&nbsp;sqlite3_step().&nbsp;&nbsp;So&nbsp;deephermeralize&nbsp;everything&nbsp;on&nbsp;<br>
+&nbsp;&nbsp;**&nbsp;the&nbsp;stack.&nbsp;&nbsp;Note&nbsp;that&nbsp;ephemeral&nbsp;data&nbsp;is&nbsp;never&nbsp;stored&nbsp;in&nbsp;memory&nbsp;<br>
+&nbsp;&nbsp;**&nbsp;cells&nbsp;so&nbsp;we&nbsp;do&nbsp;not&nbsp;have&nbsp;to&nbsp;worry&nbsp;about&nbsp;them.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;pFirstColumn&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">pTos[</span><span style="color: #800080;">0</span><span style="color: #000000;">-</span><span style="color: #000000;">pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1];<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">for</span><span style="color: #000000;">(pMem&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aStack;&nbsp;pMem</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">pFirstColumn;&nbsp;pMem</span><span style="color: #000000;">++</span><span style="color: #000000;">){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Deephemeralize(pMem);<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Invalidate&nbsp;all&nbsp;ephemeral&nbsp;cursor&nbsp;row&nbsp;caches&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheCtr&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheCtr&nbsp;</span><span style="color: #000000;">+</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">2</span><span style="color: #000000;">)</span><span style="color: #000000;">|</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Make&nbsp;sure&nbsp;the&nbsp;results&nbsp;of&nbsp;the&nbsp;current&nbsp;row&nbsp;are&nbsp;\000&nbsp;terminated<br>
+&nbsp;&nbsp;**&nbsp;and&nbsp;have&nbsp;an&nbsp;assigned&nbsp;type.&nbsp;&nbsp;The&nbsp;results&nbsp;are&nbsp;deephemeralized&nbsp;as<br>
+&nbsp;&nbsp;**&nbsp;as&nbsp;side&nbsp;effect.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">for</span><span style="color: #000000;">(;&nbsp;pMem</span><span style="color: #000000;">&lt;=</span><span style="color: #000000;">pTos;&nbsp;pMem</span><span style="color: #000000;">++</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlite3VdbeMemNulTerminate(pMem);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">设置结果集中的数据类型</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;storeTypeInfo(pMem,&nbsp;encoding);<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Set&nbsp;up&nbsp;the&nbsp;statement&nbsp;structure&nbsp;so&nbsp;that&nbsp;it&nbsp;will&nbsp;pop&nbsp;the&nbsp;current<br>
+&nbsp;&nbsp;**&nbsp;results&nbsp;from&nbsp;the&nbsp;stack&nbsp;when&nbsp;the&nbsp;statement&nbsp;returns.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">resOnStack&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">栈上有结果</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nCallback</span><span style="color: #000000;">++</span><span style="color: #000000;">;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">回调次数加1<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">出栈的数据个数,在下次执行VDBE时,会先进行出栈操作</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">popStack&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1;<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">程序计数器加1</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pc&nbsp;</span><span style="color: #000000;">+</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">设置vdbe的栈顶指针,此时,栈中保存有结果</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pTos&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pTos;<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">注意:这里不是break,而是return;&nbsp;向sqlite3_step()返回SQLITE_ROW.<br>
+&nbsp;&nbsp;**当用户程序重新调用sqlite3_step()时,重新执行VDBE.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;SQLITE_ROW;<br>
+}</span></span></div>
+<p>&nbsp;2、Rewind指令</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_191051" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_191051&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_191051&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_191051&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ContractedBlock.gif" align="top" width="11" height="16"><img id="Code_Open_Image_191051" style="display: none;" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_191051&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_191051&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_191051&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ExpandedBlockStart.gif" align="top" width="11" height="16"><span id="Code_Closed_Text_191051" class="cnblogs_code_Collapse">Code</span><span id="Code_Open_Text_191051" style="display: none;"><br>
+<!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #008000;">/*</span><span style="color: #008000;">移动当前游标到表或索引的第一条记录.<br>
+**如果表为空且p2&gt;0,则跳到p2处;如果p2为0且表不空，则执行下一条指令.<br>
+</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">case</span><span style="color: #000000;">&nbsp;OP_Rewind:&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;no-push&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;i&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1;<br>
+&nbsp;&nbsp;Cursor&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pC;<br>
+&nbsp;&nbsp;BtCursor&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pCrsr;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;res;<br>
+<br>
+&nbsp;&nbsp;assert(&nbsp;i</span><span style="color: #000000;">&gt;=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;i</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nCursor&nbsp;);<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">取得当前游标</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;pC&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">apCsr[i];<br>
+&nbsp;&nbsp;assert(&nbsp;pC</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;);<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;(pCrsr&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pCursor)</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">调用B-tree模块,移动游标到第一条记录</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3BtreeFirst(pCrsr,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">res);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">atFirst&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;res</span><span style="color: #000000;">==</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">deferredMoveto&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheStatus&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;CACHE_STALE;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nullRow&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;res;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;res&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p2</span><span style="color: #000000;">&gt;</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p2&nbsp;</span><span style="color: #000000;">-</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">break</span><span style="color: #000000;">;<br>
+}</span></span></div>
+<p>&nbsp;3、Column指令</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_191153" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_191153&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_191153&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_191153&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ContractedBlock.gif" align="top" width="11" height="16"><img id="Code_Open_Image_191153" style="display: none;" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_191153&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_191153&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_191153&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ExpandedBlockStart.gif" align="top" width="11" height="16"><span id="Code_Closed_Text_191153" class="cnblogs_code_Collapse">Code</span><span id="Code_Open_Text_191153" style="display: none;"><br>
+<!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #008000;">/*</span><span style="color: #008000;">解析当前游标指定的记录的数据<br>
+**p1为当前游标索引号,p2为列号<br>
+</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">case</span><span style="color: #000000;">&nbsp;OP_Column:&nbsp;{<br>
+&nbsp;&nbsp;u32&nbsp;payloadSize;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;bytes&nbsp;in&nbsp;the&nbsp;record&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;p1&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;P1&nbsp;value&nbsp;of&nbsp;the&nbsp;opcode&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">列号</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;p2&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p2;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;column&nbsp;number&nbsp;to&nbsp;retrieve&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">VDBE游标</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;Cursor&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pC&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;VDBE&nbsp;cursor&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">zRec;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Pointer&nbsp;to&nbsp;complete&nbsp;record-data&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">btree游标</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;BtCursor&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pCrsr;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;BTree&nbsp;cursor&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;u32&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aType;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;aType[i]&nbsp;holds&nbsp;the&nbsp;numeric&nbsp;type&nbsp;of&nbsp;the&nbsp;i-th&nbsp;column&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;u32&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">aOffset;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;aOffset[i]&nbsp;is&nbsp;offset&nbsp;to&nbsp;start&nbsp;of&nbsp;data&nbsp;for&nbsp;i-th&nbsp;column&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">列数</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;u32&nbsp;nField;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;number&nbsp;of&nbsp;fields&nbsp;in&nbsp;the&nbsp;record&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;len;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;length&nbsp;of&nbsp;the&nbsp;serialized&nbsp;data&nbsp;for&nbsp;the&nbsp;column&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;i;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Loop&nbsp;counter&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">char</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">zData;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Part&nbsp;of&nbsp;the&nbsp;record&nbsp;being&nbsp;decoded&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Mem&nbsp;sMem;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;For&nbsp;storing&nbsp;the&nbsp;record&nbsp;being&nbsp;decoded&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+<br>
+&nbsp;&nbsp;sMem.flags&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;assert(&nbsp;p1</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nCursor&nbsp;);<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">栈顶指针上移</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;pTos</span><span style="color: #000000;">++</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">flags&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;MEM_Null;<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;This&nbsp;block&nbsp;sets&nbsp;the&nbsp;variable&nbsp;payloadSize&nbsp;to&nbsp;be&nbsp;the&nbsp;total&nbsp;number&nbsp;of<br>
+&nbsp;&nbsp;**&nbsp;bytes&nbsp;in&nbsp;the&nbsp;record.<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;zRec&nbsp;is&nbsp;set&nbsp;to&nbsp;be&nbsp;the&nbsp;complete&nbsp;text&nbsp;of&nbsp;the&nbsp;record&nbsp;if&nbsp;it&nbsp;is&nbsp;available.<br>
+&nbsp;&nbsp;**&nbsp;The&nbsp;complete&nbsp;record&nbsp;text&nbsp;is&nbsp;always&nbsp;available&nbsp;for&nbsp;pseudo-tables<br>
+&nbsp;&nbsp;**&nbsp;If&nbsp;the&nbsp;record&nbsp;is&nbsp;stored&nbsp;in&nbsp;a&nbsp;cursor,&nbsp;the&nbsp;complete&nbsp;record&nbsp;text<br>
+&nbsp;&nbsp;**&nbsp;might&nbsp;be&nbsp;available&nbsp;in&nbsp;the&nbsp;&nbsp;pC-&gt;aRow&nbsp;cache.&nbsp;&nbsp;Or&nbsp;it&nbsp;might&nbsp;not&nbsp;be.<br>
+&nbsp;&nbsp;**&nbsp;If&nbsp;the&nbsp;data&nbsp;is&nbsp;unavailable,&nbsp;&nbsp;zRec&nbsp;is&nbsp;set&nbsp;to&nbsp;NULL.<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;We&nbsp;also&nbsp;compute&nbsp;the&nbsp;number&nbsp;of&nbsp;columns&nbsp;in&nbsp;the&nbsp;record.&nbsp;&nbsp;For&nbsp;cursors,<br>
+&nbsp;&nbsp;**&nbsp;the&nbsp;number&nbsp;of&nbsp;columns&nbsp;is&nbsp;stored&nbsp;in&nbsp;the&nbsp;Cursor.nField&nbsp;element.&nbsp;&nbsp;For<br>
+&nbsp;&nbsp;**&nbsp;records&nbsp;on&nbsp;the&nbsp;stack,&nbsp;the&nbsp;next&nbsp;entry&nbsp;down&nbsp;on&nbsp;the&nbsp;stack&nbsp;is&nbsp;an&nbsp;integer<br>
+&nbsp;&nbsp;**&nbsp;which&nbsp;is&nbsp;the&nbsp;number&nbsp;of&nbsp;records.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">设置游标</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;pC&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">apCsr[p1];<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;assert(&nbsp;pC</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;);<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pCursor</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;record&nbsp;is&nbsp;stored&nbsp;in&nbsp;a&nbsp;B-Tree&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">移到当前游标</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3VdbeCursorMoveto(pC);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;rc&nbsp;)&nbsp;</span><span style="color: #0000ff;">goto</span><span style="color: #000000;">&nbsp;abort_due_to_error;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;zRec&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pCrsr&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pCursor;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nullRow&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payloadSize&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheStatus</span><span style="color: #000000;">==</span><span style="color: #000000;">p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheCtr&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payloadSize&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">payloadSize;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zRec&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(</span><span style="color: #0000ff;">char</span><span style="color: #000000;">*</span><span style="color: #000000;">)pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aRow;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">isIndex&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i64&nbsp;payloadSize64;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3BtreeKeySize(pCrsr,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">payloadSize64);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;payloadSize&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;payloadSize64;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">解析数据,payloadSize保存cell的数据字节数</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3BtreeDataSize(pCrsr,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">payloadSize);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;nField&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nField;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pseudoTable&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;record&nbsp;is&nbsp;the&nbsp;sole&nbsp;entry&nbsp;of&nbsp;a&nbsp;pseudo-table&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;payloadSize&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nData;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;zRec&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pData;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheStatus&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;CACHE_STALE;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;payloadSize</span><span style="color: #000000;">==</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">||</span><span style="color: #000000;">&nbsp;zRec</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;nField&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nField;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pCrsr&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;zRec&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;payloadSize&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pCrsr&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;nField&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;If&nbsp;payloadSize&nbsp;is&nbsp;0,&nbsp;then&nbsp;just&nbsp;push&nbsp;a&nbsp;NULL&nbsp;onto&nbsp;the&nbsp;stack.&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;payloadSize</span><span style="color: #000000;">==</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">flags</span><span style="color: #000000;">==</span><span style="color: #000000;">MEM_Null&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">break</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;assert(&nbsp;p2</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">nField&nbsp;);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Read&nbsp;and&nbsp;parse&nbsp;the&nbsp;table&nbsp;header.&nbsp;&nbsp;Store&nbsp;the&nbsp;results&nbsp;of&nbsp;the&nbsp;parse<br>
+&nbsp;&nbsp;**&nbsp;into&nbsp;the&nbsp;record&nbsp;header&nbsp;cache&nbsp;fields&nbsp;of&nbsp;the&nbsp;cursor.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pC&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheStatus</span><span style="color: #000000;">==</span><span style="color: #000000;">p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheCtr&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;aType&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aType;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;aOffset&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aOffset;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;u8&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">zIdx;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Index&nbsp;into&nbsp;header&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;u8&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">zEndHdr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Pointer&nbsp;to&nbsp;first&nbsp;byte&nbsp;after&nbsp;the&nbsp;header(指向header之后的第一个字节)</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;u32&nbsp;offset;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Offset&nbsp;into&nbsp;the&nbsp;data&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;szHdrSz;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Size&nbsp;of&nbsp;the&nbsp;header&nbsp;size&nbsp;field&nbsp;at&nbsp;start&nbsp;of&nbsp;record&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;avail;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Number&nbsp;of&nbsp;bytes&nbsp;of&nbsp;available&nbsp;data&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">数据类型数组</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;aType&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aType;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;aType</span><span style="color: #000000;">==</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">每个数据类型分配8字节---sizeof(aType)==4</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aType&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;aType&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqliteMallocRaw(&nbsp;</span><span style="color: #800080;">2</span><span style="color: #000000;">*</span><span style="color: #000000;">nField</span><span style="color: #000000;">*</span><span style="color: #0000ff;">sizeof</span><span style="color: #000000;">(aType)&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;aType</span><span style="color: #000000;">==</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">goto</span><span style="color: #000000;">&nbsp;no_mem;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">每列数据的偏移</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aOffset&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;aOffset&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">aType[nField];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">payloadSize&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;payloadSize;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheStatus&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheCtr;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Figure&nbsp;out&nbsp;how&nbsp;many&nbsp;bytes&nbsp;are&nbsp;in&nbsp;the&nbsp;header&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;zRec&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zData&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;zRec;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">isIndex&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zData&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(</span><span style="color: #0000ff;">char</span><span style="color: #000000;">*</span><span style="color: #000000;">)sqlite3BtreeKeyFetch(pCrsr,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">avail);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">获取数据</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zData&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(</span><span style="color: #0000ff;">char</span><span style="color: #000000;">*</span><span style="color: #000000;">)sqlite3BtreeDataFetch(pCrsr,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">avail);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;If&nbsp;KeyFetch()/DataFetch()&nbsp;managed&nbsp;to&nbsp;get&nbsp;the&nbsp;entire&nbsp;payload,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;save&nbsp;the&nbsp;payload&nbsp;in&nbsp;the&nbsp;pC-&gt;aRow&nbsp;cache.&nbsp;&nbsp;That&nbsp;will&nbsp;save&nbsp;us&nbsp;from<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;having&nbsp;to&nbsp;make&nbsp;additional&nbsp;calls&nbsp;to&nbsp;fetch&nbsp;the&nbsp;content&nbsp;portion&nbsp;of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;the&nbsp;record.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;avail</span><span style="color: #000000;">&gt;=</span><span style="color: #000000;">payloadSize&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zRec&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;zData;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aRow&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(u8</span><span style="color: #000000;">*</span><span style="color: #000000;">)zData;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">aRow&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;zRec</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">||</span><span style="color: #000000;">&nbsp;avail</span><span style="color: #000000;">&gt;=</span><span style="color: #000000;">payloadSize&nbsp;</span><span style="color: #000000;">||</span><span style="color: #000000;">&nbsp;avail</span><span style="color: #000000;">&gt;=</span><span style="color: #800080;">9</span><span style="color: #000000;">&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">获得header&nbsp;size</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;szHdrSz&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;GetVarint((u8</span><span style="color: #000000;">*</span><span style="color: #000000;">)zData,&nbsp;offset);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;The&nbsp;KeyFetch()&nbsp;or&nbsp;DataFetch()&nbsp;above&nbsp;are&nbsp;fast&nbsp;and&nbsp;will&nbsp;get&nbsp;the&nbsp;entire<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;record&nbsp;header&nbsp;in&nbsp;most&nbsp;cases.&nbsp;&nbsp;But&nbsp;they&nbsp;will&nbsp;fail&nbsp;to&nbsp;get&nbsp;the&nbsp;complete<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;record&nbsp;header&nbsp;if&nbsp;the&nbsp;record&nbsp;header&nbsp;does&nbsp;not&nbsp;fit&nbsp;on&nbsp;a&nbsp;single&nbsp;page<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;in&nbsp;the&nbsp;B-Tree.&nbsp;&nbsp;When&nbsp;that&nbsp;happens,&nbsp;use&nbsp;sqlite3VdbeMemFromBtree()&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;acquire&nbsp;the&nbsp;complete&nbsp;header&nbsp;text.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;</span><span style="color: #000000;">!</span><span style="color: #000000;">zRec&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;avail</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">offset&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3VdbeMemFromBtree(pCrsr,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">,&nbsp;offset,&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">isIndex,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">sMem);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;rc</span><span style="color: #000000;">!=</span><span style="color: #000000;">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">goto</span><span style="color: #000000;">&nbsp;op_column_out;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zData&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sMem.z;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;一个记录的例子:<br>
+**&nbsp;08&nbsp;|&nbsp;08&nbsp;|04&nbsp;00&nbsp;13&nbsp;01&nbsp;|&nbsp;63&nbsp;61&nbsp;74&nbsp;01<br>
+**&nbsp;08:&nbsp;nSize,payload总的大小——后面8个字节<br>
+**&nbsp;08:&nbsp;关键字大小,对于整型则为关键字本身<br>
+**&nbsp;04:&nbsp;header&nbsp;size，包括本身共4个字节——04&nbsp;00&nbsp;13&nbsp;01<br>
+**&nbsp;00:&nbsp;第一列的数据类型——空类型<br>
+**&nbsp;13:&nbsp;第二列的数据类型——字符串,长为(19-13)/2=3——“cat”<br>
+**&nbsp;01:&nbsp;第三列的数据类型——整型，占一个字节——1<br>
+**&nbsp;对于这里的zData保存的数据为:04&nbsp;00&nbsp;13&nbsp;01&nbsp;63&nbsp;61&nbsp;74&nbsp;01<br>
+</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">header之后的数据,对于上例为:63&nbsp;61&nbsp;74&nbsp;01</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;zEndHdr&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(u8&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">)</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">zData[offset];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">header数据的索引号,对于上例为:00&nbsp;13&nbsp;01</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;zIdx&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(u8&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">)</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">zData[szHdrSz];<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Scan&nbsp;the&nbsp;header&nbsp;and&nbsp;use&nbsp;it&nbsp;to&nbsp;fill&nbsp;in&nbsp;the&nbsp;aType[]&nbsp;and&nbsp;aOffset[]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;arrays.&nbsp;&nbsp;aType[i]&nbsp;will&nbsp;contain&nbsp;the&nbsp;type&nbsp;integer&nbsp;for&nbsp;the&nbsp;i-th<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;column&nbsp;and&nbsp;aOffset[i]&nbsp;will&nbsp;contain&nbsp;the&nbsp;offset&nbsp;from&nbsp;the&nbsp;beginning<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;of&nbsp;the&nbsp;record&nbsp;to&nbsp;the&nbsp;start&nbsp;of&nbsp;the&nbsp;data&nbsp;for&nbsp;the&nbsp;i-th&nbsp;column<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">扫描header，然后设置aType[]和aOffset[]数组;&nbsp;aType[i]为第i列的数据类型,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**aOffset[i]为第i列数据相对于记录的开始的偏移.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">for</span><span style="color: #000000;">(i</span><span style="color: #000000;">=</span><span style="color: #800080;">0</span><span style="color: #000000;">;&nbsp;i</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">nField;&nbsp;i</span><span style="color: #000000;">++</span><span style="color: #000000;">){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;zIdx</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">zEndHdr&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">计算每一列数据的偏移</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aOffset[i]&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;offset;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">计算每一列的数据类型</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zIdx&nbsp;</span><span style="color: #000000;">+=</span><span style="color: #000000;">&nbsp;GetVarint(zIdx,&nbsp;aType[i]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">offset指向下一列</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;offset&nbsp;</span><span style="color: #000000;">+=</span><span style="color: #000000;">&nbsp;sqlite3VdbeSerialTypeLen(aType[i]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;If&nbsp;i&nbsp;is&nbsp;less&nbsp;that&nbsp;nField,&nbsp;then&nbsp;there&nbsp;are&nbsp;less&nbsp;fields&nbsp;in&nbsp;this<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;record&nbsp;than&nbsp;SetNumColumns&nbsp;indicated&nbsp;there&nbsp;are&nbsp;columns&nbsp;in&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;table.&nbsp;Set&nbsp;the&nbsp;offset&nbsp;for&nbsp;any&nbsp;extra&nbsp;columns&nbsp;not&nbsp;present&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;the&nbsp;record&nbsp;to&nbsp;0.&nbsp;This&nbsp;tells&nbsp;code&nbsp;below&nbsp;to&nbsp;push&nbsp;a&nbsp;NULL&nbsp;onto&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;stack&nbsp;instead&nbsp;of&nbsp;deserializing&nbsp;a&nbsp;value&nbsp;from&nbsp;the&nbsp;record.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aOffset[i]&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Release(</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">sMem);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sMem.flags&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;MEM_Null;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;If&nbsp;we&nbsp;have&nbsp;read&nbsp;more&nbsp;header&nbsp;data&nbsp;than&nbsp;was&nbsp;contained&nbsp;in&nbsp;the&nbsp;header,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;or&nbsp;if&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;last&nbsp;field&nbsp;appears&nbsp;to&nbsp;be&nbsp;past&nbsp;the&nbsp;end&nbsp;of&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;record,&nbsp;then&nbsp;we&nbsp;must&nbsp;be&nbsp;dealing&nbsp;with&nbsp;a&nbsp;corrupt&nbsp;database.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;zIdx</span><span style="color: #000000;">&gt;</span><span style="color: #000000;">zEndHdr&nbsp;</span><span style="color: #000000;">||</span><span style="color: #000000;">&nbsp;offset</span><span style="color: #000000;">&gt;</span><span style="color: #000000;">payloadSize&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;SQLITE_CORRUPT_BKPT;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">goto</span><span style="color: #000000;">&nbsp;op_column_out;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Get&nbsp;the&nbsp;column&nbsp;information.&nbsp;If&nbsp;aOffset[p2]&nbsp;is&nbsp;non-zero,&nbsp;then&nbsp;<br>
+&nbsp;&nbsp;**&nbsp;deserialize&nbsp;the&nbsp;value&nbsp;from&nbsp;the&nbsp;record.&nbsp;If&nbsp;aOffset[p2]&nbsp;is&nbsp;zero,<br>
+&nbsp;&nbsp;**&nbsp;then&nbsp;there&nbsp;are&nbsp;not&nbsp;enough&nbsp;fields&nbsp;in&nbsp;the&nbsp;record&nbsp;to&nbsp;satisfy&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;request.&nbsp;&nbsp;In&nbsp;this&nbsp;case,&nbsp;set&nbsp;the&nbsp;value&nbsp;NULL&nbsp;or&nbsp;to&nbsp;P3&nbsp;if&nbsp;P3&nbsp;is<br>
+&nbsp;&nbsp;**&nbsp;a&nbsp;pointer&nbsp;to&nbsp;a&nbsp;Mem&nbsp;object.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">获取P2指定的列的数据</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;aOffset[p2]&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;rc</span><span style="color: #000000;">==</span><span style="color: #000000;">SQLITE_OK&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;zRec&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">取得该列的数据</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zData&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">zRec[aOffset[p2]];<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;len&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3VdbeSerialTypeLen(aType[p2]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3VdbeMemFromBtree(pCrsr,&nbsp;aOffset[p2],&nbsp;len,&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">isIndex,</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">sMem);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;rc</span><span style="color: #000000;">!=</span><span style="color: #000000;">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">goto</span><span style="color: #000000;">&nbsp;op_column_out;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zData&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sMem.z;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">解析zData，并将结果保存在pTos中</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;sqlite3VdbeSerialGet((u8</span><span style="color: #000000;">*</span><span style="color: #000000;">)zData,&nbsp;aType[p2],&nbsp;pTos);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">enc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;encoding;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p3type</span><span style="color: #000000;">==</span><span style="color: #000000;">P3_MEM&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3VdbeMemShallowCopy(pTos,&nbsp;(Mem&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">)(pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p3),&nbsp;MEM_Static);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">flags&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;MEM_Null;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;If&nbsp;we&nbsp;dynamically&nbsp;allocated&nbsp;space&nbsp;to&nbsp;hold&nbsp;the&nbsp;data&nbsp;(in&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;sqlite3VdbeMemFromBtree()&nbsp;call&nbsp;above)&nbsp;then&nbsp;transfer&nbsp;control&nbsp;of&nbsp;that<br>
+&nbsp;&nbsp;**&nbsp;dynamically&nbsp;allocated&nbsp;space&nbsp;over&nbsp;to&nbsp;the&nbsp;pTos&nbsp;structure.<br>
+&nbsp;&nbsp;**&nbsp;This&nbsp;prevents&nbsp;a&nbsp;memory&nbsp;copy.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;(sMem.flags&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">&nbsp;MEM_Dyn)</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">flags&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">&nbsp;MEM_Ephem&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">flags&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">&nbsp;(MEM_Str</span><span style="color: #000000;">|</span><span style="color: #000000;">MEM_Blob)&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">z</span><span style="color: #000000;">==</span><span style="color: #000000;">sMem.z&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;sMem.flags&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">&nbsp;MEM_Term&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">flags&nbsp;</span><span style="color: #000000;">&amp;=</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">~</span><span style="color: #000000;">MEM_Ephem;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pTos</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">flags&nbsp;</span><span style="color: #000000;">|=</span><span style="color: #000000;">&nbsp;MEM_Dyn</span><span style="color: #000000;">|</span><span style="color: #000000;">MEM_Term;<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;pTos-&gt;z&nbsp;might&nbsp;be&nbsp;pointing&nbsp;to&nbsp;sMem.zShort[].&nbsp;&nbsp;Fix&nbsp;that&nbsp;so&nbsp;that&nbsp;we<br>
+&nbsp;&nbsp;**&nbsp;can&nbsp;abandon&nbsp;sMem&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3VdbeMemMakeWriteable(pTos);<br>
+<br>
+op_column_out:<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">break</span><span style="color: #000000;">;<br>
+}</span></span></div>
+<p>&nbsp;4、Next指令</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_191359" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_191359&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_191359&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_191359&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ContractedBlock.gif" align="top" width="11" height="16"><img id="Code_Open_Image_191359" style="display: none;" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_191359&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_191359&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_191359&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/ExpandedBlockStart.gif" align="top" width="11" height="16"><span id="Code_Closed_Text_191359" class="cnblogs_code_Collapse">Code</span><span id="Code_Open_Text_191359" style="display: none;"><br>
+<!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #008000;">/*</span><span style="color: #008000;">移动游标，使其指向表的下一个记录<br>
+</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">case</span><span style="color: #000000;">&nbsp;OP_Prev:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;no-push&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">case</span><span style="color: #000000;">&nbsp;OP_Next:&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;no-push&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;Cursor&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pC;<br>
+&nbsp;&nbsp;BtCursor&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pCrsr;<br>
+<br>
+&nbsp;&nbsp;CHECK_FOR_INTERRUPT;<br>
+&nbsp;&nbsp;assert(&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1</span><span style="color: #000000;">&gt;=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nCursor&nbsp;);<br>
+&nbsp;&nbsp;pC&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;p</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">apCsr[pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p1];<br>
+&nbsp;&nbsp;assert(&nbsp;pC</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;);<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;(pCrsr&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pCursor)</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;res;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nullRow&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">deferredMoveto</span><span style="color: #000000;">==</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">调用B-tree模块,移动游标指向下一条记录</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">opcode</span><span style="color: #000000;">==</span><span style="color: #000000;">OP_Next&nbsp;</span><span style="color: #000000;">?</span><span style="color: #000000;">&nbsp;sqlite3BtreeNext(pCrsr,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">res)&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3BtreePrevious(pCrsr,&nbsp;</span><span style="color: #000000;">&amp;</span><span style="color: #000000;">res);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nullRow&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;res;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">cacheStatus&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;CACHE_STALE;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;res</span><span style="color: #000000;">==</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pOp</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">p2&nbsp;</span><span style="color: #000000;">-</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3_search_count</span><span style="color: #000000;">++</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">nullRow&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;pC</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">rowidIsValid&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">break</span><span style="color: #000000;">;<br>
+}</span></span></div></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+<a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1415752,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+<a id="green_channel_follow" onclick="c_follow();" href="javascript:void(0);">关注我</a>
+<a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a><a id="green_channel_contact" href="http://msg.cnblogs.com/send/YY%E5%93%A5" target="_blank">联系我</a>
+<a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/icon_weibo_24.png" alt=""></a>
+<a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+<div id="author_profile_info" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/" target="_blank"><img src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/sample_face.gif" class="author_avatar" alt=""></a>
+<div id="author_profile_detail" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followees">关注 - 2</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followers">粉丝 - 528</a>
+</div>
+</div>
+<div class="clear"></div>
+<div id="author_profile_honor"></div>
+<div id="author_profile_follow">
+    <a href="javascript:void(0);" onclick="c_follow();return false;">+加关注</a>
+</div>
+</div>
+<div id="div_digg">										
+    <div class="diggit" onclick="votePost(1415752,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">0</span>
+    </div>
+	<div class="buryit" onclick="votePost(1415752,&#39;Bury&#39;)"> 
+		<span class="burynum" id="bury_count">0</span>
+	</div>
+	<div class="clear"></div>	
+	<div class="diggword" id="digg_tips">
+    (请您对文章做出评价)
+    </div>	
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html" title="发布于2009-03-10 21:54">SQLite入门与分析(六)---再谈SQLite的锁</a><br><a href="http://www.cnblogs.com/hustcat/archive/2009/04/11/1433549.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/04/11/1433549.html" title="发布于2009-04-11 10:34">c++中的const与指针</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2009-03-18 18:59</span> <a href="http://www.cnblogs.com/hustcat/">YY哥</a> 阅读(<span id="post_view_count">8293</span>) 评论(<span id="post_comment_count">6</span>)  <a href="http://i.cnblogs.com/EditPosts.aspx?postid=1415752" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#" onclick="AddToWz(1415752);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=26761,cb_entryId=1415752,cb_blogApp=currentBlogApp,cb_blogUserGuid='a9743d0b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2009/3/18 18:59:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#1480658" class="layer">#1楼</a><a name="1480658" id="comment_anchor_1480658"></a>  <span class="comment_date">2009-03-18 23:42</span> <a id="ctl00_CommentList_NameLink_0" target="_blank">u+ajax[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1480658" class="blog_comment_body">终于看到你分析虚拟机了，谢谢你的分享，可能这种东西只有知音才可以有共鸣。你写得很认真。非常感谢。</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#1481147" class="layer">#2楼</a><a name="1481147" id="comment_anchor_1481147"></a>  <span class="comment_date">2009-03-19 12:48</span> <a id="a_comment_author_1481147" href="http://www.cnblogs.com/soli/" target="_blank">Soli</a> <a href="http://msg.cnblogs.com/send/Soli" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1481147" class="blog_comment_body">很长</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1481147,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1481147,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1481147_avatar" style="display:none;">http://pic.cnblogs.com/face/u1946.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#1481151" class="layer">#3楼</a><a name="1481151" id="comment_anchor_1481151"></a>  <span class="comment_date">2009-03-19 12:53</span> <a id="ctl00_CommentList_NameLink_2" target="_blank">!A.Z[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1481151" class="blog_comment_body">虚拟“数据库”？</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#1481606" class="layer">#4楼</a><a name="1481606" id="comment_anchor_1481606"></a>  <span class="comment_date">2009-03-19 18:53</span> <a id="a_comment_author_1481606" href="http://www.cnblogs.com/neoragex2002/" target="_blank">neoragex2002</a> <a href="http://msg.cnblogs.com/send/neoragex2002" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1481606" class="blog_comment_body">有点意思。请楼主也分析一下如何将SQL编译成对应的基于栈的中间代码形式，及sqlite是如何进行编译优化的，多谢。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1481606,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1481606,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1481606_avatar" style="display:none;">http://pic.cnblogs.com/face/u4849.gif</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#1529560" class="layer">#5楼</a><a name="1529560" id="comment_anchor_1529560"></a>  <span class="comment_date">2009-05-16 11:03</span> <a id="a_comment_author_1529560" href="http://www.cnblogs.com/fit/" target="_blank">阿超－</a> <a href="http://msg.cnblogs.com/send/%E9%98%BF%E8%B6%85%EF%BC%8D" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1529560" class="blog_comment_body">楼主是否能把这个虚拟机提出来,作为单独的可重用的虚拟机来用呢?
+<br></div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1529560,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1529560,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#1985213" class="layer">#6楼</a><a name="1985213" id="comment_anchor_1985213"></a><span id="comment-maxId" style="display:none;">1985213</span><span id="comment-maxDate" style="display:none;">2010/12/12 1:00:49</span>  <span class="comment_date">2010-12-12 01:00</span> <a id="a_comment_author_1985213" href="http://www.cnblogs.com/fit/" target="_blank">阿超－</a> <a href="http://msg.cnblogs.com/send/%E9%98%BF%E8%B6%85%EF%BC%8D" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1985213" class="blog_comment_body">?</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1985213,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1985213,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－专注为 App 开发者提供IM云服务</a><br><a href="http://click.aliyun.com/m/3037/" target="_blank">【阿里云SSD云盘】速度行业领先</a><br></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"><a href="http://q.cnblogs.com/" target="_blank"><img width="300" height="250" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/not-to-stop-questioning.jpg" alt="博问" title="博问"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/539687/" target="_blank">怎样交付业余项目</a><br> ·  <a href="http://news.cnblogs.com/n/539774/" target="_blank">《黑暗之魂3》新预告片公布 国区Steam预购仅199元</a><br> ·  <a href="http://news.cnblogs.com/n/539773/" target="_blank">梅西暖人一幕：送签名球衣圆梦塑料男孩</a><br> ·  <a href="http://news.cnblogs.com/n/539772/" target="_blank">中国科学家培育出人工精子 给不育男士带来福音</a><br> ·  <a href="http://news.cnblogs.com/n/539771/" target="_blank">市场份额已不足1% Opera欲推新浏览器摆脱困境</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/538249/" target="_blank">谷歌背后的数学</a><br> ·  <a href="http://kb.cnblogs.com/page/533808/" target="_blank">Medium开发团队谈架构设计</a><br> ·  <a href="http://kb.cnblogs.com/page/539274/" target="_blank">理解“渐进增强(Progressive Enhancement)”</a><br> ·  <a href="http://kb.cnblogs.com/page/534571/" target="_blank">为什么说DOM操作很慢</a><br> ·  <a href="http://kb.cnblogs.com/page/527518/" target="_blank">为什么你应该尝试全栈</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);    
+});
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><p><strong>
+</strong></p><div align="center"><strong><img border="0" alt="" src="./SQLite入门与分析(七)---浅谈SQLite的虚拟机 - YY哥 - 博客园_files/jim_gray.jpg" width="160" height="268"></strong></div>
+<p>&nbsp;</p>
+<p><strong>个人简介</strong></p>
+<p>专业打杂程序员  @<a href="http://hustcat.github.io/">github</a></p><p>
+<br>
+</p><p><strong>联系方式</strong></p>
+<p><a title="新浪微博" href="http://weibo.com/hustcat"><span style="font-family: Courier">新浪微博</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a title="腾讯微博" href="http://t.qq.com/hustcat">腾讯微博</a></p>
+<p><br></p>
+<p><!-- 博客园新闻频道引用代码 num-显示条数 --><a href="http://news.cnblogs.com/" target="_blank">IT新闻:</a><br></p><div style="display: none" id="__document_write_ajax_div-1"></div><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>园龄：<a href="http://home.cnblogs.com/u/hustcat/" title="入园时间：2007-05-23">8年9个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/hustcat/followers/">528</a><br>关注：<a href="http://home.cnblogs.com/u/hustcat/followees/">2</a><div id="p_b_follow"></div><div style="display: none" id="__document_write_ajax_div-2"></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/02/01&#39;);return false;">&lt;</a></td><td align="center">2009年3月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/04/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">22</td><td class="CalOtherMonthDay" align="center">23</td><td class="CalOtherMonthDay" align="center">24</td><td class="CalOtherMonthDay" align="center">25</td><td class="CalOtherMonthDay" align="center">26</td><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/01.html"><u>1</u></a></td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td class="CalWeekendDay" align="center">7</td></tr><tr><td class="CalWeekendDay" align="center">8</td><td align="center">9</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/10.html"><u>10</u></a></td><td align="center">11</td><td align="center">12</td><td align="center">13</td><td class="CalWeekendDay" align="center">14</td></tr><tr><td class="CalWeekendDay" align="center">15</td><td align="center">16</td><td align="center">17</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/18.html"><u>18</u></a></td><td align="center">19</td><td align="center">20</td><td class="CalWeekendDay" align="center">21</td></tr><tr><td class="CalWeekendDay" align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td align="center">26</td><td align="center">27</td><td class="CalWeekendDay" align="center">28</td></tr><tr><td class="CalWeekendDay" align="center">29</td><td align="center">30</td><td align="center">31</td><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/hustcat/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/hustcat/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/hustcat/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/hustcat/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/hustcat/tag/" title="我的博客的标签列表">我的标签</a></li>
+<li><a id="itemListLink" onclick="this.blur();WarpClass(&#39;itemListLink&#39;, &#39;itemListLin_con&#39;);return false;" href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html#">更多链接</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/hustcat/category/191424.html">Linux相关(26)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/hustcat/category/214566.html">MySQL(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/hustcat/category/175619.html">Others(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/hustcat/category/139956.html">Web技术(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/hustcat/category/183836.html">编程语言(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/hustcat/category/605980.html">存储(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/hustcat/category/130051.html">数据结构与算法(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术(30)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/hustcat/category/196365.html">系统相关(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/hustcat/category/427554.html">云计算与虚拟化(10)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/hustcat/archive/2014/11.html">2014年11月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/hustcat/archive/2014/10.html">2014年10月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/hustcat/archive/2014/09.html">2014年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/hustcat/archive/2014/08.html">2014年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/hustcat/archive/2014/07.html">2014年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/hustcat/archive/2014/03.html">2014年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/hustcat/archive/2013/09.html">2013年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/hustcat/archive/2013/08.html">2013年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/hustcat/archive/2013/02.html">2013年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/hustcat/archive/2012/11.html">2012年11月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/hustcat/archive/2012/01.html">2012年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/hustcat/archive/2011/12.html">2011年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/hustcat/archive/2011/10.html">2011年10月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/hustcat/archive/2011/03.html">2011年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/hustcat/archive/2010/09.html">2010年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/hustcat/archive/2010/08.html">2010年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/hustcat/archive/2010/07.html">2010年7月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/hustcat/archive/2010/06.html">2010年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/hustcat/archive/2010/05.html">2010年5月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/hustcat/archive/2010/04.html">2010年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/hustcat/archive/2010/03.html">2010年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/hustcat/archive/2010/01.html">2010年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="http://www.cnblogs.com/hustcat/archive/2009/12.html">2009年12月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="http://www.cnblogs.com/hustcat/archive/2009/10.html">2009年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="http://www.cnblogs.com/hustcat/archive/2009/09.html">2009年9月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="http://www.cnblogs.com/hustcat/archive/2009/08.html">2009年8月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="http://www.cnblogs.com/hustcat/archive/2009/06.html">2009年6月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="http://www.cnblogs.com/hustcat/archive/2009/05.html">2009年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="http://www.cnblogs.com/hustcat/archive/2009/04.html">2009年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="http://www.cnblogs.com/hustcat/archive/2009/03.html">2009年3月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="http://www.cnblogs.com/hustcat/archive/2009/02.html">2009年2月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="http://www.cnblogs.com/hustcat/archive/2008/10.html">2008年10月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="http://www.cnblogs.com/hustcat/archive/2008/08.html">2008年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="http://www.cnblogs.com/hustcat/archive/2008/07.html">2008年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="http://www.cnblogs.com/hustcat/archive/2008/06.html">2008年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="http://www.cnblogs.com/hustcat/archive/2008/05.html">2008年5月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="http://www.cnblogs.com/hustcat/archive/2008/04.html">2008年4月 (5)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_kernel" class="catListkernel sidebar-block">
+<h3 class="catListTitle">kernel</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_2_Link_0" href="http://wiki.zh-kernel.org/" rel="nofollow">kernel中文社区</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_1" href="http://ldn.linuxfoundation.org/" rel="nofollow">LDN</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_2" href="http://www.tldp.org/" rel="nofollow">The Linux Document Project</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_3" href="http://www.kernel.org/" rel="nofollow">The Linux Kernel Archives</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links210847" class="catList sidebar-block">
+<h3 class="catListTitle">manual</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_3_Link_0" href="http://www.cppreference.com/wiki/" rel="nofollow">cppreference</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_1" href="http://gcc.gnu.org/onlinedocs/" rel="nofollow">gcc manual</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_2" href="http://dev.mysql.com/doc/refman/5.1/zh/index.html" rel="nofollow">mysql manual</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links198983" class="catList sidebar-block">
+<h3 class="catListTitle">sites</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_4_Link_0" href="http://www.databasejournal.com/" rel="nofollow">Database Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_1" href="http://mirrors.fedoraproject.org/publiclist/Fedora/" rel="nofollow">Fedora镜象</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_2" href="http://highscalability.com/" rel="nofollow">highscalability</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_3" href="https://eprints.kfupm.edu.sa/" rel="nofollow">KFUPM ePrints</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_4" href="http://www.die.net/" rel="nofollow">Linux docs</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_5" href="http://www.linuxjournal.com/" rel="nofollow">Linux Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_6" href="http://nosql-database.org/" rel="nofollow">NoSQL</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_7" href="http://www.sqlite.org/" rel="nofollow">SQLite</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_technology website" class="catListtechnology website sidebar-block">
+<h3 class="catListTitle">技术社区</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_5_Link_0" href="http://www.apache.org/" rel="nofollow">apache</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_1" href="http://www.csdn.net/" rel="nofollow">CSDN</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_2" href="http://www.ibm.com/developerworks/cn/" rel="nofollow">IBM-developerworks</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_3" href="http://www.lucene.com.cn/" rel="nofollow">lucene中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_4" href="http://www.nutchchina.com/" rel="nofollow">nutch中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_5" href="http://www.oldlinux.org/oldlinux/index.php" rel="nofollow">oldlinux</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_6" href="http://forums.oracle.com/forums/main.jspa?categoryID=84" rel="nofollow">oracle's forum</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/3993712.html#3345657">1. Re:Docker实践(6)—CentOS7上部署Kubernetes</a></li>
+    <li class="recent_comment_body">Mark</li>
+    <li class="recent_comment_author">--Ant</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/4004889.html#3343804">2. Re:深入学习golang(4)—new与make</a></li>
+    <li class="recent_comment_body">讲的让我懂了，反正我顶</li>
+    <li class="recent_comment_author">--一页天书不分说</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568738.html#3336424">3. Re:Linux网络协议栈(一)——Socket入门(1)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568765.html#3336421">4. Re:Linux网络协议栈(一)——Socket入门(2)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html#3269030">5. Re:理解MySQL——索引与优化</a></li>
+    <li class="recent_comment_body">楼主我收藏了</li>
+    <li class="recent_comment_author">--Ｍ&amp;amp;N</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(166180)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(51843)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/12/19/1627525.html">3. 理解MySQL——复制(Replication)(45305)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">4. libevent源码分析(39126)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2008/04/09/1144645.html">5. 算法系列---回溯算法(25309)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/06/02/1494311.html">1. (i++)+(i++)与(++i)+(++i)(40)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(31)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">3. 理解MySQL——索引与优化(23)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/01/27/1657821.html">4. 浅谈SQLite——实现与应用(21)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/05/14/1735774.html">5. 一道算法题,求更好的解法(18)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(30)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(13)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">3. libevent源码分析(12)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/06/23/1762987.html">4. 浅谈SQLite——查询处理及优化(10)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2012/01/11/2319249.html">5. 乱谈服务器编程(10)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2016 YY哥
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+</body></html>

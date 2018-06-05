@@ -1,0 +1,682 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0062)http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script async="" src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/widget"></script>
+
+<title>SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/bundle-ClassicBlue.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/hustcat/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/hustcat/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/hustcat/wlwmanifest.xml">
+<script async="" src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/analytics.js"></script><script type="text/javascript" src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/encoder.js"></script><script src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'hustcat', cb_enable_mathjax=false;</script>
+<script src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/blog-common.js" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/hustcat/"><img id="blogLogo" src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/hustcat/">YY哥的技术随笔</a></h1>
+<h2>——关注Linux、数据库和云计算</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/hustcat/">首页</a></li>
+<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://msg.cnblogs.com/send/YY%E5%93%A5">联系</a></li>
+<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/hustcat/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/hustcat/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+<!--done-->
+随笔- 125&nbsp;
+文章- 114&nbsp;
+评论- 378&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园.html">SQLite入门与分析(六)---再谈SQLite的锁</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p>写在前面：SQLite封锁机制的实现需要底层文件系统的支持，不管是Linux，还是Windows，都提供了文件锁的机制，而这为SQLite提供了强大的支持。本节就来谈谈SQLite使用到的文件锁——主要基于Linux和Windows平台。</p>
+<p>&nbsp;</p>
+<ul>
+    <li><span style="color: red;"> Linux的文件锁</span></li>
+</ul>
+<p>Linux 支持的文件锁技术主要包括<span style="color: red;">建议锁</span>（advisory lock）和<span style="color: red;">强制锁</span>（mandatory lock）这两种。此外，Linux 中还引入了两种强制锁的变种形式：共享模式强制锁（share-mode mandatory lock）和租借锁（lease）。在这里，主要讨论建议锁（advisory lock）。<br>
+建议锁并不由内核强制实行，也就是说如果有进程不遵守“游戏规则”，不检查目标文件是否已经由别的进程加了锁就往其中写入数据，那么内核是不会加以阻拦的。因此，建议锁并不能阻止进程对文件的访问，而只能依靠各个进程在访问文件之前检查该文件是否已经被其他进程加锁来实现并发控制。进程需要事先对锁的状态做一个约定，并根据锁的当前状态和相互关系来确定其他进程是否能对文件执行指定的操作。而强制锁是由内核强制采用的文件锁——<span style="color: red;">由于内核对每个read()和write()操作都会检查相应的锁，所以会降低系统性能</span>。<br>
+对于建议锁，Linux提供两种实现方式：<span style="color: red;">锁文件</span>（lock files）和<span style="color: red;">记录锁</span>（ record locking）。<br>
+<br>
+(1)锁文件(lock files)<br>
+锁文件是最简单的对文件加锁的方法，每个需要加锁的数据文件都有一个锁文件（lock file）。当锁文件存在时，就认为该数据文件已经被加锁，别的进程不应该访问（但是你非要访问，Linux也不会阻止）。当锁不存在，进程就可以创建一个锁文件，然后访问相应的数据文件。只要创建锁的过程是原子的，就能保证某一时刻只有一个进程拥有该锁，这种方法保证某一时刻只有一个进程访问文件。<br>
+这种想法很简单，当一个进程想访问文件时，可以按如下方式对文件加锁：<br>
+</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #000000;">fd&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;open(</span><span style="color: #800000;">"</span><span style="color: #800000;">somefile.lck</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;O_RDONLY,&nbsp;</span><span style="color: #800080;">0644</span><span style="color: #000000;">);<br>
+</span><span style="color: #0000ff;">if</span><span style="color: #000000;">&nbsp;(fd&nbsp;</span><span style="color: #000000;">&gt;=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;close(fd);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;printf(</span><span style="color: #800000;">"</span><span style="color: #800000;">the&nbsp;file&nbsp;is&nbsp;already&nbsp;locked</span><span style="color: #800000;">"</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+}&nbsp;</span><span style="color: #0000ff;">else</span><span style="color: #000000;">&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;the&nbsp;lock&nbsp;file&nbsp;does&nbsp;not&nbsp;exist,&nbsp;we&nbsp;can&nbsp;lock&nbsp;it&nbsp;and&nbsp;access&nbsp;it&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;fd&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;open(</span><span style="color: #800000;">"</span><span style="color: #800000;">somefile.lck</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;O_CREAT&nbsp;</span><span style="color: #000000;">|</span><span style="color: #000000;">&nbsp;O_WRONLY,&nbsp;</span><span style="color: #800080;">0644</span><span style="color: #800000;">"</span><span style="color: #800000;">);</span><span style="color: #800000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">&nbsp;(fd&nbsp;</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perror(</span><span style="color: #800000;">"</span><span style="color: #800000;">error&nbsp;creating&nbsp;lock&nbsp;file</span><span style="color: #800000;">"</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;we&nbsp;could&nbsp;write&nbsp;our&nbsp;pid&nbsp;to&nbsp;the&nbsp;file&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;close(fd);<br>
+}</span><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>当一个进程处理完文件后，就可以调用unlink("somefile.lck")释放锁了——本质上是删除somefile.lck文件。<br>
+上面这段代码实际上存在竞争情况，原因在于if语句块不是原子性的，进入if语句块，内核可能调度别的进程运行。更好的方式如下：<br>
+</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #000000;">fd&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;open(</span><span style="color: #800000;">"</span><span style="color: #800000;">somefile.lck</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;O_WRONLY&nbsp;</span><span style="color: #000000;">|</span><span style="color: #000000;">&nbsp;O_CREAT&nbsp;</span><span style="color: #000000;">|</span><span style="color: #000000;">&nbsp;O_EXCL,&nbsp;</span><span style="color: #800080;">0644</span><span style="color: #000000;">);<br>
+</span><span style="color: #0000ff;">if</span><span style="color: #000000;">&nbsp;(fd&nbsp;</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;errno&nbsp;</span><span style="color: #000000;">==</span><span style="color: #000000;">&nbsp;EEXIST)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;printf(</span><span style="color: #800000;">"</span><span style="color: #800000;">the&nbsp;file&nbsp;is&nbsp;already&nbsp;locked</span><span style="color: #800000;">"</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+}&nbsp;</span><span style="color: #0000ff;">else</span><span style="color: #000000;">&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">&nbsp;(fd&nbsp;</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;perror(</span><span style="color: #800000;">"</span><span style="color: #800000;">unexpected&nbsp;error&nbsp;checking&nbsp;lock</span><span style="color: #800000;">"</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;<br>
+}<br>
+<br>
+</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;we&nbsp;could&nbsp;write&nbsp;our&nbsp;pid&nbsp;to&nbsp;the&nbsp;file&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+close(fd);</span><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>O_EXCL标志保证open()创建锁文件的过程是原子性的。<br>
+注意以下几点：<br>
+1、任何时刻只有一个进程可以拥有锁。<br>
+2、O_EXCL标志只对本志文件系统是可靠的，对于网络文件系统并不能很好的支持。<br>
+3、锁仅仅只是建议性的。<br>
+4、如果一个持有锁的进程不正常结束，锁文件仍然存在。如果加锁进程的pid存储在锁文件中，其它进程可以检查锁进程是否存在，当它结束时就可以删除锁。但是，在检查的时候，如果pid被其它进程使用了，此时就无能为力了。<br>
+<br>
+(2)记录锁（Record Locking）<br>
+为了克服锁文件的缺点，System V和BSD4.3引入了记录锁，相应的系统调用为lockf()和flock()。而POSIX对于记录锁提供了另外一种机制，其系统调用为fcntl()。Linux提供三种接口，在这里仅讨论POSIX的接口。<br>
+记录锁和锁文件有两个很重要的区别：首先，记录锁可以对文件的任何一部分加锁——<span style="color: red;">这对于DBMS这样的应用程序，有极大的帮助，SQLite当然没有放过这样的好处</span>。其次，记录锁的另一个优点就是它由内核持有，而不是文件系统持有。当进程结束时，所有的锁也随之释放。<br>
+和锁文件一样，POSIX锁也是建议性的。记录锁有两种锁：读锁（read locks）和写锁（write locks）。读锁也就是共享锁（shared lock），写锁也就是排它锁（exclusive lock）。对于一个记录，只能有一个进程持有写锁，读锁不能存在。<br>
+对于一个进程本身而言，多个锁绝不会冲突。如果一个进程对文件的200-250字节持有读锁，然后对200-225字节数据加写锁，是会成功的。此时，200-225为写锁，而226-250字节数据为读锁，该规则主要是防止进程本身发生死锁（尽管多进程之间仍然可能发生死锁）。<br>
+</p>
+<p>POSIX锁通过fcntl()系统来实现，如下：</p>
+<p>&nbsp;</p>
+<p>#include &lt;fcntl.h&gt;<br>
+</p>
+<p>int fcntl(int fd, int command, long arg);</p>
+<p>&nbsp;</p>
+<p>arg为指向flock结构体的指针：<br>
+<br>
+</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #000000;">#include&nbsp;</span><span style="color: #000000;">&lt;</span><span style="color: #000000;">fcntl.h</span><span style="color: #000000;">&gt;</span><span style="color: #000000;"><br>
+<br>
+</span><span style="color: #0000ff;">struct</span><span style="color: #000000;">&nbsp;flock&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">short</span><span style="color: #000000;">&nbsp;l_type;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">short</span><span style="color: #000000;">&nbsp;l_whence;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;off_t&nbsp;l_start;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;off_t&nbsp;l_len;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pid_t&nbsp;l_pid;<br>
+</span>
+<p><span style="color: #000000;">};</span> </p>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;在 flock 结构中，l_type 用来指明创建的是共享锁还是排他锁，其取值有三种：F_RDLCK（共享锁）、F_WRLCK（排他锁）和F_UNLCK（删除之前建立的锁）；l_pid 指明了该锁的拥有者；l_whence、l_start 和l_end 这些字段指明了进程需要对文件的哪个区域进行加锁，这个区域是一个连续的字节集合。因此，进程可以对同一个文件的不同部分加不同的锁。l_whence 必须是 SEEK_SET、SEEK_CUR 或 SEEK_END 这几个值中的一个，它们分别对应着文件头、当前位置和文件尾。l_whence 定义了相对于 l_start 的偏移量，l_start 是从文件开始计算的。<br>
+<br>
+可以执行的操作包括：<br>
+<br>
+&nbsp;&nbsp;&nbsp; * F_GETLK：进程可以通过它来获取通过 fd 打开的那个文件的加锁信息。执行该操作时，lock 指向的结构中就保存了希望对文件加的锁（或者说要查询的锁）。如果确实存在这样一把锁，它阻止 lock 指向的 flock 结构所给出的锁描述符，则把现存的锁的信息写到 lock 指向的 flock 结构中，并将该锁拥有者的 PID 写入 l_pid 字段中，然后返回；否则，就将 lock 指向的 flock 结构中的 l_type 设置为 F_UNLCK，并保持 flock 结构中其他信息不变返回，而不会对该文件真正加锁。<br>
+&nbsp;&nbsp;&nbsp; * F_SETLK：进程用它来对文件的某个区域进行加锁（l_type的值为 F_RDLCK 或 F_WRLCK）或者删除锁（l_type 的值为F_UNLCK），如果有其他锁阻止该锁被建立，那么 fcntl() 就出错返回<br>
+&nbsp;&nbsp;&nbsp; * F_SETLKW：与 F_SETLK 类似，唯一不同的是，<span style="color: red;">如果有其他锁阻止该锁被建立，则调用进程进入睡眠状态</span>，等待该锁释放。一旦这个调用开始了等待，就只有在能够进行加锁或者收到信号时才会返回<br>
+<br>
+需要注意的是，F_GETLK 用于测试是否可以加锁，在 F_GETLK 测试可以加锁之后，F_SETLK 和 F_SETLKW 就会企图建立一把锁，但是这两者之间并不是一个原子操作，也就是说，在 F_SETLK 或者 F_SETLKW 还没有成功加锁之前，另外一个进程就有可能已经插进来加上了一把锁。而且，F_SETLKW 有可能导致程序长时间睡眠。还有，程序对某个文件拥有的各种锁会在相应的文件描述符被关闭时自动清除，程序运行结束后，其所加的各种锁也会自动清除。<br>
+<span style="color: red;"><br>
+</span></p>
+<ul>
+    <li><span style="color: red;">&nbsp; Windows中的文件锁</span></li>
+</ul>
+<p>Windows中的锁都是强制锁(mandatory locks)，Windows中的共享文件通过以下几个机制来管理：<br>
+(1)&nbsp;&nbsp; &nbsp;通过共享访问控制方式，应用程序可以指定整个文件进行共享读，写或者删除。<br>
+(2)&nbsp;&nbsp; &nbsp;通过字节范围锁（byte range locks）可以对文件的某一部分进行读写访问。<br>
+(3)&nbsp;&nbsp; &nbsp;Windows文件系统不允许正在执行的文件被打开用来进行写或删除操作。<br>
+文件的共享方式由WIN32 API中的打开文件函数CreateFile()中的sharing mode参数确定：<br>
+</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #000000;">HANDLE&nbsp;CreateFile(<br>
+&nbsp;&nbsp;LPCTSTR&nbsp;lpFileName,<br>
+&nbsp;&nbsp;DWORD&nbsp;dwDesiredAccess,<br>
+&nbsp;&nbsp;DWORD&nbsp;dwShareMode,<br>
+&nbsp;&nbsp;LPSECURITY_ATTRIBUTES&nbsp;lpSecurityAttributes,<br>
+&nbsp;&nbsp;DWORD&nbsp;dwCreationDisposition,<br>
+&nbsp;&nbsp;DWORD&nbsp;dwFlagsAndAttributes,<br>
+&nbsp;&nbsp;HANDLE&nbsp;hTemplateFile<br>
+);</span><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;dwShareMode的取值通常为：<br>
+<span style="color: red;">FILE_SHARE_DELETE：</span><br>
+&nbsp;　　Enables subsequent open operations on an object to request delete access. <br>
+Otherwise, other processes cannot open the object if they request delete access.<br>
+If this flag is not specified, but the object has been opened for delete access, the function fails.<br>
+<span style="color: red;">FILE_SHARE_READ</span>：<br>
+&nbsp;&nbsp; 　 Enables subsequent open operations on an object to request read access. <br>
+Otherwise, other processes cannot open the object if they request read access. <br>
+If this flag is not specified, but the object has been opened for read access, the function fails.<br>
+<span style="color: red;">FILE_SHARE_WRITE</span>：<br>
+Enables subsequent open operations on an object to request write access. <br>
+Otherwise, other processes cannot open the object if they request write access. <br>
+If this flag is not specified, but the object has been opened for write access, the function fails.<br>
+<br>
+具体的实现函数：<br>
+</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div><!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #000000;">BOOL&nbsp;LockFile(<br>
+&nbsp;&nbsp;HANDLE&nbsp;hFile,<br>
+&nbsp;&nbsp;DWORD&nbsp;dwFileOffsetLow,<br>
+&nbsp;&nbsp;DWORD&nbsp;dwFileOffsetHigh,<br>
+&nbsp;&nbsp;DWORD&nbsp;nNumberOfBytesToLockLow,<br>
+&nbsp;&nbsp;DWORD&nbsp;nNumberOfBytesToLockHigh<br>
+);</span><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<ul>
+    <li><span style="color: red;">SQLite封锁机制的几个注意点</span></li>
+</ul>
+<p>SQLite的lock byte的定义如下：<br>
+</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_215943" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_215943&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_215943&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_215943&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/ContractedBlock.gif" align="top" width="11" height="16"><img id="Code_Open_Image_215943" style="display: none;" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_215943&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_215943&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_215943&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/ExpandedBlockStart.gif" align="top" width="11" height="16"><span id="Code_Closed_Text_215943" class="cnblogs_code_Collapse">Code</span><span id="Code_Open_Text_215943" style="display: none;"><br>
+<!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #0000ff;">#define</span><span style="color: #000000;">&nbsp;PENDING_BYTE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0x40000000&nbsp;&nbsp;/*&nbsp;First&nbsp;byte&nbsp;past&nbsp;the&nbsp;1GB&nbsp;boundary&nbsp;*/</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">#define</span><span style="color: #000000;">&nbsp;RESERVED_BYTE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(PENDING_BYTE+1)</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">#define</span><span style="color: #000000;">&nbsp;SHARED_FIRST&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(PENDING_BYTE+2)</span><span style="color: #000000;"><br>
+</span><span style="color: #0000ff;">#define</span><span style="color: #000000;">&nbsp;SHARED_SIZE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;510</span></span></div>
+<p>(1)PENDING_BYTE为何设置为0X4000 0000（1GB）？<br>
+在Windows文件中，<span style="color: red;">被加锁的区域不要求有数据，并且它会阻止所有的进程写文件的该区域,包括第一个持有该锁的进程</span>.为了防止出现由于对含有mandatory lock的页面进行读写操作而出现错误(<span style="color: red;">这在Windows中是不允许的</span>),SQLite完全忽略包含pending byte的页面,所以pending byte在数据库文件上产生一个”文件洞”。PENDING_BYTE设置得那么高,则大部分数据库文件不会遇到由于PENDING_BYTE产生”文件洞”引起的空间损失(<span style="color: red;">除非文件特别大,超过1GB</span>)。<br>
+<br>
+(2)对于Windows来说，文件中加锁的区域不能重叠，为了使两个读进程可以同时访问文件，对于SHARED LOCK选择一个SHARED_FIRST——SHARED_FIRST+ SHARED_SIZE范围内的随机数，所以有可能两个进程取得一样的lock byte，<span style="color: red;">所以对于Windows，SQLite的并发性就受到限制</span>。<br>
+</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+<a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1408208,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+<a id="green_channel_follow" onclick="c_follow();" href="javascript:void(0);">关注我</a>
+<a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a><a id="green_channel_contact" href="http://msg.cnblogs.com/send/YY%E5%93%A5" target="_blank">联系我</a>
+<a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/icon_weibo_24.png" alt=""></a>
+<a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+<div id="author_profile_info" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/" target="_blank"><img src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/sample_face.gif" class="author_avatar" alt=""></a>
+<div id="author_profile_detail" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followees">关注 - 2</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followers">粉丝 - 528</a>
+</div>
+</div>
+<div class="clear"></div>
+<div id="author_profile_honor"></div>
+<div id="author_profile_follow">
+    <a href="javascript:void(0);" onclick="c_follow();return false;">+加关注</a>
+</div>
+</div>
+<div id="div_digg">										
+    <div class="diggit" onclick="votePost(1408208,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">1</span>
+    </div>
+	<div class="buryit" onclick="votePost(1408208,&#39;Bury&#39;)"> 
+		<span class="burynum" id="bury_count">0</span>
+	</div>
+	<div class="clear"></div>	
+	<div class="diggword" id="digg_tips">
+    (请您对文章做出评价)
+    </div>	
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html" title="发布于2009-03-01 12:32">SQLite入门与分析(五)---Page Cache之并发控制</a><br><a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/03/18/1415752.html" title="发布于2009-03-18 18:59">SQLite入门与分析(七)---浅谈SQLite的虚拟机</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2009-03-10 21:54</span> <a href="http://www.cnblogs.com/hustcat/">YY哥</a> 阅读(<span id="post_view_count">7590</span>) 评论(<span id="post_comment_count">5</span>)  <a href="http://i.cnblogs.com/EditPosts.aspx?postid=1408208" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#" onclick="AddToWz(1408208);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=26761,cb_entryId=1408208,cb_blogApp=currentBlogApp,cb_blogUserGuid='a9743d0b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2009/3/10 21:54:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#1473387" class="layer">#1楼</a><a name="1473387" id="comment_anchor_1473387"></a>  <span class="comment_date">2009-03-10 22:07</span> <a id="a_comment_author_1473387" href="http://www.cnblogs.com/soli/" target="_blank">Soli</a> <a href="http://msg.cnblogs.com/send/Soli" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1473387" class="blog_comment_body">Not bad.<br><br>先评论再细看。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1473387,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1473387,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1473387_avatar" style="display:none;">http://pic.cnblogs.com/face/u1946.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#1473388" class="layer">#2楼</a><a name="1473388" id="comment_anchor_1473388"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2009-03-10 22:09</span> <a id="a_comment_author_1473388" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1473388" class="blog_comment_body">@Soli<br>谢谢支持~</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1473388,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1473388,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#1473418" class="layer">#3楼</a><a name="1473418" id="comment_anchor_1473418"></a>  <span class="comment_date">2009-03-10 22:53</span> <a id="ctl00_CommentList_NameLink_2" target="_blank">ajax+u[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1473418" class="blog_comment_body">我只关心sqlite 虚拟机 希望能讲到</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#1508963" class="layer">#4楼</a><a name="1508963" id="comment_anchor_1508963"></a>  <span class="comment_date">2009-04-21 18:18</span> <a id="ctl00_CommentList_NameLink_3" target="_blank">lgl_newbie[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1508963" class="blog_comment_body">@arrowcat
+<br>先感谢lz的分享，经过你的分析我对sqlite有了更深的认识。我现在在做一个项目，用到了sqlite，具体是在linux下用C语言操作sqlite。现在就是解决不了多进程访问sqlite，貌似用到sqlite3_busy_handler()和sqlite3_busy_timeout()函数，但是具体不咋会用这俩函数，能不能具体结合例子讲讲这两个函数的使用方法。谢谢！</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#3125046" class="layer">#5楼</a><a name="3125046" id="comment_anchor_3125046"></a><span id="comment-maxId" style="display:none;">3125046</span><span id="comment-maxDate" style="display:none;">2015/2/6 16:36:44</span>  <span class="comment_date">2015-02-06 16:36</span> <a id="a_comment_author_3125046" href="http://home.cnblogs.com/u/721558/" target="_blank">0.0!</a> <a href="http://msg.cnblogs.com/send/0.0%21" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3125046" class="blog_comment_body">特别感谢共享，看了别热的帖子，觉得好就应该留言支持</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3125046,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3125046,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－专注为 App 开发者提供IM云服务</a><br><a href="http://click.aliyun.com/m/3037/" target="_blank">【阿里云SSD云盘】速度行业领先</a><br></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"><a href="http://job.cnblogs.com/offer/51018/" target="_blank"><img width="300" height="250" src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/35695-20160215151750532-1876432241.png" alt="招聘ASP.NET 5开发工程师" title="招聘ASP.NET 5开发工程师"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/539687/" target="_blank">怎样交付业余项目</a><br> ·  <a href="http://news.cnblogs.com/n/539774/" target="_blank">《黑暗之魂3》新预告片公布 国区Steam预购仅199元</a><br> ·  <a href="http://news.cnblogs.com/n/539773/" target="_blank">梅西暖人一幕：送签名球衣圆梦塑料男孩</a><br> ·  <a href="http://news.cnblogs.com/n/539772/" target="_blank">中国科学家培育出人工精子 给不育男士带来福音</a><br> ·  <a href="http://news.cnblogs.com/n/539771/" target="_blank">市场份额已不足1% Opera欲推新浏览器摆脱困境</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/538249/" target="_blank">谷歌背后的数学</a><br> ·  <a href="http://kb.cnblogs.com/page/533808/" target="_blank">Medium开发团队谈架构设计</a><br> ·  <a href="http://kb.cnblogs.com/page/539274/" target="_blank">理解“渐进增强(Progressive Enhancement)”</a><br> ·  <a href="http://kb.cnblogs.com/page/534571/" target="_blank">为什么说DOM操作很慢</a><br> ·  <a href="http://kb.cnblogs.com/page/527518/" target="_blank">为什么你应该尝试全栈</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);    
+});
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><p><strong>
+</strong></p><div align="center"><strong><img border="0" alt="" src="./SQLite入门与分析(六)---再谈SQLite的锁 - YY哥 - 博客园_files/jim_gray.jpg" width="160" height="268"></strong></div>
+<p>&nbsp;</p>
+<p><strong>个人简介</strong></p>
+<p>专业打杂程序员  @<a href="http://hustcat.github.io/">github</a></p><p>
+<br>
+</p><p><strong>联系方式</strong></p>
+<p><a title="新浪微博" href="http://weibo.com/hustcat"><span style="font-family: Courier">新浪微博</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a title="腾讯微博" href="http://t.qq.com/hustcat">腾讯微博</a></p>
+<p><br></p>
+<p><!-- 博客园新闻频道引用代码 num-显示条数 --><a href="http://news.cnblogs.com/" target="_blank">IT新闻:</a><br></p><div style="display: none" id="__document_write_ajax_div-1"></div><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>园龄：<a href="http://home.cnblogs.com/u/hustcat/" title="入园时间：2007-05-23">8年9个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/hustcat/followers/">528</a><br>关注：<a href="http://home.cnblogs.com/u/hustcat/followees/">2</a><div id="p_b_follow"></div><div style="display: none" id="__document_write_ajax_div-2"></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/02/01&#39;);return false;">&lt;</a></td><td align="center">2009年3月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/04/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">22</td><td class="CalOtherMonthDay" align="center">23</td><td class="CalOtherMonthDay" align="center">24</td><td class="CalOtherMonthDay" align="center">25</td><td class="CalOtherMonthDay" align="center">26</td><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/01.html"><u>1</u></a></td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td class="CalWeekendDay" align="center">7</td></tr><tr><td class="CalWeekendDay" align="center">8</td><td align="center">9</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/10.html"><u>10</u></a></td><td align="center">11</td><td align="center">12</td><td align="center">13</td><td class="CalWeekendDay" align="center">14</td></tr><tr><td class="CalWeekendDay" align="center">15</td><td align="center">16</td><td align="center">17</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/18.html"><u>18</u></a></td><td align="center">19</td><td align="center">20</td><td class="CalWeekendDay" align="center">21</td></tr><tr><td class="CalWeekendDay" align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td align="center">26</td><td align="center">27</td><td class="CalWeekendDay" align="center">28</td></tr><tr><td class="CalWeekendDay" align="center">29</td><td align="center">30</td><td align="center">31</td><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/hustcat/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/hustcat/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/hustcat/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/hustcat/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/hustcat/tag/" title="我的博客的标签列表">我的标签</a></li>
+<li><a id="itemListLink" onclick="this.blur();WarpClass(&#39;itemListLink&#39;, &#39;itemListLin_con&#39;);return false;" href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html#">更多链接</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/hustcat/category/191424.html">Linux相关(26)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/hustcat/category/214566.html">MySQL(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/hustcat/category/175619.html">Others(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/hustcat/category/139956.html">Web技术(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/hustcat/category/183836.html">编程语言(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/hustcat/category/605980.html">存储(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/hustcat/category/130051.html">数据结构与算法(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术(30)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/hustcat/category/196365.html">系统相关(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/hustcat/category/427554.html">云计算与虚拟化(10)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/hustcat/archive/2014/11.html">2014年11月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/hustcat/archive/2014/10.html">2014年10月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/hustcat/archive/2014/09.html">2014年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/hustcat/archive/2014/08.html">2014年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/hustcat/archive/2014/07.html">2014年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/hustcat/archive/2014/03.html">2014年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/hustcat/archive/2013/09.html">2013年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/hustcat/archive/2013/08.html">2013年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/hustcat/archive/2013/02.html">2013年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/hustcat/archive/2012/11.html">2012年11月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/hustcat/archive/2012/01.html">2012年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/hustcat/archive/2011/12.html">2011年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/hustcat/archive/2011/10.html">2011年10月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/hustcat/archive/2011/03.html">2011年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/hustcat/archive/2010/09.html">2010年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/hustcat/archive/2010/08.html">2010年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/hustcat/archive/2010/07.html">2010年7月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/hustcat/archive/2010/06.html">2010年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/hustcat/archive/2010/05.html">2010年5月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/hustcat/archive/2010/04.html">2010年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/hustcat/archive/2010/03.html">2010年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/hustcat/archive/2010/01.html">2010年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="http://www.cnblogs.com/hustcat/archive/2009/12.html">2009年12月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="http://www.cnblogs.com/hustcat/archive/2009/10.html">2009年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="http://www.cnblogs.com/hustcat/archive/2009/09.html">2009年9月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="http://www.cnblogs.com/hustcat/archive/2009/08.html">2009年8月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="http://www.cnblogs.com/hustcat/archive/2009/06.html">2009年6月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="http://www.cnblogs.com/hustcat/archive/2009/05.html">2009年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="http://www.cnblogs.com/hustcat/archive/2009/04.html">2009年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="http://www.cnblogs.com/hustcat/archive/2009/03.html">2009年3月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="http://www.cnblogs.com/hustcat/archive/2009/02.html">2009年2月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="http://www.cnblogs.com/hustcat/archive/2008/10.html">2008年10月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="http://www.cnblogs.com/hustcat/archive/2008/08.html">2008年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="http://www.cnblogs.com/hustcat/archive/2008/07.html">2008年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="http://www.cnblogs.com/hustcat/archive/2008/06.html">2008年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="http://www.cnblogs.com/hustcat/archive/2008/05.html">2008年5月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="http://www.cnblogs.com/hustcat/archive/2008/04.html">2008年4月 (5)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_kernel" class="catListkernel sidebar-block">
+<h3 class="catListTitle">kernel</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_2_Link_0" href="http://wiki.zh-kernel.org/" rel="nofollow">kernel中文社区</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_1" href="http://ldn.linuxfoundation.org/" rel="nofollow">LDN</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_2" href="http://www.tldp.org/" rel="nofollow">The Linux Document Project</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_3" href="http://www.kernel.org/" rel="nofollow">The Linux Kernel Archives</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links210847" class="catList sidebar-block">
+<h3 class="catListTitle">manual</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_3_Link_0" href="http://www.cppreference.com/wiki/" rel="nofollow">cppreference</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_1" href="http://gcc.gnu.org/onlinedocs/" rel="nofollow">gcc manual</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_2" href="http://dev.mysql.com/doc/refman/5.1/zh/index.html" rel="nofollow">mysql manual</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links198983" class="catList sidebar-block">
+<h3 class="catListTitle">sites</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_4_Link_0" href="http://www.databasejournal.com/" rel="nofollow">Database Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_1" href="http://mirrors.fedoraproject.org/publiclist/Fedora/" rel="nofollow">Fedora镜象</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_2" href="http://highscalability.com/" rel="nofollow">highscalability</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_3" href="https://eprints.kfupm.edu.sa/" rel="nofollow">KFUPM ePrints</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_4" href="http://www.die.net/" rel="nofollow">Linux docs</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_5" href="http://www.linuxjournal.com/" rel="nofollow">Linux Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_6" href="http://nosql-database.org/" rel="nofollow">NoSQL</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_7" href="http://www.sqlite.org/" rel="nofollow">SQLite</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_technology website" class="catListtechnology website sidebar-block">
+<h3 class="catListTitle">技术社区</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_5_Link_0" href="http://www.apache.org/" rel="nofollow">apache</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_1" href="http://www.csdn.net/" rel="nofollow">CSDN</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_2" href="http://www.ibm.com/developerworks/cn/" rel="nofollow">IBM-developerworks</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_3" href="http://www.lucene.com.cn/" rel="nofollow">lucene中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_4" href="http://www.nutchchina.com/" rel="nofollow">nutch中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_5" href="http://www.oldlinux.org/oldlinux/index.php" rel="nofollow">oldlinux</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_6" href="http://forums.oracle.com/forums/main.jspa?categoryID=84" rel="nofollow">oracle's forum</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/3993712.html#3345657">1. Re:Docker实践(6)—CentOS7上部署Kubernetes</a></li>
+    <li class="recent_comment_body">Mark</li>
+    <li class="recent_comment_author">--Ant</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/4004889.html#3343804">2. Re:深入学习golang(4)—new与make</a></li>
+    <li class="recent_comment_body">讲的让我懂了，反正我顶</li>
+    <li class="recent_comment_author">--一页天书不分说</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568738.html#3336424">3. Re:Linux网络协议栈(一)——Socket入门(1)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568765.html#3336421">4. Re:Linux网络协议栈(一)——Socket入门(2)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html#3269030">5. Re:理解MySQL——索引与优化</a></li>
+    <li class="recent_comment_body">楼主我收藏了</li>
+    <li class="recent_comment_author">--Ｍ&amp;amp;N</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(166180)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(51843)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/12/19/1627525.html">3. 理解MySQL——复制(Replication)(45305)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">4. libevent源码分析(39126)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2008/04/09/1144645.html">5. 算法系列---回溯算法(25309)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/06/02/1494311.html">1. (i++)+(i++)与(++i)+(++i)(40)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(31)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">3. 理解MySQL——索引与优化(23)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/01/27/1657821.html">4. 浅谈SQLite——实现与应用(21)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/05/14/1735774.html">5. 一道算法题,求更好的解法(18)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(30)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(13)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">3. libevent源码分析(12)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/06/23/1762987.html">4. 浅谈SQLite——查询处理及优化(10)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2012/01/11/2319249.html">5. 乱谈服务器编程(10)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2016 YY哥
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+</body></html>

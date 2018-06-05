@@ -1,0 +1,715 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0062)http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script async="" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/widget"></script>
+
+<title>SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/bundle-ClassicBlue.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/hustcat/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/hustcat/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/hustcat/wlwmanifest.xml">
+<script async="" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/analytics.js"></script><script type="text/javascript" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/encoder.js"></script><script src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'hustcat', cb_enable_mathjax=false;</script>
+<script src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/blog-common.js" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/hustcat/"><img id="blogLogo" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/hustcat/">YY哥的技术随笔</a></h1>
+<h2>——关注Linux、数据库和云计算</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/hustcat/">首页</a></li>
+<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://msg.cnblogs.com/send/YY%E5%93%A5">联系</a></li>
+<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/hustcat/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/hustcat/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+<!--done-->
+随笔- 125&nbsp;
+文章- 114&nbsp;
+评论- 378&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园.html">SQLite入门与分析(五)---Page Cache之并发控制</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p><font face="Verdana">写在前面:本节主要谈谈SQLite的锁机制，SQLite是基于锁来实现并发控制的，所以本节的内容实际上是属于事务处理的，但是SQLite的锁机制实现非常的简单而巧妙，所以在这里单独讨论一下。如果真正理解了它，对整个事务的实现也就理解了。而要真正理解SQLite的锁机制，最好方法就是阅读SQLite的源码，所以在阅读本文时，最好能结合源码。SQLite的锁机制很巧妙，尽管在本节中的源码中，我写了很多注释，也是我个人在研究时的一点心得，但是我发现仅仅用言语，似乎不能把问题说清楚，只有通过体会，才能真正理解SQLite的锁机制。好了，下面进入正题。</font></p>
+<p>&nbsp;</p>
+<p><font face="Verdana">SQLite的并发控制机制是采用加锁的方式，实现非常简单，但也非常的巧妙，本节将对其进行一个详细的解剖。<span style="color: red;"><font face="Verdana">请仔细阅读下图，它可以帮助更好的理解下面的内容。</font></span></font></p>
+<p><font face="Verdana"></font>&nbsp;<img alt="" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/sqlite02-3.JPG" width="412" height="464"></p>
+<p><font face="Verdana"><span style="color: red;"><font face="Verdana">1、RESERVED LOCK<br>
+</font></span>RESERVED锁意味着进程将要对数据库进行写操作。某一时刻只能有一个RESERVED Lock，但是RESERVED锁和SHARED锁可以共存，而且可以对数据库加新的SHARED锁。<br>
+<span style="color: red;">为什么要用RESERVED锁？<br>
+</span><span style="color: red;">主要是出于并发性的考虑。</span>由于SQLite只有库级排斥锁（EXCLUSIVE LOCK），如果写事务一开始就上EXCLUSIVE锁，然后再进行实际的数据更新，写磁盘操作，这会使得并发性大大降低。而SQLite一旦得到数据库的RESERVED锁，就可以对缓存中的数据进行修改，而与此同时，其它进程可以继续进行读操作。直到真正需要写磁盘时才对数据库加EXCLUSIVE锁。<br>
+<span style="color: red;">2、PENDING LOCK</span><br>
+PENDING LOCK意味着进程已经完成缓存中的数据修改，并想立即将更新写入磁盘。它将等待此时已经存在的读锁事务完成，但是不允许对数据库加新的SHARED LOCK(这与RESERVED LOCK相区别)。<br>
+<span style="color: red;">为什么要有PENDING LOCK?<br>
+主要是为了防止出现写饿死的情况</span>。由于写事务先要获取RESERVED LOCK，所以可能一直产生新的SHARED LOCK，使得写事务发生饿死的情况。<br>
+<font face="Verdana"><br>
+<span style="color: red;">3、加锁机制的具体实现</span></font></font></p>
+<p><font face="Verdana">SQLite在pager层获取锁的函数如下：</font></p>
+<p>&nbsp;</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_122541" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_122541&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_122541&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_122541&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/ContractedBlock.gif" align="top" width="11" height="16"><img id="Code_Open_Image_122541" style="display: none;" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_122541&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_122541&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_122541&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/ExpandedBlockStart.gif" align="top" width="11" height="16"><span class="cnblogs_code_Collapse" id="Code_Closed_Text_122541">Code</span><span id="Code_Open_Text_122541" style="display: none;"><br>
+<!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #008000;">//</span><span style="color: #008000;">获取一个文件的锁,如果忙则重复该操作,<br>
+</span><span style="color: #008000;">//</span><span style="color: #008000;">直到busy&nbsp;回调用函数返回flase,或者成功获得锁</span><span style="color: #008000;"><br>
+</span><span style="color: #0000ff;">static</span><span style="color: #000000;">&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;pager_wait_on_lock(Pager&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pPager,&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;locktype){<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;rc;<br>
+&nbsp;&nbsp;assert(&nbsp;PAGER_SHARED</span><span style="color: #000000;">==</span><span style="color: #000000;">SHARED_LOCK&nbsp;);<br>
+&nbsp;&nbsp;assert(&nbsp;PAGER_RESERVED</span><span style="color: #000000;">==</span><span style="color: #000000;">RESERVED_LOCK&nbsp;);<br>
+&nbsp;&nbsp;assert(&nbsp;PAGER_EXCLUSIVE</span><span style="color: #000000;">==</span><span style="color: #000000;">EXCLUSIVE_LOCK&nbsp;);<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pPager</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">state</span><span style="color: #000000;">&gt;=</span><span style="color: #000000;">locktype&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">重复直到获得锁</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">do</span><span style="color: #000000;">&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;sqlite3OsLock(pPager</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">fd,&nbsp;locktype);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">while</span><span style="color: #000000;">(&nbsp;rc</span><span style="color: #000000;">==</span><span style="color: #000000;">SQLITE_BUSY&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;sqlite3InvokeBusyHandler(pPager</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">pBusyHandler)&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;rc</span><span style="color: #000000;">==</span><span style="color: #000000;">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">设置pager的状态</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">state&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;locktype;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;rc;<br>
+}</span></span></div>
+<p>&nbsp;</p>
+<p><font face="Verdana">Windows下具体的实现如下：</font></p>
+<div class="cnblogs_code"><font face="Verdana"><img id="Code_Closed_Image_122633" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_122633&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_122633&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_122633&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/ContractedBlock.gif" align="top" width="11" height="16"><img id="Code_Open_Image_122633" style="display: none;" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_122633&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_122633&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_122633&#39;).style.display=&#39;inline&#39;;" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/ExpandedBlockStart.gif" align="top" width="11" height="16"><span class="cnblogs_code_Collapse" id="Code_Closed_Text_122633">Code</span><span id="Code_Open_Text_122633" style="display: none;"><br>
+<!--<br />
+<br />
+Code highlighting produced by Actipro CodeHighlighter (freeware)<br />
+http://www.CodeHighlighter.com/<br />
+<br />
+--><span style="color: #0000ff;">static</span><span style="color: #000000;">&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;winLock(OsFile&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">id,&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;locktype){<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;SQLITE_OK;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Return&nbsp;code&nbsp;from&nbsp;subroutines&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;res&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Result&nbsp;of&nbsp;a&nbsp;windows&nbsp;lock&nbsp;call&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;newLocktype;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Set&nbsp;id-&gt;locktype&nbsp;to&nbsp;this&nbsp;value&nbsp;before&nbsp;exiting&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;gotPendingLock&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;True&nbsp;if&nbsp;we&nbsp;acquired&nbsp;a&nbsp;PENDING&nbsp;lock&nbsp;this&nbsp;time&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;winFile&nbsp;</span><span style="color: #000000;">*</span><span style="color: #000000;">pFile&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;(winFile</span><span style="color: #000000;">*</span><span style="color: #000000;">)id;<br>
+<br>
+&nbsp;&nbsp;assert(&nbsp;pFile</span><span style="color: #000000;">!=</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;);<br>
+&nbsp;&nbsp;TRACE5(</span><span style="color: #800000;">"</span><span style="color: #800000;">LOCK&nbsp;%d&nbsp;%d&nbsp;was&nbsp;%d(%d)\n</span><span style="color: #800000;">"</span><span style="color: #000000;">,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">h,&nbsp;locktype,&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype,&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">sharedLockByte);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;If&nbsp;there&nbsp;is&nbsp;already&nbsp;a&nbsp;lock&nbsp;of&nbsp;this&nbsp;type&nbsp;or&nbsp;more&nbsp;restrictive&nbsp;on&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;OsFile,&nbsp;do&nbsp;nothing.&nbsp;Don't&nbsp;use&nbsp;the&nbsp;end_lock:&nbsp;exit&nbsp;path,&nbsp;as<br>
+&nbsp;&nbsp;**&nbsp;sqlite3OsEnterMutex()&nbsp;hasn't&nbsp;been&nbsp;called&nbsp;yet.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">当前的锁&gt;=locktype,则返回</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype</span><span style="color: #000000;">&gt;=</span><span style="color: #000000;">locktype&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Make&nbsp;sure&nbsp;the&nbsp;locking&nbsp;sequence&nbsp;is&nbsp;correct<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;assert(&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype</span><span style="color: #000000;">!=</span><span style="color: #000000;">NO_LOCK&nbsp;</span><span style="color: #000000;">||</span><span style="color: #000000;">&nbsp;locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">SHARED_LOCK&nbsp;);<br>
+&nbsp;&nbsp;assert(&nbsp;locktype</span><span style="color: #000000;">!=</span><span style="color: #000000;">PENDING_LOCK&nbsp;);<br>
+&nbsp;&nbsp;assert(&nbsp;locktype</span><span style="color: #000000;">!=</span><span style="color: #000000;">RESERVED_LOCK&nbsp;</span><span style="color: #000000;">||</span><span style="color: #000000;">&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">SHARED_LOCK&nbsp;);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Lock&nbsp;the&nbsp;PENDING_LOCK&nbsp;byte&nbsp;if&nbsp;we&nbsp;need&nbsp;to&nbsp;acquire&nbsp;a&nbsp;PENDING&nbsp;lock&nbsp;or<br>
+&nbsp;&nbsp;**&nbsp;a&nbsp;SHARED&nbsp;lock.&nbsp;&nbsp;If&nbsp;we&nbsp;are&nbsp;acquiring&nbsp;a&nbsp;SHARED&nbsp;lock,&nbsp;the&nbsp;acquisition&nbsp;of<br>
+&nbsp;&nbsp;**&nbsp;the&nbsp;PENDING_LOCK&nbsp;byte&nbsp;is&nbsp;temporary.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;newLocktype&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype;<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">两种情况:&nbsp;(1)如果当前文件处于无锁状态(获取读锁---读事务<br>
+&nbsp;&nbsp;**和写事务在最初阶段都要经历的阶段),<br>
+&nbsp;&nbsp;**(2)处于RESERVED_LOCK，且请求的锁为EXCLUSIVE_LOCK(写事务)<br>
+&nbsp;&nbsp;**则对执行加PENDING_LOCK<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #808080;">/////////////////////</span><span style="color: #008000;">(1)</span><span style="color: #808080;">//////////////////</span><span style="color: #008000;">/</span><span style="color: #808080;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">NO_LOCK<br>
+&nbsp;&nbsp;&nbsp;</span><span style="color: #000000;">||</span><span style="color: #000000;">&nbsp;(locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">EXCLUSIVE_LOCK&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">RESERVED_LOCK)<br>
+&nbsp;&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">int</span><span style="color: #000000;">&nbsp;cnt&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">3</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">加pending锁</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">while</span><span style="color: #000000;">(&nbsp;cnt</span><span style="color: #000000;">--&gt;</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;(res&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;LockFile(pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">h,&nbsp;PENDING_BYTE,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">,&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">))</span><span style="color: #000000;">==</span><span style="color: #800080;">0</span><span style="color: #000000;">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Try&nbsp;3&nbsp;times&nbsp;to&nbsp;get&nbsp;the&nbsp;pending&nbsp;lock.&nbsp;&nbsp;The&nbsp;pending&nbsp;lock&nbsp;might&nbsp;be<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;held&nbsp;by&nbsp;another&nbsp;reader&nbsp;process&nbsp;who&nbsp;will&nbsp;release&nbsp;it&nbsp;momentarily.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRACE2(</span><span style="color: #800000;">"</span><span style="color: #800000;">could&nbsp;not&nbsp;get&nbsp;a&nbsp;PENDING&nbsp;lock.&nbsp;cnt=%d\n</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;cnt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sleep(</span><span style="color: #800080;">1</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">设置为gotPendingLock为1,使和在后面要释放PENDING锁</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;gotPendingLock&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;res;<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Acquire&nbsp;a&nbsp;shared&nbsp;lock<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">获取shared&nbsp;lock<br>
+&nbsp;&nbsp;**此时,事务应该持有PENDING锁,而PENDING锁作为事务从UNLOCKED到<br>
+&nbsp;&nbsp;**SHARED_LOCKED的一个过渡,所以事务由PENDING-&gt;SHARED<br>
+&nbsp;&nbsp;**此时,实际上锁处于两个状态:PENDING和SHARED,<br>
+&nbsp;&nbsp;**直到后面释放PENDING锁后,才真正处于SHARED状态<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #808080;">///////////////</span><span style="color: #008000;">/(2)</span><span style="color: #808080;">////////////////////////////////////</span><span style="color: #008000;">/</span><span style="color: #808080;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">SHARED_LOCK&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;res&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">NO_LOCK&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;getReadLock(pFile);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;res&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newLocktype&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;SHARED_LOCK;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Acquire&nbsp;a&nbsp;RESERVED&nbsp;lock<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">获取RESERVED<br>
+&nbsp;&nbsp;**此时事务持有SHARED_LOCK,变化过程为SHARED-&gt;RESERVED。<br>
+&nbsp;&nbsp;**RESERVED锁的作用就是为了提高系统的并发性能<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #808080;">////////////////////////</span><span style="color: #008000;">(3)</span><span style="color: #808080;">/////////////////////////////////<br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">RESERVED_LOCK&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;res&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">SHARED_LOCK&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">加RESERVED锁</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;LockFile(pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">h,&nbsp;RESERVED_BYTE,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">,&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;res&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newLocktype&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;RESERVED_LOCK;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Acquire&nbsp;a&nbsp;PENDING&nbsp;lock<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">获取PENDING锁<br>
+&nbsp;&nbsp;**此时事务持有RESERVED_LOCK,且事务申请EXCLUSIVE_LOCK<br>
+&nbsp;&nbsp;**变化过程为:RESERVED-&gt;PENDING。<br>
+&nbsp;&nbsp;**PENDING状态只是唯一的作用就是防止写饿死.<br>
+&nbsp;&nbsp;**读事务不会执行该代码,但是写事务会执行该代码,<br>
+&nbsp;&nbsp;**执行该代码后gotPendingLock设为0，后面就不会释放PENDING锁。<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #808080;">//////////////////////////////</span><span style="color: #008000;">(4)</span><span style="color: #808080;">//////////////////////////////</span><span style="color: #008000;">//</span><span style="color: #808080;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">EXCLUSIVE_LOCK&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;res&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">这里没有实际的加锁操作，只是把锁的状态改为PENDING状态</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;newLocktype&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;PENDING_LOCK;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">设置了gotPendingLock,后面就不会释放PENDING锁了,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">相当于加了PENDING锁,实际上是在开始处加的PENDING锁</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;&nbsp;&nbsp;gotPendingLock&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">;<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Acquire&nbsp;an&nbsp;EXCLUSIVE&nbsp;lock<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">获取EXCLUSIVE锁<br>
+&nbsp;&nbsp;**当一个事务执行该代码时,它应该满足以下条件:<br>
+&nbsp;&nbsp;**(1)锁的状态为:PENDING&nbsp;(2)是一个写事务<br>
+&nbsp;&nbsp;**变化过程:PENDING-&gt;EXCLUSIVE<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #808080;">////////////////////////</span><span style="color: #008000;">/(5)</span><span style="color: #808080;">//////////////////////////////////////////</span><span style="color: #008000;">/</span><span style="color: #808080;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">EXCLUSIVE_LOCK&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;res&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype</span><span style="color: #000000;">&gt;=</span><span style="color: #000000;">SHARED_LOCK&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;unlockReadLock(pFile);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;TRACE2(</span><span style="color: #800000;">"</span><span style="color: #800000;">unreadlock&nbsp;=&nbsp;%d\n</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;res);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;LockFile(pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">h,&nbsp;SHARED_FIRST,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">,&nbsp;SHARED_SIZE,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;res&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newLocktype&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;EXCLUSIVE_LOCK;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRACE2(</span><span style="color: #800000;">"</span><span style="color: #800000;">error-code&nbsp;=&nbsp;%d\n</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;GetLastError());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;If&nbsp;we&nbsp;are&nbsp;holding&nbsp;a&nbsp;PENDING&nbsp;lock&nbsp;that&nbsp;ought&nbsp;to&nbsp;be&nbsp;released,&nbsp;then<br>
+&nbsp;&nbsp;**&nbsp;release&nbsp;it&nbsp;now.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">此时事务在第2步中获得PENDING锁,它将申请SHARED_LOCK(第3步,和图形相对照),<br>
+&nbsp;&nbsp;**而在之前它已经获取了PENDING锁,<br>
+&nbsp;&nbsp;**所以在这里它需要释放PENDING锁,此时锁的变化为:PENDING-&gt;SHARED<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #808080;">////////////////////////</span><span style="color: #008000;">//(6)</span><span style="color: #808080;">////////////////////////////////////</span><span style="color: #008000;">/</span><span style="color: #808080;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;gotPendingLock&nbsp;</span><span style="color: #000000;">&amp;&amp;</span><span style="color: #000000;">&nbsp;locktype</span><span style="color: #000000;">==</span><span style="color: #000000;">SHARED_LOCK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;UnlockFile(pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">h,&nbsp;PENDING_BYTE,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">,&nbsp;</span><span style="color: #800080;">1</span><span style="color: #000000;">,&nbsp;</span><span style="color: #800080;">0</span><span style="color: #000000;">);<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">/*</span><span style="color: #008000;">&nbsp;Update&nbsp;the&nbsp;state&nbsp;of&nbsp;the&nbsp;lock&nbsp;has&nbsp;held&nbsp;in&nbsp;the&nbsp;file&nbsp;descriptor&nbsp;then<br>
+&nbsp;&nbsp;**&nbsp;return&nbsp;the&nbsp;appropriate&nbsp;result&nbsp;code.<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">*/</span><span style="color: #000000;"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">if</span><span style="color: #000000;">(&nbsp;res&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff;">else</span><span style="color: #000000;">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;TRACE4(</span><span style="color: #800000;">"</span><span style="color: #800000;">LOCK&nbsp;FAILED&nbsp;%d&nbsp;trying&nbsp;for&nbsp;%d&nbsp;but&nbsp;got&nbsp;%d\n</span><span style="color: #800000;">"</span><span style="color: #000000;">,&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">h,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;locktype,&nbsp;newLocktype);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;SQLITE_BUSY;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #008000;">//</span><span style="color: #008000;">在这里设置文件锁的状态</span><span style="color: #008000;"><br>
+</span><span style="color: #000000;">&nbsp;&nbsp;pFile</span><span style="color: #000000;">-&gt;</span><span style="color: #000000;">locktype&nbsp;</span><span style="color: #000000;">=</span><span style="color: #000000;">&nbsp;newLocktype;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff;">return</span><span style="color: #000000;">&nbsp;rc;<br>
+}<br>
+</span></span></font></div>
+<p><font face="Verdana"></font>&nbsp;</p>
+<p><font face="Verdana">在几个关键的部位标记数字。</font></p>
+<p><font face="Verdana">(I)对于一个读事务会的完整经过：<br>
+语句序列：（1）——&gt;（2）——&gt;（6）<br>
+相应的状态真正的变化过程为：UNLOCKED→PENDING(1)→<span style="color: red;">PENDING、SHARED(2)→</span>SHARED（6）→UNLOCKED<br>
+(II)对于一个写事务完整经过：<br>
+<span style="color: red;">第一阶段：</span><br>
+语句序列：（1）——&gt;（2）——&gt;（6）<br>
+状态变化：UNLOCKED→PENDING(1)→<span style="color: red;">PEN</span><span style="color: red;">DING、SHARED(2)</span>→SHARED(6)。此时事务获得SHARED LOCK。<br>
+<span style="color: red;">第二个阶段</span>：<br>
+语句序列：（3）<br>
+此时事务获得RESERVED LOCK。<br>
+<span style="color: red;">第三个阶段：</span><br>
+事务执行修改操作。<br>
+<span style="color: red;">第四个阶段：<br>
+</span>语句序列：（1）——&gt;（4）——&gt;（5）<br>
+状态变化为：<br>
+RESERVED→ <span style="color: red;">RESERVED 、PENDING(1)</span>→PENDING（4）→EXCLUSIVE（5）。此时事务获得排斥锁，就可以进行写磁盘操作了。</font></p>
+<p><font face="Verdana"><span style="color: red;"><font face="Verdana">注：在上面的过程中，由于（1）的执行，使得某些时刻SQLite处于两种状态，但它持续的时间很短，从某种程度上来说可以忽略，但是为了把问题说清楚，在这里描述了这一微妙而巧妙的过程。</font></span><br>
+</font></p>
+<font face="Verdana"></font>
+<p>&nbsp;</p>
+<p><font face="Verdana"><span style="color: red;"><font face="Verdana">4、SQLite的死锁问题</font></span><br>
+SQLite的加锁机制会不会出现死锁?<br>
+这是一个很有意思的问题，对于任何采取加锁作为并发控制机制的DBMS都得考虑这个问题。有两种方式处理死锁问题：（1）死锁预防(deadlock prevention)（2）死锁检测(deadlock detection)与死锁恢复(deadlock recovery)。SQLite采取了第一种方式，如果一个事务不能获取锁，它会重试有限次（这个重试次数可以由应用程序运行预先设置，默认为1次）——这实际上是基本锁超时的机制。如果还是不能获取锁，SQLite返回SQLITE_BUSY错误给应用程序，应用程序此时应该中断，之后再重试；或者中止当前事务。虽然基于锁超时的机制简单，容易实现，但是它的缺点也是明显的——资源浪费。</font></p>
+<p><font face="Verdana"><span style="color: red;"><font face="Verdana">5、事务类型(Transaction Types)</font></span><br>
+既然SQLite采取了这种机制，所以应用程序得处理SQLITE_BUSY 错误，先来看一个会产生SQLITE_BUSY错误的例子：</font></p>
+<p>&nbsp;<img alt="" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/sqlite05-2.JPG" width="637" height="258"></p>
+<p><font face="Verdana">所以应用程序应该尽量避免产生死锁，那么应用程序如何做可以避免死锁的产生呢？<br>
+答案就是为你的程序选择正确合适的事务类型。<br>
+SQLite有三种不同的事务类型，这不同于锁的状态。事务可以从DEFERRED，IMMEDIATE或者EXCLUSIVE，一个事务的类型在BEGIN命令中指定：<br>
+BEGIN [ DEFERRED | IMMEDIATE | EXCLUSIVE ] TRANSACTION；<br>
+一个deferred事务不获取任何锁，直到它需要锁的时候，而且BEGIN语句本身也不会做什么事情——它开始于UNLOCK状态；默认情况下是这样的。如果仅仅用BEGIN开始一个事务，那么事务就是DEFERRED的，同时它不会获取任何锁，当对数据库进行第一次读操作时，它会获取SHARED LOCK；同样，当进行第一次写操作时，它会获取RESERVED LOCK。<br>
+由BEGIN开始的Immediate事务会试着获取RESERVED LOCK。如果成功，BEGIN IMMEDIATE保证没有别的连接可以写数据库。但是，别的连接可以对数据库进行读操作，但是RESERVED LOCK会阻止其它的连接BEGIN IMMEDIATE或者BEGIN EXCLUSIVE命令，SQLite会返回SQLITE_BUSY错误。这时你就可以对数据库进行修改操作，但是你不能提交，当你COMMIT时，会返回SQLITE_BUSY错误，这意味着还有其它的读事务没有完成，得等它们执行完后才能提交事务。<br>
+Exclusive事务会试着获取对数据库的EXCLUSIVE锁。这与IMMEDIATE类似，但是一旦成功，EXCLUSIVE事务保证没有其它的连接，所以就可对数据库进行读写操作了。<br>
+上面那个例子的问题在于两个连接最终都想写数据库，但是他们都没有放弃各自原来的锁，最终，shared 锁导致了问题的出现。如果两个连接都以BEGIN IMMEDIATE开始事务，那么死锁就不会发生。在这种情况下，在同一时刻只能有一个连接进入BEGIN IMMEDIATE，其它的连接就得等待。BEGIN IMMEDIATE和BEGIN EXCLUSIVE通常被写事务使用。就像同步机制一样，它防止了死锁的产生。<br>
+<span style="color: red;">基本的准则是：如果你在使用的数据库没有其它的连接，用BEGIN就足够了。但是，如果你使用的数据库在其它的连接也要对数据库进行写操作，就得使用BEGIN IMMEDIATE或BEGIN EXCLUSIVE开始你的事务。</span></font></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+<a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1400757,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+<a id="green_channel_follow" onclick="c_follow();" href="javascript:void(0);">关注我</a>
+<a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a><a id="green_channel_contact" href="http://msg.cnblogs.com/send/YY%E5%93%A5" target="_blank">联系我</a>
+<a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/icon_weibo_24.png" alt=""></a>
+<a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+<div id="author_profile_info" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/" target="_blank"><img src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/sample_face.gif" class="author_avatar" alt=""></a>
+<div id="author_profile_detail" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followees">关注 - 2</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followers">粉丝 - 528</a>
+</div>
+</div>
+<div class="clear"></div>
+<div id="author_profile_honor"></div>
+<div id="author_profile_follow">
+    <a href="javascript:void(0);" onclick="c_follow();return false;">+加关注</a>
+</div>
+</div>
+<div id="div_digg">										
+    <div class="diggit" onclick="votePost(1400757,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">0</span>
+    </div>
+	<div class="buryit" onclick="votePost(1400757,&#39;Bury&#39;)"> 
+		<span class="burynum" id="bury_count">0</span>
+	</div>
+	<div class="clear"></div>	
+	<div class="diggword" id="digg_tips">
+    (请您对文章做出评价)
+    </div>	
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html" title="发布于2009-02-26 16:18">SQLite Version3.3.6源代码文件结构</a><br><a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/03/10/1408208.html" title="发布于2009-03-10 21:54">SQLite入门与分析(六)---再谈SQLite的锁</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2009-03-01 12:32</span> <a href="http://www.cnblogs.com/hustcat/">YY哥</a> 阅读(<span id="post_view_count">7087</span>) 评论(<span id="post_comment_count">2</span>)  <a href="http://i.cnblogs.com/EditPosts.aspx?postid=1400757" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html#" onclick="AddToWz(1400757);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=26761,cb_entryId=1400757,cb_blogApp=currentBlogApp,cb_blogUserGuid='a9743d0b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2009/3/1 12:32:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html#1465026" class="layer">#1楼</a><a name="1465026" id="comment_anchor_1465026"></a>  <span class="comment_date">2009-03-02 10:44</span> <a id="ctl00_CommentList_NameLink_0" target="_blank">ajax+u[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1465026" class="blog_comment_body">还是期待你的 分析 sqlite 中的 虚拟机工作机制</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html#2112208" class="layer">#2楼</a><a name="2112208" id="comment_anchor_2112208"></a><span id="comment-maxId" style="display:none;">2112208</span><span id="comment-maxDate" style="display:none;">2011/6/1 11:04:50</span>  <span class="comment_date">2011-06-01 11:04</span> <a id="a_comment_author_2112208" href="http://home.cnblogs.com/u/305307/" target="_blank">wz_dk_123</a> <a href="http://msg.cnblogs.com/send/wz_dk_123" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2112208" class="blog_comment_body">请教下，您文章中的那幅图使用什么工具画的.</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2112208,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2112208,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－专注为 App 开发者提供IM云服务</a><br><a href="http://click.aliyun.com/m/3037/" target="_blank">【阿里云SSD云盘】速度行业领先</a><br></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"><a href="http://q.cnblogs.com/" target="_blank"><img width="300" height="250" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/not-to-stop-questioning.jpg" alt="博问" title="博问"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/539687/" target="_blank">怎样交付业余项目</a><br> ·  <a href="http://news.cnblogs.com/n/539774/" target="_blank">《黑暗之魂3》新预告片公布 国区Steam预购仅199元</a><br> ·  <a href="http://news.cnblogs.com/n/539773/" target="_blank">梅西暖人一幕：送签名球衣圆梦塑料男孩</a><br> ·  <a href="http://news.cnblogs.com/n/539772/" target="_blank">中国科学家培育出人工精子 给不育男士带来福音</a><br> ·  <a href="http://news.cnblogs.com/n/539771/" target="_blank">市场份额已不足1% Opera欲推新浏览器摆脱困境</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/538249/" target="_blank">谷歌背后的数学</a><br> ·  <a href="http://kb.cnblogs.com/page/533808/" target="_blank">Medium开发团队谈架构设计</a><br> ·  <a href="http://kb.cnblogs.com/page/539274/" target="_blank">理解“渐进增强(Progressive Enhancement)”</a><br> ·  <a href="http://kb.cnblogs.com/page/534571/" target="_blank">为什么说DOM操作很慢</a><br> ·  <a href="http://kb.cnblogs.com/page/527518/" target="_blank">为什么你应该尝试全栈</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);    
+});
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><p><strong>
+</strong></p><div align="center"><strong><img border="0" alt="" src="./SQLite入门与分析(五)---Page Cache之并发控制 - YY哥 - 博客园_files/jim_gray.jpg" width="160" height="268"></strong></div>
+<p>&nbsp;</p>
+<p><strong>个人简介</strong></p>
+<p>专业打杂程序员  @<a href="http://hustcat.github.io/">github</a></p><p>
+<br>
+</p><p><strong>联系方式</strong></p>
+<p><a title="新浪微博" href="http://weibo.com/hustcat"><span style="font-family: Courier">新浪微博</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a title="腾讯微博" href="http://t.qq.com/hustcat">腾讯微博</a></p>
+<p><br></p>
+<p><!-- 博客园新闻频道引用代码 num-显示条数 --><a href="http://news.cnblogs.com/" target="_blank">IT新闻:</a><br></p><div style="display: none" id="__document_write_ajax_div-1"></div><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>园龄：<a href="http://home.cnblogs.com/u/hustcat/" title="入园时间：2007-05-23">8年9个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/hustcat/followers/">528</a><br>关注：<a href="http://home.cnblogs.com/u/hustcat/followees/">2</a><div id="p_b_follow"></div><div style="display: none" id="__document_write_ajax_div-2"></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="日历">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/02/01&#39;);return false;">&lt;</a></td><td align="center">2009年3月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/04/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">22</td><td class="CalOtherMonthDay" align="center">23</td><td class="CalOtherMonthDay" align="center">24</td><td class="CalOtherMonthDay" align="center">25</td><td class="CalOtherMonthDay" align="center">26</td><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/01.html"><u>1</u></a></td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td class="CalWeekendDay" align="center">7</td></tr><tr><td class="CalWeekendDay" align="center">8</td><td align="center">9</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/10.html"><u>10</u></a></td><td align="center">11</td><td align="center">12</td><td align="center">13</td><td class="CalWeekendDay" align="center">14</td></tr><tr><td class="CalWeekendDay" align="center">15</td><td align="center">16</td><td align="center">17</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/03/18.html"><u>18</u></a></td><td align="center">19</td><td align="center">20</td><td class="CalWeekendDay" align="center">21</td></tr><tr><td class="CalWeekendDay" align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td align="center">26</td><td align="center">27</td><td class="CalWeekendDay" align="center">28</td></tr><tr><td class="CalWeekendDay" align="center">29</td><td align="center">30</td><td align="center">31</td><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/hustcat/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/hustcat/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/hustcat/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/hustcat/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/hustcat/tag/" title="我的博客的标签列表">我的标签</a></li>
+<li><a id="itemListLink" onclick="this.blur();WarpClass(&#39;itemListLink&#39;, &#39;itemListLin_con&#39;);return false;" href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html#">更多链接</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/hustcat/category/191424.html">Linux相关(26)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/hustcat/category/214566.html">MySQL(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/hustcat/category/175619.html">Others(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/hustcat/category/139956.html">Web技术(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/hustcat/category/183836.html">编程语言(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/hustcat/category/605980.html">存储(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/hustcat/category/130051.html">数据结构与算法(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术(30)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/hustcat/category/196365.html">系统相关(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/hustcat/category/427554.html">云计算与虚拟化(10)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/hustcat/archive/2014/11.html">2014年11月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/hustcat/archive/2014/10.html">2014年10月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/hustcat/archive/2014/09.html">2014年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/hustcat/archive/2014/08.html">2014年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/hustcat/archive/2014/07.html">2014年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/hustcat/archive/2014/03.html">2014年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/hustcat/archive/2013/09.html">2013年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/hustcat/archive/2013/08.html">2013年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/hustcat/archive/2013/02.html">2013年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/hustcat/archive/2012/11.html">2012年11月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/hustcat/archive/2012/01.html">2012年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/hustcat/archive/2011/12.html">2011年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/hustcat/archive/2011/10.html">2011年10月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/hustcat/archive/2011/03.html">2011年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/hustcat/archive/2010/09.html">2010年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/hustcat/archive/2010/08.html">2010年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/hustcat/archive/2010/07.html">2010年7月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/hustcat/archive/2010/06.html">2010年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/hustcat/archive/2010/05.html">2010年5月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/hustcat/archive/2010/04.html">2010年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/hustcat/archive/2010/03.html">2010年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/hustcat/archive/2010/01.html">2010年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="http://www.cnblogs.com/hustcat/archive/2009/12.html">2009年12月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="http://www.cnblogs.com/hustcat/archive/2009/10.html">2009年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="http://www.cnblogs.com/hustcat/archive/2009/09.html">2009年9月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="http://www.cnblogs.com/hustcat/archive/2009/08.html">2009年8月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="http://www.cnblogs.com/hustcat/archive/2009/06.html">2009年6月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="http://www.cnblogs.com/hustcat/archive/2009/05.html">2009年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="http://www.cnblogs.com/hustcat/archive/2009/04.html">2009年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="http://www.cnblogs.com/hustcat/archive/2009/03.html">2009年3月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="http://www.cnblogs.com/hustcat/archive/2009/02.html">2009年2月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="http://www.cnblogs.com/hustcat/archive/2008/10.html">2008年10月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="http://www.cnblogs.com/hustcat/archive/2008/08.html">2008年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="http://www.cnblogs.com/hustcat/archive/2008/07.html">2008年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="http://www.cnblogs.com/hustcat/archive/2008/06.html">2008年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="http://www.cnblogs.com/hustcat/archive/2008/05.html">2008年5月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="http://www.cnblogs.com/hustcat/archive/2008/04.html">2008年4月 (5)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_kernel" class="catListkernel sidebar-block">
+<h3 class="catListTitle">kernel</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_2_Link_0" href="http://wiki.zh-kernel.org/" rel="nofollow">kernel中文社区</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_1" href="http://ldn.linuxfoundation.org/" rel="nofollow">LDN</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_2" href="http://www.tldp.org/" rel="nofollow">The Linux Document Project</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_3" href="http://www.kernel.org/" rel="nofollow">The Linux Kernel Archives</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links210847" class="catList sidebar-block">
+<h3 class="catListTitle">manual</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_3_Link_0" href="http://www.cppreference.com/wiki/" rel="nofollow">cppreference</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_1" href="http://gcc.gnu.org/onlinedocs/" rel="nofollow">gcc manual</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_2" href="http://dev.mysql.com/doc/refman/5.1/zh/index.html" rel="nofollow">mysql manual</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links198983" class="catList sidebar-block">
+<h3 class="catListTitle">sites</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_4_Link_0" href="http://www.databasejournal.com/" rel="nofollow">Database Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_1" href="http://mirrors.fedoraproject.org/publiclist/Fedora/" rel="nofollow">Fedora镜象</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_2" href="http://highscalability.com/" rel="nofollow">highscalability</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_3" href="https://eprints.kfupm.edu.sa/" rel="nofollow">KFUPM ePrints</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_4" href="http://www.die.net/" rel="nofollow">Linux docs</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_5" href="http://www.linuxjournal.com/" rel="nofollow">Linux Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_6" href="http://nosql-database.org/" rel="nofollow">NoSQL</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_7" href="http://www.sqlite.org/" rel="nofollow">SQLite</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_technology website" class="catListtechnology website sidebar-block">
+<h3 class="catListTitle">技术社区</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_5_Link_0" href="http://www.apache.org/" rel="nofollow">apache</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_1" href="http://www.csdn.net/" rel="nofollow">CSDN</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_2" href="http://www.ibm.com/developerworks/cn/" rel="nofollow">IBM-developerworks</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_3" href="http://www.lucene.com.cn/" rel="nofollow">lucene中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_4" href="http://www.nutchchina.com/" rel="nofollow">nutch中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_5" href="http://www.oldlinux.org/oldlinux/index.php" rel="nofollow">oldlinux</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_6" href="http://forums.oracle.com/forums/main.jspa?categoryID=84" rel="nofollow">oracle's forum</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/3993712.html#3345657">1. Re:Docker实践(6)—CentOS7上部署Kubernetes</a></li>
+    <li class="recent_comment_body">Mark</li>
+    <li class="recent_comment_author">--Ant</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/4004889.html#3343804">2. Re:深入学习golang(4)—new与make</a></li>
+    <li class="recent_comment_body">讲的让我懂了，反正我顶</li>
+    <li class="recent_comment_author">--一页天书不分说</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568738.html#3336424">3. Re:Linux网络协议栈(一)——Socket入门(1)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568765.html#3336421">4. Re:Linux网络协议栈(一)——Socket入门(2)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html#3269030">5. Re:理解MySQL——索引与优化</a></li>
+    <li class="recent_comment_body">楼主我收藏了</li>
+    <li class="recent_comment_author">--Ｍ&amp;amp;N</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(166180)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(51843)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/12/19/1627525.html">3. 理解MySQL——复制(Replication)(45305)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">4. libevent源码分析(39126)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2008/04/09/1144645.html">5. 算法系列---回溯算法(25309)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/06/02/1494311.html">1. (i++)+(i++)与(++i)+(++i)(40)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(31)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">3. 理解MySQL——索引与优化(23)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/01/27/1657821.html">4. 浅谈SQLite——实现与应用(21)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/05/14/1735774.html">5. 一道算法题,求更好的解法(18)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(30)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(13)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">3. libevent源码分析(12)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/06/23/1762987.html">4. 浅谈SQLite——查询处理及优化(10)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2012/01/11/2319249.html">5. 乱谈服务器编程(10)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2016 YY哥
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+</body></html>

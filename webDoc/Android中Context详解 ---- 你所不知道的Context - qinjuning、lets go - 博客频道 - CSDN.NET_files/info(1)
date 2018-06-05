@@ -1,0 +1,20 @@
+<html>
+<head>
+<title>Application Blocked</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+<style>
+#content{border:3px solid#aaa;background-color:#fff;margin:40;padding:40;font-family:Tahoma,Helvetica,Arial,sans-serif;font-size:12px;}
+  h1{font-size:20px;font-weight:bold;color:#196390;}
+  b{font-weight:bold;color:#196390;}
+</style>
+</head>
+<body bgcolor="#e7e8e9">
+<div id="content">
+<h1>Application Blocked</h1>
+<p>Access to the application you were trying to use has been blocked in accordance with company policy. Please contact your system administrator if you believe this is in error.</p>
+<p><b>User:</b> 10.255.201.5 </p>
+<p><b>Application:</b> web-browsing </p>
+</div>
+</body>
+</html>

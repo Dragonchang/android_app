@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.testfl2.PullView.TouchPanelView
+     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/touch_panel" 
+    android:background="@color/touch_panel_background_colors"> 
+		    <TextView
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/tourch_world" 
+		        android:singleLine="true"
+		        android:ellipsize="end"
+		        android:clickable = "true"        
+		        android:gravity="center"/>
+		    <com.example.testfl2.PullView.ChildView
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"
+		        android:id="@+id/child_view"
+		        android:clipToPadding="false"
+		        android:clipChildren="false">
+		        		    <TextView
+					        android:layout_width="match_parent"
+					        android:layout_height="wrap_content"
+					        android:text="@string/tourch_world" 
+					        android:singleLine="true"
+					        android:ellipsize="end"
+					        android:clickable = "true"        
+					        android:gravity="center"/>
+        </com.example.testfl2.PullView.ChildView>
+</com.example.testfl2.PullView.TouchPanelView>

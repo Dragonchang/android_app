@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="12.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>60</x>
+      <y>450</y>
+      <w>110</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+DismissView</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>220</x>
+      <y>320</y>
+      <w>170</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+StackScrollerDecorView</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>380</x>
+      <y>220</y>
+      <w>170</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+ExpandableView</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>380</x>
+      <y>140</y>
+      <w>170</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+FrameLayout</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>230</x>
+      <y>450</y>
+      <w>120</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+EmptyShadeView</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>520</x>
+      <y>320</y>
+      <w>180</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+ExpandableOutlineView</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>520</x>
+      <y>450</y>
+      <w>200</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+ActivatableNotificationView</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>520</x>
+      <y>560</y>
+      <w>210</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+ExpandableNotificationRow</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

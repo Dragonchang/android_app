@@ -1,0 +1,14 @@
+ADFHOST68="http://csdnim.qtmojo.com";
+ADFCID68=15;
+ADFBID68=68;
+ADFLOC='CNJSNJ00';
+ADFUSER68="http://csdnim.qtmojo.com/c?d=csdnim&i=z15,10496455,68,149&rf=&a=dBC8zo0ut0VoJ2A5yG88RfEd05se&u=";
+ALLYESID4="9hshj0A70KpA4uPh";
+ADFPGC="2,5,15,0,71,68,149,10496455";
+
+document.write("<script type=\"text/javascript\">\n");
+document.write("/*博客频道内容页下方Banner728*90，创建于2014-7-3*/\n");
+document.write("var cpro_id = \"u1607657\";\n");
+document.write("</Scr"+"ipt>\n");
+document.write("<script src=\"http://cpro.baidustatic.com/cpro/ui/c.js\" type=\"text/javascript\"></Scr"+"ipt>");
+

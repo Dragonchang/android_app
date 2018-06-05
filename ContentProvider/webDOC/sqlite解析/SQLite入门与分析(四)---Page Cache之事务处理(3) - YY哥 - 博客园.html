@@ -1,0 +1,1028 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0062)http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script async="" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/widget"></script>
+
+<title>SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/bundle-ClassicBlue.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/hustcat/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/hustcat/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/hustcat/wlwmanifest.xml">
+<script async="" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/analytics.js"></script><script type="text/javascript" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/encoder.js"></script><script src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'hustcat', cb_enable_mathjax=false;</script>
+<script src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/blog-common.js" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/hustcat/"><img id="blogLogo" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/hustcat/">YY哥的技术随笔</a></h1>
+<h2>——关注Linux、数据库和云计算</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/hustcat/">首页</a></li>
+<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://msg.cnblogs.com/send/YY%E5%93%A5">联系</a></li>
+<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/hustcat/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/hustcat/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+<!--done-->
+随笔- 125&nbsp;
+文章- 114&nbsp;
+评论- 378&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园.html">SQLite入门与分析(四)---Page Cache之事务处理(3)</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p>写在前面：由于内容较多，所以断续没有写完的内容。</p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana">11、删除日志文件(Deleting The Rollback Journal)</font></span><br>
+一旦更改写入设备，日志文件将会被删除，这是事务真正提交的时刻。如果在这之前系统发生崩溃，就会进行恢复处理，使得数据库和没发生改变一样；如果在这之后系统发生崩溃，表明所有的更改都已经写入磁盘。SQLite就是根据日志存在情况决定是否对数据库进行恢复处理。</font></p>
+<p><font face="Verdana">删除文件本质上不是一个原子操作，但是从用户进程的角度来看是一个原子操作，所以一个事务看起来是一个原子操作。<br>
+在许多系统中，删除文件也是一个高代价的操作。作为优化，SQLite可以配置成把日志文件的长度截为0或者把日志文件头清零。</font></p>
+<p>&nbsp;</p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana"><img height="351" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/commit-A.gif" width="295" border="0"></font></span></font></p>
+<p><font face="Verdana"><span style="color: red"><font face="Verdana">12、释放锁(Releasing The Lock)</font></span><br>
+作为原子提交的最后一步，释放排斥锁使得其它进程可以开始访问数据库了。<br>
+下图中，我们指明了当锁被释放的时候用户空间所拥有的信息已经被清空了.对于老版本的SQLite你可这么认为。但最新的SQLite会保存些用户空间的缓存不会被清空—万一下一个事务开始的时候，这些数据刚好可以用上呢。重新利用这些内存要比再次从操作系统磁盘缓存或者硬盘中读取要来得轻松与快捷得多，何乐而不为呢？在再次使用这些数据之前，我们必须先取得一个共享锁，同时我们还不得不去检查一下，保证还没有其他进程在我们拥有共享锁之前对数据库文件进行了修改。数据库文件的第一页中有一个计数器，数据库文件每做一次修改，这个计数器就会增长一下。我们可以通过检查这个计数器就可得知是否有其他进程修改过数据库文件。如果数据库文件已经被修改过了，那么用户内存空间的缓存就不得不清空，并重新读入。大多数情况下，这种情况不大会发生，因此用户空间的内存缓存将是有效的，这对于性能提高来说作用是显著的。</font></p>
+<p>&nbsp;</p>
+<p><img height="270" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/commit-B.gif" width="295" border="0"></p>
+<p>以上两步是在<font face="Verdana">sqlite3BtreeCommit</font>()---btree.c函数中实现的。</p>
+<p>代码如下：</p>
+<p>&nbsp;</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_144219" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_144219&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_144219&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_144219&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/ContractedBlock.gif" width="11" align="top"><img id="Code_Open_Image_144219" style="display: none" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_144219&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_144219&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_144219&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/ExpandedBlockStart.gif" width="11" align="top"><span class="cnblogs_code_Collapse" id="Code_Closed_Text_144219">Code</span><span id="Code_Open_Text_144219" style="display: none"><br>
+<!--<br /><br />Code highlighting produced by Actipro CodeHighlighter (freeware)<br />http://www.CodeHighlighter.com/<br /><br />--><span style="color: #008000">//</span><span style="color: #008000">提交事务,至此一个事务完成.主要做两件事:<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">删除日志文件,释放数据库文件的写锁</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;sqlite3BtreeCommit(Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">p){<br>
+&nbsp;&nbsp;BtShared&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pBt;<br>
+<br>
+&nbsp;&nbsp;btreeIntegrity(p);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;the&nbsp;handle&nbsp;has&nbsp;a&nbsp;write-transaction&nbsp;open,&nbsp;commit&nbsp;the&nbsp;shared-btrees&nbsp;<br>
+&nbsp;&nbsp;**&nbsp;transaction&nbsp;and&nbsp;set&nbsp;the&nbsp;shared&nbsp;state&nbsp;to&nbsp;TRANS_READ.<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inTrans</span><span style="color: #000000">==</span><span style="color: #000000">TRANS_WRITE&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inTransaction</span><span style="color: #000000">==</span><span style="color: #000000">TRANS_WRITE&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nTransaction</span><span style="color: #000000">&gt;</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;);<br>
+<br>
+&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">调用pager，提交事务</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3pager_commit(pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pPager);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inTransaction&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;TRANS_READ;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inStmt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;unlockAllTables(p);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;the&nbsp;handle&nbsp;has&nbsp;any&nbsp;kind&nbsp;of&nbsp;transaction&nbsp;open,&nbsp;decrement&nbsp;the&nbsp;transaction<br>
+&nbsp;&nbsp;**&nbsp;count&nbsp;of&nbsp;the&nbsp;shared&nbsp;btree.&nbsp;If&nbsp;the&nbsp;transaction&nbsp;count&nbsp;reaches&nbsp;0,&nbsp;set<br>
+&nbsp;&nbsp;**&nbsp;the&nbsp;shared&nbsp;state&nbsp;to&nbsp;TRANS_NONE.&nbsp;The&nbsp;unlockBtreeIfUnused()&nbsp;call&nbsp;below<br>
+&nbsp;&nbsp;**&nbsp;will&nbsp;unlock&nbsp;the&nbsp;pager.<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inTrans</span><span style="color: #000000">!=</span><span style="color: #000000">TRANS_NONE&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nTransaction</span><span style="color: #000000">--</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">==</span><span style="color: #000000">pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nTransaction&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pBt</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inTransaction&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;TRANS_NONE;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}<br>
+<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">提交事务，主要调用pager_unwritelock()函数</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;sqlite3pager_commit(Pager&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPager){<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;PgHdr&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPg;<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">errCode&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">errCode;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">state</span><span style="color: #000000">&lt;</span><span style="color: #000000">PAGER_RESERVED&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_ERROR;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;TRACE2(</span><span style="color: #800000">"</span><span style="color: #800000">COMMIT&nbsp;%d\n</span><span style="color: #800000">"</span><span style="color: #000000">,&nbsp;PAGERID(pPager));<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;MEMDB&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPg&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_get_all_dirty_pages(pPager);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">while</span><span style="color: #000000">(&nbsp;pPg&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clearHistory(PGHDR_TO_HIST(pPg,&nbsp;pPager));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dirty&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inJournal&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inStmt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">needSync&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pPrevStmt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pNextStmt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pDirty;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pDirty&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+#ifndef&nbsp;NDEBUG<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(pPg</span><span style="color: #000000">=</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pAll;&nbsp;pPg;&nbsp;pPg</span><span style="color: #000000">=</span><span style="color: #000000">pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pNextAll){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PgHistory&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pHist&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;PGHDR_TO_HIST(pPg,&nbsp;pPager);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">alwaysRollback&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">pHist</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pOrig&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">pHist</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pStmt&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pStmt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">state&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;PAGER_SHARED;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dirtyCache</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Exit&nbsp;early&nbsp;(without&nbsp;doing&nbsp;the&nbsp;time-consuming&nbsp;sqlite3OsSync()&nbsp;calls)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;if&nbsp;there&nbsp;have&nbsp;been&nbsp;no&nbsp;changes&nbsp;to&nbsp;the&nbsp;database&nbsp;file.&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">needSync</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_unwritelock(pPager);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dbSize&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">-</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;assert(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalOpen&nbsp;);<br>
+&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3pager_sync(pPager,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">删除文件,释放写锁</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_unwritelock(pPager);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dbSize&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">-</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+}<br>
+<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">对数据库加read&nbsp;lock，删除日志文件</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">static</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;pager_unwritelock(Pager&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPager){<br>
+&nbsp;&nbsp;PgHdr&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pPg;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;assert(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">MEMDB&nbsp;);<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">state</span><span style="color: #000000">&lt;</span><span style="color: #000000">PAGER_RESERVED&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;sqlite3pager_stmt_commit(pPager);<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">stmtOpen&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsClose(</span><span style="color: #000000">&amp;</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">stfd);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">stmtOpen&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalOpen&nbsp;){<br>
+<br>
+&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">关闭日志文件</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsClose(</span><span style="color: #000000">&amp;</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">jfd);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">journalOpen&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">删除日志文件</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsDelete(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">zJournal);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqliteFree(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aInJournal&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aInJournal&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(pPg</span><span style="color: #000000">=</span><span style="color: #000000">pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pAll;&nbsp;pPg;&nbsp;pPg</span><span style="color: #000000">=</span><span style="color: #000000">pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pNextAll){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">inJournal&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dirty&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">needSync&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+#ifdef&nbsp;SQLITE_CHECK_PAGES<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pPg</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pageHash&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pager_pagehash(pPg);<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pDirty&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dirtyCache&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nRec&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aInJournal</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">dirtyCache</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">useJournal</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;);<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">释放写锁，加读锁</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsUnlock(pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">fd,&nbsp;SHARED_LOCK);<br>
+&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">state&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;PAGER_SHARED;<br>
+&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">origDbSize&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">setMaster&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">needSync&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pFirstSynced&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pPager</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pFirst;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+}</span></span></div>
+<p>下图可进一步描述该过程：</p>
+<p>&nbsp;</p>
+<p><img height="157" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/sqlite04-03.GIF" width="402" border="0"></p>
+<p>最后来看看<font face="Verdana">sqlite3BtreeSync()和<font face="Verdana">sqlite3BtreeCommit</font>()是如何被调用的。</font></p>
+<p><font face="Verdana">一般来说，事务提交方式为自动提交的话，在虚拟机中的OP_Halt指令实现提交事务，相关代码如下：</font></p>
+<p>&nbsp;</p>
+<div class="cnblogs_code"><img id="Code_Closed_Image_145158" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Closed_Text_145158&#39;).style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Image_145158&#39;).style.display=&#39;inline&#39;; document.getElementById(&#39;Code_Open_Text_145158&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/ContractedBlock.gif" width="11" align="top"><img id="Code_Open_Image_145158" style="display: none" onclick="this.style.display=&#39;none&#39;; document.getElementById(&#39;Code_Open_Text_145158&#39;).style.display=&#39;none&#39;; getElementById(&#39;Code_Closed_Image_145158&#39;).style.display=&#39;inline&#39;; getElementById(&#39;Code_Closed_Text_145158&#39;).style.display=&#39;inline&#39;;" height="16" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/ExpandedBlockStart.gif" width="11" align="top"><span class="cnblogs_code_Collapse" id="Code_Closed_Text_145158">Code</span><span id="Code_Open_Text_145158" style="display: none"><br>
+<!--<br /><br />Code highlighting produced by Actipro CodeHighlighter (freeware)<br />http://www.CodeHighlighter.com/<br /><br />--><span style="color: #008000">//</span><span style="color: #008000">虚拟机停机指令</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">case</span><span style="color: #000000">&nbsp;OP_Halt:&nbsp;{&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;no-push&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pTos&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pTos;<br>
+&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pOp</span><span style="color: #000000">-&gt;</span><span style="color: #000000">p1;<br>
+&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pc;<br>
+&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">errorAction&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;pOp</span><span style="color: #000000">-&gt;</span><span style="color: #000000">p2;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pOp</span><span style="color: #000000">-&gt;</span><span style="color: #000000">p3&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlite3SetString(</span><span style="color: #000000">&amp;</span><span style="color: #000000">p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">zErrMsg,&nbsp;pOp</span><span style="color: #000000">-&gt;</span><span style="color: #000000">p3,&nbsp;(</span><span style="color: #0000ff">char</span><span style="color: #000000">*</span><span style="color: #000000">)</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">设置虚拟机状态SQLITE_MAGIC_RUN&nbsp;为&nbsp;SQLITE_MAGIC_HALT,<br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">并提交事务</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3VdbeHalt(p);<br>
+&nbsp;&nbsp;assert(&nbsp;rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_BUSY&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_OK&nbsp;);<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_BUSY&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;SQLITE_BUSY;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_BUSY;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc&nbsp;</span><span style="color: #000000">?</span><span style="color: #000000">&nbsp;SQLITE_ERROR&nbsp;:&nbsp;SQLITE_DONE;<br>
+}<br>
+<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">当虚拟机要停机时,调用该函数,如果VDBE改变了数据库且为自动<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">提交模式，则提交这些改变</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;sqlite3VdbeHalt(Vdbe&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">p){<br>
+&nbsp;&nbsp;sqlite3&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">db&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">db;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;i;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;(</span><span style="color: #000000">*</span><span style="color: #000000">xFunc)(Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt)&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Function&nbsp;to&nbsp;call&nbsp;on&nbsp;each&nbsp;btree&nbsp;backend&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;isSpecialError;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Set&nbsp;to&nbsp;true&nbsp;if&nbsp;SQLITE_NOMEM&nbsp;or&nbsp;IOERR&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;This&nbsp;function&nbsp;contains&nbsp;the&nbsp;logic&nbsp;that&nbsp;determines&nbsp;if&nbsp;a&nbsp;statement&nbsp;or<br>
+&nbsp;&nbsp;**&nbsp;transaction&nbsp;will&nbsp;be&nbsp;committed&nbsp;or&nbsp;rolled&nbsp;back&nbsp;as&nbsp;a&nbsp;result&nbsp;of&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;execution&nbsp;of&nbsp;this&nbsp;virtual&nbsp;machine.&nbsp;<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;Special&nbsp;errors:<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;an&nbsp;SQLITE_NOMEM&nbsp;error&nbsp;has&nbsp;occured&nbsp;in&nbsp;a&nbsp;statement&nbsp;that&nbsp;writes&nbsp;to<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;database,&nbsp;then&nbsp;either&nbsp;a&nbsp;statement&nbsp;or&nbsp;transaction&nbsp;must&nbsp;be&nbsp;rolled<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;back&nbsp;to&nbsp;ensure&nbsp;the&nbsp;tree-structures&nbsp;are&nbsp;in&nbsp;a&nbsp;consistent&nbsp;state.&nbsp;A<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;statement&nbsp;transaction&nbsp;is&nbsp;rolled&nbsp;back&nbsp;if&nbsp;one&nbsp;is&nbsp;open,&nbsp;otherwise&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;entire&nbsp;transaction&nbsp;must&nbsp;be&nbsp;rolled&nbsp;back.<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;an&nbsp;SQLITE_IOERR&nbsp;error&nbsp;has&nbsp;occured&nbsp;in&nbsp;a&nbsp;statement&nbsp;that&nbsp;writes&nbsp;to<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;database,&nbsp;then&nbsp;the&nbsp;entire&nbsp;transaction&nbsp;must&nbsp;be&nbsp;rolled&nbsp;back.&nbsp;The<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;I/O&nbsp;error&nbsp;may&nbsp;have&nbsp;caused&nbsp;garbage&nbsp;to&nbsp;be&nbsp;written&nbsp;to&nbsp;the&nbsp;journal&nbsp;<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file.&nbsp;Were&nbsp;the&nbsp;transaction&nbsp;to&nbsp;continue&nbsp;and&nbsp;eventually&nbsp;be&nbsp;rolled&nbsp;<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;back&nbsp;that&nbsp;garbage&nbsp;might&nbsp;end&nbsp;up&nbsp;in&nbsp;the&nbsp;database&nbsp;file.<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In&nbsp;both&nbsp;of&nbsp;the&nbsp;above&nbsp;cases,&nbsp;the&nbsp;Vdbe.errorAction&nbsp;variable&nbsp;is&nbsp;<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ignored.&nbsp;If&nbsp;the&nbsp;sqlite3.autoCommit&nbsp;flag&nbsp;is&nbsp;false&nbsp;and&nbsp;a&nbsp;transaction<br>
+&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is&nbsp;rolled&nbsp;back,&nbsp;it&nbsp;will&nbsp;be&nbsp;set&nbsp;to&nbsp;true.<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;Other&nbsp;errors:<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;No&nbsp;error:<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;sqlite3MallocFailed()&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;SQLITE_NOMEM;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">magic</span><span style="color: #000000">!=</span><span style="color: #000000">VDBE_MAGIC_RUN&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Already&nbsp;halted.&nbsp;&nbsp;Nothing&nbsp;to&nbsp;do.&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">magic</span><span style="color: #000000">==</span><span style="color: #000000">VDBE_MAGIC_HALT&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">释放虚拟机中所有的游标</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;closeAllCursors(p);<br>
+&nbsp;&nbsp;checkActiveVdbeCnt(db);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;No&nbsp;commit&nbsp;or&nbsp;rollback&nbsp;needed&nbsp;if&nbsp;the&nbsp;program&nbsp;never&nbsp;started&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pc</span><span style="color: #000000">&gt;=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;){<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Check&nbsp;for&nbsp;one&nbsp;of&nbsp;the&nbsp;special&nbsp;errors&nbsp;-&nbsp;SQLITE_NOMEM&nbsp;or&nbsp;SQLITE_IOERR&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;isSpecialError&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;((p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_NOMEM&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_IOERR)</span><span style="color: #000000">?</span><span style="color: #800080">1</span><span style="color: #000000">:</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;isSpecialError&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;This&nbsp;loop&nbsp;does&nbsp;static&nbsp;analysis&nbsp;of&nbsp;the&nbsp;query&nbsp;to&nbsp;see&nbsp;which&nbsp;of&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;following&nbsp;three&nbsp;categories&nbsp;it&nbsp;falls&nbsp;into:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read-only<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Query&nbsp;with&nbsp;statement&nbsp;journal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Query&nbsp;without&nbsp;statement&nbsp;journal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;We&nbsp;could&nbsp;do&nbsp;something&nbsp;more&nbsp;elegant&nbsp;than&nbsp;this&nbsp;static&nbsp;analysis&nbsp;(i.e.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;store&nbsp;the&nbsp;type&nbsp;of&nbsp;query&nbsp;as&nbsp;part&nbsp;of&nbsp;the&nbsp;compliation&nbsp;phase),&nbsp;but&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;handling&nbsp;malloc()&nbsp;or&nbsp;IO&nbsp;failure&nbsp;is&nbsp;a&nbsp;fairly&nbsp;obscure&nbsp;edge&nbsp;case&nbsp;so&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;this&nbsp;is&nbsp;probably&nbsp;easier.&nbsp;Todo:&nbsp;Might&nbsp;be&nbsp;an&nbsp;opportunity&nbsp;to&nbsp;reduce&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;code&nbsp;size&nbsp;a&nbsp;very&nbsp;small&nbsp;amount&nbsp;though<img src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/dot.gif" alt=""><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;isReadOnly&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;isStatement&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assert(p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aOp&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nOp</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(i</span><span style="color: #000000">=</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;i</span><span style="color: #000000">&lt;</span><span style="color: #000000">p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nOp;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">){&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">switch</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aOp[i].opcode&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">case</span><span style="color: #000000">&nbsp;OP_Transaction:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;isReadOnly&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">break</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">case</span><span style="color: #000000">&nbsp;OP_Statement:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;isStatement&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">break</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;the&nbsp;query&nbsp;was&nbsp;read-only,&nbsp;we&nbsp;need&nbsp;do&nbsp;no&nbsp;rollback&nbsp;at&nbsp;all.&nbsp;Otherwise,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;proceed&nbsp;with&nbsp;the&nbsp;special&nbsp;handling.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">isReadOnly&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_NOMEM&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;isStatement&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xFunc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3BtreeRollbackStmt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;We&nbsp;are&nbsp;forced&nbsp;to&nbsp;roll&nbsp;back&nbsp;the&nbsp;active&nbsp;transaction.&nbsp;Before&nbsp;doing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;so,&nbsp;abort&nbsp;any&nbsp;other&nbsp;statements&nbsp;this&nbsp;handle&nbsp;currently&nbsp;has&nbsp;active.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3AbortOtherActiveVdbes(db,&nbsp;p);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3RollbackAll(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">autoCommit&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;the&nbsp;auto-commit&nbsp;flag&nbsp;is&nbsp;set&nbsp;and&nbsp;this&nbsp;is&nbsp;the&nbsp;only&nbsp;active&nbsp;vdbe,&nbsp;then<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;we&nbsp;do&nbsp;either&nbsp;a&nbsp;commit&nbsp;or&nbsp;rollback&nbsp;of&nbsp;the&nbsp;current&nbsp;transaction.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;Note:&nbsp;This&nbsp;block&nbsp;also&nbsp;runs&nbsp;if&nbsp;one&nbsp;of&nbsp;the&nbsp;special&nbsp;errors&nbsp;handled&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;above&nbsp;has&nbsp;occured.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">如果自动提交事务，则提交事务</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">autoCommit&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">activeVdbeCnt</span><span style="color: #000000">==</span><span style="color: #800080">1</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_OK&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;(p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">errorAction</span><span style="color: #000000">==</span><span style="color: #000000">OE_Fail&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">isSpecialError)&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;The&nbsp;auto-commit&nbsp;flag&nbsp;is&nbsp;true,&nbsp;and&nbsp;the&nbsp;vdbe&nbsp;program&nbsp;was&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;successful&nbsp;or&nbsp;hit&nbsp;an&nbsp;'OR&nbsp;FAIL'&nbsp;constraint.&nbsp;This&nbsp;means&nbsp;a&nbsp;commit&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;is&nbsp;required.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">提交事务</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;vdbeCommit(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_BUSY&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_BUSY;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3RollbackAll(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3CommitInternalChanges(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3RollbackAll(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">xFunc&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_OK&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">errorAction</span><span style="color: #000000">==</span><span style="color: #000000">OE_Fail&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xFunc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3BtreeCommitStmt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">errorAction</span><span style="color: #000000">==</span><span style="color: #000000">OE_Abort&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xFunc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3BtreeRollbackStmt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3AbortOtherActiveVdbes(db,&nbsp;p);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3RollbackAll(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">autoCommit&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;xFunc&nbsp;is&nbsp;not&nbsp;NULL,&nbsp;then&nbsp;it&nbsp;is&nbsp;one&nbsp;of&nbsp;sqlite3BtreeRollbackStmt&nbsp;or<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;sqlite3BtreeCommitStmt.&nbsp;Call&nbsp;it&nbsp;once&nbsp;on&nbsp;each&nbsp;backend.&nbsp;If&nbsp;an&nbsp;error&nbsp;occurs<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;and&nbsp;the&nbsp;return&nbsp;code&nbsp;is&nbsp;still&nbsp;SQLITE_OK,&nbsp;set&nbsp;the&nbsp;return&nbsp;code&nbsp;to&nbsp;the&nbsp;new<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;error&nbsp;value.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(</span><span style="color: #000000">!</span><span style="color: #000000">xFunc&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xFunc</span><span style="color: #000000">==</span><span style="color: #000000">sqlite3BtreeCommitStmt&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xFunc</span><span style="color: #000000">==</span><span style="color: #000000">sqlite3BtreeRollbackStmt<br>
+&nbsp;&nbsp;&nbsp;&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(i</span><span style="color: #000000">=</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;xFunc&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;i</span><span style="color: #000000">&lt;</span><span style="color: #000000">db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nDb;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">){&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[i].pBt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pBt&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;xFunc(pBt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;(p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_OK&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_CONSTRAINT)&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3SetString(</span><span style="color: #000000">&amp;</span><span style="color: #000000">p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">zErrMsg,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;this&nbsp;was&nbsp;an&nbsp;INSERT,&nbsp;UPDATE&nbsp;or&nbsp;DELETE&nbsp;and&nbsp;the&nbsp;statement&nbsp;was&nbsp;committed,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;set&nbsp;the&nbsp;change&nbsp;counter.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">changeCntOn&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pc</span><span style="color: #000000">&gt;=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">xFunc&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;xFunc</span><span style="color: #000000">==</span><span style="color: #000000">sqlite3BtreeCommitStmt&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3VdbeSetChanges(db,&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nChange);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3VdbeSetChanges(db,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nChange&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Rollback&nbsp;or&nbsp;commit&nbsp;any&nbsp;schema&nbsp;changes&nbsp;that&nbsp;occurred.&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">flags</span><span style="color: #000000">&amp;</span><span style="color: #000000">SQLITE_InternChanges&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3ResetInternalSchema(db,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">flags&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;(db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">flags&nbsp;</span><span style="color: #000000">|</span><span style="color: #000000">&nbsp;SQLITE_InternChanges);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;We&nbsp;have&nbsp;successfully&nbsp;halted&nbsp;and&nbsp;closed&nbsp;the&nbsp;VM.&nbsp;&nbsp;Record&nbsp;this&nbsp;fact.&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pc</span><span style="color: #000000">&gt;=</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">activeVdbeCnt</span><span style="color: #000000">--</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;p</span><span style="color: #000000">-&gt;</span><span style="color: #000000">magic&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;VDBE_MAGIC_HALT;<br>
+&nbsp;&nbsp;checkActiveVdbeCnt(db);<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+}<br>
+<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">提交事务,主要调用:<br>
+</span><span style="color: #008000">//</span><span style="color: #008000">sqlite3BtreeSync()---同步btree,&nbsp;sqlite3BtreeCommit()---提交事务</span><span style="color: #008000"><br>
+</span><span style="color: #0000ff">static</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;vdbeCommit(sqlite3&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">db){<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;i;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;nTrans&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Number&nbsp;of&nbsp;databases&nbsp;with&nbsp;an&nbsp;active&nbsp;write-transaction&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;SQLITE_OK;<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;needXcommit&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(i</span><span style="color: #000000">=</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;i</span><span style="color: #000000">&lt;</span><span style="color: #000000">db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nDb;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">){&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[i].pBt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pBt&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;sqlite3BtreeIsInTrans(pBt)&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;needXcommit&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;i</span><span style="color: #000000">!=</span><span style="color: #800080">1</span><span style="color: #000000">&nbsp;)&nbsp;nTrans</span><span style="color: #000000">++</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;If&nbsp;there&nbsp;are&nbsp;any&nbsp;write-transactions&nbsp;at&nbsp;all,&nbsp;invoke&nbsp;the&nbsp;commit&nbsp;hook&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;needXcommit&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">xCommitCallback&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlite3SafetyOff(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">xCommitCallback(db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">pCommitArg);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlite3SafetyOn(db);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_CONSTRAINT;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;The&nbsp;simple&nbsp;case&nbsp;-&nbsp;no&nbsp;more&nbsp;than&nbsp;one&nbsp;database&nbsp;file&nbsp;(not&nbsp;counting&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;TEMP&nbsp;database)&nbsp;has&nbsp;a&nbsp;transaction&nbsp;active.&nbsp;&nbsp;&nbsp;There&nbsp;is&nbsp;no&nbsp;need&nbsp;for&nbsp;the<br>
+&nbsp;&nbsp;**&nbsp;master-journal.<br>
+&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;**&nbsp;If&nbsp;the&nbsp;return&nbsp;value&nbsp;of&nbsp;sqlite3BtreeGetFilename()&nbsp;is&nbsp;a&nbsp;zero&nbsp;length<br>
+&nbsp;&nbsp;**&nbsp;string,&nbsp;it&nbsp;means&nbsp;the&nbsp;main&nbsp;database&nbsp;is&nbsp;:memory:.&nbsp;&nbsp;In&nbsp;that&nbsp;case&nbsp;we&nbsp;do<br>
+&nbsp;&nbsp;**&nbsp;not&nbsp;support&nbsp;atomic&nbsp;multi-file&nbsp;commits,&nbsp;so&nbsp;use&nbsp;the&nbsp;simple&nbsp;case&nbsp;then<br>
+&nbsp;&nbsp;**&nbsp;too.<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">简单的情况,只有一个数据库文件,不需要master-journal</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">==</span><span style="color: #000000">strlen(sqlite3BtreeGetFilename(db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[</span><span style="color: #800080">0</span><span style="color: #000000">].pBt))&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000">&nbsp;nTrans</span><span style="color: #000000">&lt;=</span><span style="color: #800080">1</span><span style="color: #000000">&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(i</span><span style="color: #000000">=</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_OK&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;i</span><span style="color: #000000">&lt;</span><span style="color: #000000">db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nDb;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">){&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[i].pBt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pBt&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">同步btree</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3BtreeSync(pBt,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Do&nbsp;the&nbsp;commit&nbsp;only&nbsp;if&nbsp;all&nbsp;databases&nbsp;successfully&nbsp;synced&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">//</span><span style="color: #008000">commite事务</span><span style="color: #008000"><br>
+</span><span style="color: #000000">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(i</span><span style="color: #000000">=</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;i</span><span style="color: #000000">&lt;</span><span style="color: #000000">db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nDb;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[i].pBt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pBt&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3BtreeCommit(pBt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;The&nbsp;complex&nbsp;case&nbsp;-&nbsp;There&nbsp;is&nbsp;a&nbsp;multi-file&nbsp;write-transaction&nbsp;active.<br>
+&nbsp;&nbsp;**&nbsp;This&nbsp;requires&nbsp;a&nbsp;master&nbsp;journal&nbsp;file&nbsp;to&nbsp;ensure&nbsp;the&nbsp;transaction&nbsp;is<br>
+&nbsp;&nbsp;**&nbsp;committed&nbsp;atomicly.<br>
+&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+#ifndef&nbsp;SQLITE_OMIT_DISKIO<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">else</span><span style="color: #000000">{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">int</span><span style="color: #000000">&nbsp;needSync&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">char</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">zMaster&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;File-name&nbsp;for&nbsp;the&nbsp;master&nbsp;journal&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">char</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">const</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">zMainFile&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3BtreeGetFilename(db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[</span><span style="color: #800080">0</span><span style="color: #000000">].pBt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;OsFile&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">master&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Select&nbsp;a&nbsp;master&nbsp;journal&nbsp;file&nbsp;name&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">do</span><span style="color: #000000">&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;u32&nbsp;random;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqliteFree(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3Randomness(</span><span style="color: #0000ff">sizeof</span><span style="color: #000000">(random),&nbsp;</span><span style="color: #000000">&amp;</span><span style="color: #000000">random);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zMaster&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3MPrintf(</span><span style="color: #800000">"</span><span style="color: #800000">%s-mj%08X</span><span style="color: #800000">"</span><span style="color: #000000">,&nbsp;zMainFile,&nbsp;random</span><span style="color: #000000">&amp;</span><span style="color: #800080">0x7fffffff</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">zMaster&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;SQLITE_NOMEM;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span><span style="color: #0000ff">while</span><span style="color: #000000">(&nbsp;sqlite3OsFileExists(zMaster)&nbsp;);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Open&nbsp;the&nbsp;master&nbsp;journal.&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsOpenExclusive(zMaster,&nbsp;</span><span style="color: #000000">&amp;</span><span style="color: #000000">master,&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqliteFree(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Write&nbsp;the&nbsp;name&nbsp;of&nbsp;each&nbsp;database&nbsp;file&nbsp;in&nbsp;the&nbsp;transaction&nbsp;into&nbsp;the&nbsp;new<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;master&nbsp;journal&nbsp;file.&nbsp;If&nbsp;an&nbsp;error&nbsp;occurs&nbsp;at&nbsp;this&nbsp;point&nbsp;close<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;and&nbsp;delete&nbsp;the&nbsp;master&nbsp;journal&nbsp;file.&nbsp;All&nbsp;the&nbsp;individual&nbsp;journal&nbsp;files<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;still&nbsp;have&nbsp;'null'&nbsp;as&nbsp;the&nbsp;master&nbsp;journal&nbsp;pointer,&nbsp;so&nbsp;they&nbsp;will&nbsp;roll<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;back&nbsp;independently&nbsp;if&nbsp;a&nbsp;failure&nbsp;occurs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(i</span><span style="color: #000000">=</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;i</span><span style="color: #000000">&lt;</span><span style="color: #000000">db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nDb;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">){&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[i].pBt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;i</span><span style="color: #000000">==</span><span style="color: #800080">1</span><span style="color: #000000">&nbsp;)&nbsp;</span><span style="color: #0000ff">continue</span><span style="color: #000000">;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Ignore&nbsp;the&nbsp;TEMP&nbsp;database&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pBt&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;sqlite3BtreeIsInTrans(pBt)&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">char</span><span style="color: #000000">&nbsp;</span><span style="color: #0000ff">const</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">zFile&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3BtreeGetJournalname(pBt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;zFile[</span><span style="color: #800080">0</span><span style="color: #000000">]</span><span style="color: #000000">==</span><span style="color: #800080">0</span><span style="color: #000000">&nbsp;)&nbsp;</span><span style="color: #0000ff">continue</span><span style="color: #000000">;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Ignore&nbsp;:memory:&nbsp;databases&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">needSync&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;</span><span style="color: #000000">!</span><span style="color: #000000">sqlite3BtreeSyncDisabled(pBt)&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;needSync&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">1</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsWrite(master,&nbsp;zFile,&nbsp;strlen(zFile)</span><span style="color: #000000">+</span><span style="color: #800080">1</span><span style="color: #000000">);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsClose(</span><span style="color: #000000">&amp;</span><span style="color: #000000">master);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsDelete(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqliteFree(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Sync&nbsp;the&nbsp;master&nbsp;journal&nbsp;file.&nbsp;Before&nbsp;doing&nbsp;this,&nbsp;open&nbsp;the&nbsp;directory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;the&nbsp;master&nbsp;journal&nbsp;file&nbsp;is&nbsp;store&nbsp;in&nbsp;so&nbsp;that&nbsp;it&nbsp;gets&nbsp;synced&nbsp;too.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;zMainFile&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3BtreeGetDirname(db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[</span><span style="color: #800080">0</span><span style="color: #000000">].pBt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsOpenDirectory(master,&nbsp;zMainFile);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;</span><span style="color: #000000">||</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(needSync&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;(rc</span><span style="color: #000000">=</span><span style="color: #000000">sqlite3OsSync(master,</span><span style="color: #800080">0</span><span style="color: #000000">))</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK)&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsClose(</span><span style="color: #000000">&amp;</span><span style="color: #000000">master);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsDelete(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqliteFree(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Sync&nbsp;all&nbsp;the&nbsp;db&nbsp;files&nbsp;involved&nbsp;in&nbsp;the&nbsp;transaction.&nbsp;The&nbsp;same&nbsp;call<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;sets&nbsp;the&nbsp;master&nbsp;journal&nbsp;pointer&nbsp;in&nbsp;each&nbsp;individual&nbsp;journal.&nbsp;If<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;an&nbsp;error&nbsp;occurs&nbsp;here,&nbsp;do&nbsp;not&nbsp;delete&nbsp;the&nbsp;master&nbsp;journal&nbsp;file.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;If&nbsp;the&nbsp;error&nbsp;occurs&nbsp;during&nbsp;the&nbsp;first&nbsp;call&nbsp;to&nbsp;sqlite3BtreeSync(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;then&nbsp;there&nbsp;is&nbsp;a&nbsp;chance&nbsp;that&nbsp;the&nbsp;master&nbsp;journal&nbsp;file&nbsp;will&nbsp;be<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;orphaned.&nbsp;But&nbsp;we&nbsp;cannot&nbsp;delete&nbsp;it,&nbsp;in&nbsp;case&nbsp;the&nbsp;master&nbsp;journal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;file&nbsp;name&nbsp;was&nbsp;written&nbsp;into&nbsp;the&nbsp;journal&nbsp;file&nbsp;before&nbsp;the&nbsp;failure<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;occured.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(i</span><span style="color: #000000">=</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;i</span><span style="color: #000000">&lt;</span><span style="color: #000000">db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nDb;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">){&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[i].pBt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pBt&nbsp;</span><span style="color: #000000">&amp;&amp;</span><span style="color: #000000">&nbsp;sqlite3BtreeIsInTrans(pBt)&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3BtreeSync(pBt,&nbsp;zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsClose(</span><span style="color: #000000">&amp;</span><span style="color: #000000">master);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqliteFree(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqlite3OsClose(</span><span style="color: #000000">&amp;</span><span style="color: #000000">master);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;Delete&nbsp;the&nbsp;master&nbsp;journal&nbsp;file.&nbsp;This&nbsp;commits&nbsp;the&nbsp;transaction.&nbsp;After<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;doing&nbsp;this&nbsp;the&nbsp;directory&nbsp;is&nbsp;synced&nbsp;again&nbsp;before&nbsp;any&nbsp;individual<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;transaction&nbsp;files&nbsp;are&nbsp;deleted.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsDelete(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;assert(&nbsp;rc</span><span style="color: #000000">==</span><span style="color: #000000">SQLITE_OK&nbsp;);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sqliteFree(zMaster);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;zMaster&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;</span><span style="color: #800080">0</span><span style="color: #000000">;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rc&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;sqlite3OsSyncDirectory(zMainFile);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;rc</span><span style="color: #000000">!=</span><span style="color: #000000">SQLITE_OK&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;This&nbsp;is&nbsp;not&nbsp;good.&nbsp;The&nbsp;master&nbsp;journal&nbsp;file&nbsp;has&nbsp;been&nbsp;deleted,&nbsp;but<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;the&nbsp;directory&nbsp;sync&nbsp;failed.&nbsp;There&nbsp;is&nbsp;no&nbsp;completely&nbsp;safe&nbsp;course&nbsp;of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;action&nbsp;from&nbsp;here.&nbsp;The&nbsp;individual&nbsp;journals&nbsp;contain&nbsp;the&nbsp;name&nbsp;of&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;master&nbsp;journal&nbsp;file,&nbsp;but&nbsp;there&nbsp;is&nbsp;no&nbsp;way&nbsp;of&nbsp;knowing&nbsp;if&nbsp;that<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;master&nbsp;journal&nbsp;exists&nbsp;now&nbsp;or&nbsp;if&nbsp;it&nbsp;will&nbsp;exist&nbsp;after&nbsp;the&nbsp;operating<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;system&nbsp;crash&nbsp;that&nbsp;may&nbsp;follow&nbsp;the&nbsp;fsync()&nbsp;failure.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">/*</span><span style="color: #008000">&nbsp;All&nbsp;files&nbsp;and&nbsp;directories&nbsp;have&nbsp;already&nbsp;been&nbsp;synced,&nbsp;so&nbsp;the&nbsp;following<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;calls&nbsp;to&nbsp;sqlite3BtreeCommit()&nbsp;are&nbsp;only&nbsp;closing&nbsp;files&nbsp;and&nbsp;deleting<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;journals.&nbsp;If&nbsp;something&nbsp;goes&nbsp;wrong&nbsp;while&nbsp;this&nbsp;is&nbsp;happening&nbsp;we&nbsp;don't<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;really&nbsp;care.&nbsp;The&nbsp;integrity&nbsp;of&nbsp;the&nbsp;transaction&nbsp;is&nbsp;already&nbsp;guaranteed,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;but&nbsp;some&nbsp;stray&nbsp;'cold'&nbsp;journals&nbsp;may&nbsp;be&nbsp;lying&nbsp;around.&nbsp;Returning&nbsp;an<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**&nbsp;error&nbsp;code&nbsp;won't&nbsp;help&nbsp;matters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #008000">*/</span><span style="color: #000000"><br>
+&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">for</span><span style="color: #000000">(i</span><span style="color: #000000">=</span><span style="color: #800080">0</span><span style="color: #000000">;&nbsp;i</span><span style="color: #000000">&lt;</span><span style="color: #000000">db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">nDb;&nbsp;i</span><span style="color: #000000">++</span><span style="color: #000000">){&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Btree&nbsp;</span><span style="color: #000000">*</span><span style="color: #000000">pBt&nbsp;</span><span style="color: #000000">=</span><span style="color: #000000">&nbsp;db</span><span style="color: #000000">-&gt;</span><span style="color: #000000">aDb[i].pBt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color: #0000ff">if</span><span style="color: #000000">(&nbsp;pBt&nbsp;){<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sqlite3BtreeCommit(pBt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+</span><span style="color: #0000ff">#endif</span><span style="color: #000000"><br>
+<br>
+&nbsp;&nbsp;</span><span style="color: #0000ff">return</span><span style="color: #000000">&nbsp;rc;<br>
+}</span></span></div>
+</div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+<a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1398826,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+<a id="green_channel_follow" onclick="c_follow();" href="javascript:void(0);">关注我</a>
+<a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a><a id="green_channel_contact" href="http://msg.cnblogs.com/send/YY%E5%93%A5" target="_blank">联系我</a>
+<a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/icon_weibo_24.png" alt=""></a>
+<a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+<div id="author_profile_info" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/" target="_blank"><img src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/sample_face.gif" class="author_avatar" alt=""></a>
+<div id="author_profile_detail" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followees">关注 - 2</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followers">粉丝 - 528</a>
+</div>
+</div>
+<div class="clear"></div>
+<div id="author_profile_honor"></div>
+<div id="author_profile_follow">
+    <a href="javascript:void(0);" onclick="c_follow();return false;">+加关注</a>
+</div>
+</div>
+<div id="div_digg">										
+    <div class="diggit" onclick="votePost(1398826,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">0</span>
+    </div>
+	<div class="buryit" onclick="votePost(1398826,&#39;Bury&#39;)"> 
+		<span class="burynum" id="bury_count">0</span>
+	</div>
+	<div class="clear"></div>	
+	<div class="diggword" id="digg_tips">
+    (请您对文章做出评价)
+    </div>	
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398774.html" title="发布于2009-02-26 14:16">SQLite入门与分析(四)---Page Cache之事务处理(2) </a><br><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html" title="发布于2009-02-26 16:18">SQLite Version3.3.6源代码文件结构</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2009-02-26 14:53</span> <a href="http://www.cnblogs.com/hustcat/">YY哥</a> 阅读(<span id="post_view_count">5568</span>) 评论(<span id="post_comment_count">2</span>)  <a href="http://i.cnblogs.com/EditPosts.aspx?postid=1398826" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html#" onclick="AddToWz(1398826);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=26761,cb_entryId=1398826,cb_blogApp=currentBlogApp,cb_blogUserGuid='a9743d0b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2009/2/26 14:53:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html#1469965" class="layer">#1楼</a><a name="1469965" id="comment_anchor_1469965"></a>  <span class="comment_date">2009-03-06 22:28</span> <a id="a_comment_author_1469965" href="http://www.cnblogs.com/soli/" target="_blank">Soli</a> <a href="http://msg.cnblogs.com/send/Soli" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1469965" class="blog_comment_body">Not bad.
+<br>But please don't fold the code. Thank you.</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1469965,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1469965,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1469965_avatar" style="display:none;">http://pic.cnblogs.com/face/u1946.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html#2291720" class="layer">#2楼</a><a name="2291720" id="comment_anchor_2291720"></a><span id="comment-maxId" style="display:none;">2291720</span><span id="comment-maxDate" style="display:none;">2012/1/11 16:42:42</span>  <span class="comment_date">2012-01-11 16:42</span> <a id="a_comment_author_2291720" href="http://www.cnblogs.com/wdfrog/" target="_blank">遗忘海岸</a> <a href="http://msg.cnblogs.com/send/%E9%81%97%E5%BF%98%E6%B5%B7%E5%B2%B8" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2291720" class="blog_comment_body">^_^,....</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2291720,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2291720,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2291720_avatar" style="display:none;">http://pic.cnblogs.com/face/u24437.jpg</span>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－专注为 App 开发者提供IM云服务</a><br><a href="http://click.aliyun.com/m/3037/" target="_blank">【阿里云SSD云盘】速度行业领先</a><br></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"><a href="http://job.cnblogs.com/offer/51018/" target="_blank"><img width="300" height="250" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/35695-20160215151750532-1876432241.png" alt="招聘ASP.NET 5开发工程师" title="招聘ASP.NET 5开发工程师"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/539687/" target="_blank">怎样交付业余项目</a><br> ·  <a href="http://news.cnblogs.com/n/539774/" target="_blank">《黑暗之魂3》新预告片公布 国区Steam预购仅199元</a><br> ·  <a href="http://news.cnblogs.com/n/539773/" target="_blank">梅西暖人一幕：送签名球衣圆梦塑料男孩</a><br> ·  <a href="http://news.cnblogs.com/n/539772/" target="_blank">中国科学家培育出人工精子 给不育男士带来福音</a><br> ·  <a href="http://news.cnblogs.com/n/539771/" target="_blank">市场份额已不足1% Opera欲推新浏览器摆脱困境</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/538249/" target="_blank">谷歌背后的数学</a><br> ·  <a href="http://kb.cnblogs.com/page/533808/" target="_blank">Medium开发团队谈架构设计</a><br> ·  <a href="http://kb.cnblogs.com/page/539274/" target="_blank">理解“渐进增强(Progressive Enhancement)”</a><br> ·  <a href="http://kb.cnblogs.com/page/534571/" target="_blank">为什么说DOM操作很慢</a><br> ·  <a href="http://kb.cnblogs.com/page/527518/" target="_blank">为什么你应该尝试全栈</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);    
+});
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><p><strong>
+</strong></p><div align="center"><strong><img border="0" alt="" src="./SQLite入门与分析(四)---Page Cache之事务处理(3) - YY哥 - 博客园_files/jim_gray.jpg" width="160" height="268"></strong></div>
+<p>&nbsp;</p>
+<p><strong>个人简介</strong></p>
+<p>专业打杂程序员  @<a href="http://hustcat.github.io/">github</a></p><p>
+<br>
+</p><p><strong>联系方式</strong></p>
+<p><a title="新浪微博" href="http://weibo.com/hustcat"><span style="font-family: Courier">新浪微博</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a title="腾讯微博" href="http://t.qq.com/hustcat">腾讯微博</a></p>
+<p><br></p>
+<p><!-- 博客园新闻频道引用代码 num-显示条数 --><a href="http://news.cnblogs.com/" target="_blank">IT新闻:</a><br></p><div style="display: none" id="__document_write_ajax_div-1"></div><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>园龄：<a href="http://home.cnblogs.com/u/hustcat/" title="入园时间：2007-05-23">8年9个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/hustcat/followers/">528</a><br>关注：<a href="http://home.cnblogs.com/u/hustcat/followees/">2</a><div id="p_b_follow"></div><div style="display: none" id="__document_write_ajax_div-2"></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/01/01&#39;);return false;">&lt;</a></td><td align="center">2009年2月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/03/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">25</td><td class="CalOtherMonthDay" align="center">26</td><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td class="CalOtherMonthDay" align="center">31</td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/01.html"><u>1</u></a></td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td class="CalWeekendDay" align="center">7</td></tr><tr><td class="CalWeekendDay" align="center">8</td><td align="center">9</td><td align="center">10</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/11.html"><u>11</u></a></td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12.html"><u>12</u></a></td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/13.html"><u>13</u></a></td><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/14.html"><u>14</u></a></td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/15.html"><u>15</u></a></td><td align="center">16</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/17.html"><u>17</u></a></td><td align="center">18</td><td align="center">19</td><td align="center">20</td><td class="CalWeekendDay" align="center">21</td></tr><tr><td class="CalWeekendDay" align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26.html"><u>26</u></a></td><td align="center">27</td><td class="CalWeekendDay" align="center">28</td></tr><tr><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/hustcat/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/hustcat/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/hustcat/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/hustcat/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/hustcat/tag/" title="我的博客的标签列表">我的标签</a></li>
+<li><a id="itemListLink" onclick="this.blur();WarpClass(&#39;itemListLink&#39;, &#39;itemListLin_con&#39;);return false;" href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html#">更多链接</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/hustcat/category/191424.html">Linux相关(26)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/hustcat/category/214566.html">MySQL(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/hustcat/category/175619.html">Others(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/hustcat/category/139956.html">Web技术(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/hustcat/category/183836.html">编程语言(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/hustcat/category/605980.html">存储(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/hustcat/category/130051.html">数据结构与算法(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术(30)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/hustcat/category/196365.html">系统相关(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/hustcat/category/427554.html">云计算与虚拟化(10)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/hustcat/archive/2014/11.html">2014年11月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/hustcat/archive/2014/10.html">2014年10月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/hustcat/archive/2014/09.html">2014年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/hustcat/archive/2014/08.html">2014年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/hustcat/archive/2014/07.html">2014年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/hustcat/archive/2014/03.html">2014年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/hustcat/archive/2013/09.html">2013年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/hustcat/archive/2013/08.html">2013年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/hustcat/archive/2013/02.html">2013年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/hustcat/archive/2012/11.html">2012年11月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/hustcat/archive/2012/01.html">2012年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/hustcat/archive/2011/12.html">2011年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/hustcat/archive/2011/10.html">2011年10月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/hustcat/archive/2011/03.html">2011年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/hustcat/archive/2010/09.html">2010年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/hustcat/archive/2010/08.html">2010年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/hustcat/archive/2010/07.html">2010年7月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/hustcat/archive/2010/06.html">2010年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/hustcat/archive/2010/05.html">2010年5月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/hustcat/archive/2010/04.html">2010年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/hustcat/archive/2010/03.html">2010年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/hustcat/archive/2010/01.html">2010年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="http://www.cnblogs.com/hustcat/archive/2009/12.html">2009年12月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="http://www.cnblogs.com/hustcat/archive/2009/10.html">2009年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="http://www.cnblogs.com/hustcat/archive/2009/09.html">2009年9月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="http://www.cnblogs.com/hustcat/archive/2009/08.html">2009年8月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="http://www.cnblogs.com/hustcat/archive/2009/06.html">2009年6月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="http://www.cnblogs.com/hustcat/archive/2009/05.html">2009年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="http://www.cnblogs.com/hustcat/archive/2009/04.html">2009年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="http://www.cnblogs.com/hustcat/archive/2009/03.html">2009年3月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="http://www.cnblogs.com/hustcat/archive/2009/02.html">2009年2月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="http://www.cnblogs.com/hustcat/archive/2008/10.html">2008年10月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="http://www.cnblogs.com/hustcat/archive/2008/08.html">2008年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="http://www.cnblogs.com/hustcat/archive/2008/07.html">2008年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="http://www.cnblogs.com/hustcat/archive/2008/06.html">2008年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="http://www.cnblogs.com/hustcat/archive/2008/05.html">2008年5月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="http://www.cnblogs.com/hustcat/archive/2008/04.html">2008年4月 (5)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_kernel" class="catListkernel sidebar-block">
+<h3 class="catListTitle">kernel</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_2_Link_0" href="http://wiki.zh-kernel.org/" rel="nofollow">kernel中文社区</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_1" href="http://ldn.linuxfoundation.org/" rel="nofollow">LDN</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_2" href="http://www.tldp.org/" rel="nofollow">The Linux Document Project</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_3" href="http://www.kernel.org/" rel="nofollow">The Linux Kernel Archives</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links210847" class="catList sidebar-block">
+<h3 class="catListTitle">manual</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_3_Link_0" href="http://www.cppreference.com/wiki/" rel="nofollow">cppreference</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_1" href="http://gcc.gnu.org/onlinedocs/" rel="nofollow">gcc manual</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_2" href="http://dev.mysql.com/doc/refman/5.1/zh/index.html" rel="nofollow">mysql manual</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links198983" class="catList sidebar-block">
+<h3 class="catListTitle">sites</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_4_Link_0" href="http://www.databasejournal.com/" rel="nofollow">Database Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_1" href="http://mirrors.fedoraproject.org/publiclist/Fedora/" rel="nofollow">Fedora镜象</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_2" href="http://highscalability.com/" rel="nofollow">highscalability</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_3" href="https://eprints.kfupm.edu.sa/" rel="nofollow">KFUPM ePrints</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_4" href="http://www.die.net/" rel="nofollow">Linux docs</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_5" href="http://www.linuxjournal.com/" rel="nofollow">Linux Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_6" href="http://nosql-database.org/" rel="nofollow">NoSQL</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_7" href="http://www.sqlite.org/" rel="nofollow">SQLite</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_technology website" class="catListtechnology website sidebar-block">
+<h3 class="catListTitle">技术社区</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_5_Link_0" href="http://www.apache.org/" rel="nofollow">apache</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_1" href="http://www.csdn.net/" rel="nofollow">CSDN</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_2" href="http://www.ibm.com/developerworks/cn/" rel="nofollow">IBM-developerworks</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_3" href="http://www.lucene.com.cn/" rel="nofollow">lucene中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_4" href="http://www.nutchchina.com/" rel="nofollow">nutch中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_5" href="http://www.oldlinux.org/oldlinux/index.php" rel="nofollow">oldlinux</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_6" href="http://forums.oracle.com/forums/main.jspa?categoryID=84" rel="nofollow">oracle's forum</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/3993712.html#3345657">1. Re:Docker实践(6)—CentOS7上部署Kubernetes</a></li>
+    <li class="recent_comment_body">Mark</li>
+    <li class="recent_comment_author">--Ant</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/4004889.html#3343804">2. Re:深入学习golang(4)—new与make</a></li>
+    <li class="recent_comment_body">讲的让我懂了，反正我顶</li>
+    <li class="recent_comment_author">--一页天书不分说</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568738.html#3336424">3. Re:Linux网络协议栈(一)——Socket入门(1)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568765.html#3336421">4. Re:Linux网络协议栈(一)——Socket入门(2)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html#3269030">5. Re:理解MySQL——索引与优化</a></li>
+    <li class="recent_comment_body">楼主我收藏了</li>
+    <li class="recent_comment_author">--Ｍ&amp;amp;N</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(166180)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(51843)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/12/19/1627525.html">3. 理解MySQL——复制(Replication)(45305)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">4. libevent源码分析(39126)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2008/04/09/1144645.html">5. 算法系列---回溯算法(25309)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/06/02/1494311.html">1. (i++)+(i++)与(++i)+(++i)(40)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(31)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">3. 理解MySQL——索引与优化(23)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/01/27/1657821.html">4. 浅谈SQLite——实现与应用(21)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/05/14/1735774.html">5. 一道算法题,求更好的解法(18)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(30)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(13)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">3. libevent源码分析(12)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/06/23/1762987.html">4. 浅谈SQLite——查询处理及优化(10)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2012/01/11/2319249.html">5. 乱谈服务器编程(10)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2016 YY哥
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+</body></html>

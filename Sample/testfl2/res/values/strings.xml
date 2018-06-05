@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">testfl2</string>
+    <string name="action_settings">Settings</string>
+    <string name="tourch_world">this is touch area</string>
+    <string name="expanded_world">this expanded text</string>    
+    <string name="hello_world">test</string>  
+
+</resources>

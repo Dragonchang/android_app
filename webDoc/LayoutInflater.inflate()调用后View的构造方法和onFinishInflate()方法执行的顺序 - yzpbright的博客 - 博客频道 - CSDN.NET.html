@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<!--STATUS OK-->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=gbk">
+<!-- base href="http://blog.csdn.net/yzpbright/article/details/51432069" -->
+<style>
+body{position:relative}
+body,form{margin:0!important;padding:0!important}
+#bd_snap{font:13px arial;color:#000;background:#fff;text-align:left;padding:13px 0 0 20px}
+#bd_snap_txt{clear:both;padding:10px 0 2px;line-height:24px;color:#333}
+#bd_snap_note{color:#999;padding-bottom:10px}
+#bd_snap a{font:13px arial;color:#00c;text-decoration:underline}
+#bd_snap_note a{color:#999}
+#bd_snap_head{width:860px;height:44px}
+#bd_snap_logo{width:162px;height:38px;display:block;background:url(http://www.baidu.com/img/logo-snap.png) no-repeat;margin-right:15px;float:left}
+#bd_snap_search{width:680px;position:absolute;left:209px;top:17px}
+#bd_snap_kw{width:531px;margin-right: 0;height:24px;padding:4px 7px;padding:6px 7px 2px\9;font:16px arial;vertical-align:top;border: 1px solid #b6b6b6;border-color: #7b7b7b #b6b6b6 #b6b6b6 #7b7b7b;background: #fff;display:inline-block;border-right-width: 0;border-color: #b8b8b8 transparent #ccc #b8b8b8;overflow: hidden;outline:0}
+#bd_snap_kw:hover{border-color: #999 transparent #b3b3b3 #999;}
+#bd_snap_kw:focus{border-color: #4791ff transparent #4791ff #4791ff}
+#bd_snap_su{width:100px;height:34px;font-size:14px;color:#fff;padding:0;letter-spacing: 1px;background: #3385ff; border-bottom: 1px solid #2d78f4;outline: medium;-webkit-appearance: none;-webkit-border-radius: 0;cursor:pointer;border:0}
+#bd_snap_search input.bd_snap_btn_h{background: #3075dc;box-shadow: inset 1px 1px 3px #2964bb;-webkit-box-shadow: inset 1px 1px 3px #2964bb;-moz-box-shadow: inset 1px 1px 3px #2964bb;-o-box-shadow: inset 1px 1px 3px #2964bb;}
+#bd_snap_search input.btnhover{background: #317ef3;border-bottom: 1px solid #2868c8;box-shadow: 1px 1px 1px #ccc;}
+#bd_snap_btn_wr{width:97px;height:34px;display:inline-block;_top:1px;*position:relative}
+#bd_snap_ln{height:1px;border-top:1px solid #ACA899;background:#ECE9D8;overflow:hidden}
+#bd_snap_txt span a{text-decoration:none}
+</style>
+
+
+</head><body><div id="bd_snap">
+    <div id="bd_snap_head">
+        <a href="http://www.baidu.com/" id="bd_snap_logo" title="到百度首页"></a>
+    </div>
+    <div id="bd_snap_txt">您查询的关键词是：<span><a style="color:black;background-color:#ffff66;padding:0 3px;font-weight:bold" href="http://cache.baiducontent.com/c?m=9d78d513d9871af81dfa950e1a16a0711824db3f6889835328c3933984145d563760f4cb5135630ec4c40c7070df5e2cebe74070207720a3dc88d64587fdd46a388954296d4cd81c47c419d89a07739d37902db5f85ffaf1b870c3ee898685124e99134321d1aedc4756438c3cab4a70fea19a4e145f12bee6&amp;p=8f71e715d9c041a91cb9dd2d021481&amp;newp=8b2a97118a934eac58eb8a2744008c231610db2151d4d7136b82c825d7331b001c3bbfb42323140fd0c27d6d04a5495aebf634793c0323a3dda5c91d9fb4c57479dc7b&amp;user=baidu&amp;fm=sc&amp;query=View%2Einflate+%B4%B4%BD%A8%CB%B3%D0%F2&amp;qid=82a66a780000b80c&amp;p1=1#baidusnap0">view.</a><a style="color:black;background-color:#A0FFFF;padding:0 3px;font-weight:bold" href="http://cache.baiducontent.com/c?m=9d78d513d9871af81dfa950e1a16a0711824db3f6889835328c3933984145d563760f4cb5135630ec4c40c7070df5e2cebe74070207720a3dc88d64587fdd46a388954296d4cd81c47c419d89a07739d37902db5f85ffaf1b870c3ee898685124e99134321d1aedc4756438c3cab4a70fea19a4e145f12bee6&amp;p=8f71e715d9c041a91cb9dd2d021481&amp;newp=8b2a97118a934eac58eb8a2744008c231610db2151d4d7136b82c825d7331b001c3bbfb42323140fd0c27d6d04a5495aebf634793c0323a3dda5c91d9fb4c57479dc7b&amp;user=baidu&amp;fm=sc&amp;query=View%2Einflate+%B4%B4%BD%A8%CB%B3%D0%F2&amp;qid=82a66a780000b80c&amp;p1=1#baidusnap1">.inflate</a><a style="color:black;background-color:#ff66ff;padding:0 3px;font-weight:bold" href="http://cache.baiducontent.com/c?m=9d78d513d9871af81dfa950e1a16a0711824db3f6889835328c3933984145d563760f4cb5135630ec4c40c7070df5e2cebe74070207720a3dc88d64587fdd46a388954296d4cd81c47c419d89a07739d37902db5f85ffaf1b870c3ee898685124e99134321d1aedc4756438c3cab4a70fea19a4e145f12bee6&amp;p=8f71e715d9c041a91cb9dd2d021481&amp;newp=8b2a97118a934eac58eb8a2744008c231610db2151d4d7136b82c825d7331b001c3bbfb42323140fd0c27d6d04a5495aebf634793c0323a3dda5c91d9fb4c57479dc7b&amp;user=baidu&amp;fm=sc&amp;query=View%2Einflate+%B4%B4%BD%A8%CB%B3%D0%F2&amp;qid=82a66a780000b80c&amp;p1=1#baidusnap4">顺序</a></span>  <span style="margin-left:5px">以下是该网页在北京时间 2016年12月28日 21:37:52 的快照；</span>
+        <p>如果打开速度慢，可以尝试<a href="http://cache.baiducontent.com/c?m=9d78d513d9871af81dfa950e1a16a0711824db3f6889835328c3933984145d563760f4cb5135630ec4c40c7070df5e2cebe74070207720a3dc88d64587fdd46a388954296d4cd81c47c419d89a07739d37902db5f85ffaf1b870c3ee898685124e99134321d1aedc4756438c3cab4a70fea19a4e145f12bee6&amp;p=8f71e715d9c041a91cb9dd2d021481&amp;newp=8b2a97118a934eac58eb8a2744008c231610db2151d4d7136b82c825d7331b001c3bbfb42323140fd0c27d6d04a5495aebf634793c0323a3dda5c91d9fb4c57479dc7b&amp;user=baidu&amp;fm=sc&amp;query=View%2Einflate+%B4%B4%BD%A8%CB%B3%D0%F2&amp;qid=82a66a780000b80c&amp;p1=1&amp;fast=y">快速版</a>；如果想更新或删除快照，可以<a href="http://tousu.baidu.com/webmaster/add?link=http%3A%2F%2Fcache.baiducontent.com%2Fc%3Fm%3D9d78d513d9871af81dfa950e1a16a0711824db3f6889835328c3933984145d563760f4cb5135630ec4c40c7070df5e2cebe74070207720a3dc88d64587fdd46a388954296d4cd81c47c419d89a07739d37902db5f85ffaf1b870c3ee898685124e99134321d1aedc4756438c3cab4a70fea19a4e145f12bee6%26p%3D8f71e715d9c041a91cb9dd2d021481%26newp%3D8b2a97118a934eac58eb8a2744008c231610db2151d4d7136b82c825d7331b001c3bbfb42323140fd0c27d6d04a5495aebf634793c0323a3dda5c91d9fb4c57479dc7b%26user%3Dbaidu%26fm%3Dsc%26query%3DView%252Einflate%2B%25B4%25B4%25BD%25A8%25CB%25B3%25D0%25F2%26qid%3D82a66a780000b80c%26p1%3D1" id="bd_tousu">投诉快照</a>。
+        </p>
+    </div>
+<script>document.getElementById("bd_tousu").href = "http://tousu.baidu.com/webmaster/add?link=" + encodeURIComponent(document.location);</script>
+    <div id="bd_snap_note">百度和网页 <a href="http://blog.csdn.net/yzpbright/article/details/51432069">http://blog.csdn.net/yzpbright/article/details/51432069</a> 的作者无关，不对其内容负责。百度快照谨为网络故障时之索引，不代表被搜索网站的即时页面。</div>
+</div>
+<div id="bd_snap_search">
+	<form action="http://www.baidu.com/s"><input name="cl" value="3" type="hidden"><input name="wd" id="bd_snap_kw" maxlength="100"><span id="bd_snap_btn_wr"><input id="bd_snap_su" value="百度一下" class="bd_snap_btn" onmouseover="this.className='bd_snap_btn bd_snap_btn_h'" onmousedown="this.className='bd_snap_btn btnhover'" onmouseup="this.className='bd_snap_btn'" onmouseout="this.className='bd_snap_btn'" type="submit"></span></form>
+</div>
+<div id="bd_snap_ln"></div>
+<div style="position:relative">
+
+
+     
+    
+    
+   
+   
+
+      
+
+    
+
+  
+ <meta http-equiv="Cache-Control" content="no-siteapp"><link rel="alternate" media="handheld" href="#">
+
+    <title>LayoutInflater.inflate()调用后View的构造方法和onFinishInflate()方法执行的顺序 - yzpbright的博客
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=gbk">
+    <meta name="description" content="&nbsp;public string Contentinsert(string bookID, string bookTitle, string bookContent,string taskUrl,string Ztagend)&nbsp;&nbsp;&nbsp; {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string uriString = 这里是取VIEWSTATE等值的页面;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //如果是asp.net页面，最好是">
+    
+      
+    
+        <!--new top-->
+       
+        <link rel="stylesheet" href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/index.html">
+        <!--new top-->
+    
+      <!-- ad begin -->
+         
+    <!-- ad end-->
+
+    <link rel="Stylesheet" type="text/css" href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/style.css">
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="http://blog.csdn.net/yzpbright/rss/list">
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/default.css">
+ 
+
+
+
+
+
+
+    <!-- 广告位开始 -->
+        <ins data-revive-zoneid="149" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+    
+   
+      <!--new top-->
+    
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/yzpbright">yzpbright的博客</a></h2>
+            <h3></h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+        
+     
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>           
+                <li id="btnContents"><a href="http://blog.csdn.net/yzpbright?viewmode=contents"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_mulu'])">
+                    <img src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/yzpbright?viewmode=list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_zhaiyao'])">
+                    <img src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/yzpbright/rss/list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">
+                    <img src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/ico_rss.gif">订阅</span></a></li>                
+            
+
+            </ul>
+    </div>
+</div>
+
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod="popu_3"> 
+
+<a href="http://blog.csdn.net/turingbooks/article/details/53606998">
+<font color="red">程序员12月书讯，写书评领书啦~
+</font></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+<a href="http://e.cn.miaozhen.com/r/k=6002004&amp;p=4b1&amp;ctid=2&amp;rt=2&amp;ns=__IP__&amp;ni=__IESID__&amp;v=__LOC__&amp;vo=3b56fd611&amp;vr=2&amp;o=http%3A%2F%2Fwww.ibm.com%2Fdeveloperworks%2Fcn%2Fmobile%2Fzones%2F10-steps-to-running-a-swift-app-in-an-ibm-container%2Findex.html%3Fcm_mmc%3Ddwchina-_-homepage-_-csdn-_-learn">
+<font color="blue">在 IBM Container 中运行 Swift 应用程序的 10 个 步骤 
+</font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://edu.csdn.net/huiyiCourse/detail/257">
+<font color="red">Python数据分析与挖掘经典案例实战
+</font></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://lib.csdn.net/">
+<font color="blue">免费的知识库，你的知识库
+</font></a>
+
+</div>                        </div>
+                        
+
+
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="72" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->
+
+  
+<link href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/comment1.css" type="text/css" rel="stylesheet">
+<link href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/style1.css" type="text/css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/markdown_views.css">
+<link rel="stylesheet" href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/category.css">
+
+
+
+
+
+
+
+  
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Original"></span>
+
+
+    <h1>
+        <span class="link_title"><a name="baidusnap1"></a><a name="baidusnap4"></a><a href="http://blog.csdn.net/yzpbright/article/details/51432069">
+        LayoutInflater<b style="color:black;background-color:#A0FFFF">.inflate</b>()调用后View的构造方法和onFinishInflate()方法执行的<b style="color:black;background-color:#ff66ff">顺序</b>            
+        </a></span>
+    </h1>
+</div>
+
+   
+
+        <div class="article_manage clearfix">
+        <div class="article_r">
+            <span class="link_postdate">2016-05-17 02:14</span>
+            <span class="link_view" title="阅读次数">178人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="#comments" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_pinglun'])">评论</a>(0)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle('LayoutInflater.inflate()调用后View的构造方法和onFinishInflate()方法执行的顺序','51432069');return false;" title="收藏">收藏</a></span>
+             <span class="link_report"> <a href="#report" onclick="javascript:report(51432069,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+    <div class="embody" style="display:none" id="embody">
+        <span class="embody_t">本文章已收录于：</span>
+        <div class="embody_c" id="lib" value="{&quot;err&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:[]}"></div>
+    </div>
+    <style type="text/css">        
+            .embody{
+                padding:10px 10px 10px;
+                margin:0 -20px;
+                border-bottom:solid 1px #ededed;                
+            }
+            .embody_b{
+                margin:0 ;
+                padding:10px 0;
+            }
+            .embody .embody_t,.embody .embody_c{
+                display: inline-block;
+                margin-right:10px;
+            }
+            .embody_t{
+                font-size: 12px;
+                color:#999;
+            }
+            .embody_c{
+                font-size: 12px;
+            }
+            .embody_c img,.embody_c em{
+                display: inline-block;
+                vertical-align: middle;               
+            }
+             .embody_c img{               
+                width:30px;
+                height:30px;
+            }
+            .embody_c em{
+                margin: 0 20px 0 10px;
+                color:#333;
+                font-style: normal;
+            }
+    </style>
+    
+      <div class="category clearfix">
+        <div class="category_l">
+           <img src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/category_icon.jpg">
+            <span>分类：</span>
+        </div>
+        <div class="category_r">
+                    <label onclick="GetCategoryArticles('5626461','yzpbright','top','51432069');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">Android<em>（70）</em></span>
+                      <img class="arrow-down" src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/arrow_triangle%2520_down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a href="http://blog.csdn.net/yzpbright/article/category/5626461" target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_5626461">                            
+                            </ul>
+                        </div>
+                    </label>                    
+        </div>
+    </div>
+      
+        <div class="bog_copyright">         
+            <p class="copyright_p">版权声明：本文为博主原创文章，未经博主允许不得转载。</p>
+        </div>
+
+  
+
+  
+  
+     
+
+<div id="article_content" class="article_content">
+
+<pre code_snippet_id="1685948" snippet_file_name="blog_20160517_1_9869585" name="code" class="java">public class MainActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		getLayoutInflater()<b style="color:black;background-color:#A0FFFF">.inflate</b>(R.layout.my_parent_view, null);
+	}
+}
+</pre>
+<p>activity_main.xml：</p>
+<p></p>
+<pre code_snippet_id="1685948" snippet_file_name="blog_20160517_2_8932276" name="code" class="html">&lt;RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".MainActivity" &gt;
+
+    &lt;TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/hello_world" /&gt;
+
+&lt;/RelativeLayout&gt;
+</pre><br>
+<br>
+<p></p><pre code_snippet_id="1685948" snippet_file_name="blog_20160517_3_8201928" name="code" class="java">public class MyChildView extends LinearLayout {
+
+	public MyChildView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		Log.i("MyChildView", "MyChildView-&gt;MyChildView(Context context, AttributeSet attrs)");
+	}
+
+	public MyChildView(Context context) {
+		super(context);
+	}
+	
+	@Override
+	protected void onFinishInflate() {
+		super.onFinishInflate();
+		Log.i("MyChildView", "MyChildView-&gt;onFinishInflate()");
+	}
+}</pre><br>
+<p></p>
+<p></p><pre code_snippet_id="1685948" snippet_file_name="blog_20160517_4_5486713" name="code" class="java">public class MyParentView extends LinearLayout{
+
+	public MyParentView(Context context) {
+		super(context);
+	}
+
+
+	public MyParentView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		Log.i("MyParentView", "MyParentView-&gt;MyParentView (Context context, AttributeSet attrs)");
+	}
+
+	@Override
+	protected void onFinishInflate() {
+		super.onFinishInflate();
+		Log.i("MyParentView", "MyParentView-&gt;onFinishInflate()");
+	}	
+}</pre><p></p>
+<p><br>
+</p>
+<p>my_parent_<a name="baidusnap0"></a><b style="color:black;background-color:#ffff66">view.</b>xml：<br>
+</p>
+<p></p><pre code_snippet_id="1685948" snippet_file_name="blog_20160517_5_5279752" name="code" class="html">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;com.example.testinflate.MyParentView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" &gt;
+    
+    &lt;com.example.testinflate.MyChildView
+        android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical" &gt;
+        
+    &lt;/com.example.testinflate.MyChildView&gt;
+
+&lt;/com.example.testinflate.MyParentView&gt;
+</pre><br>
+MainActivity启动后，Log输出如下：<p></p>
+<p>MyParentView-&gt;MyParentView (Context context, AttributeSet attrs)</p>
+<p>MyChildView-&gt;MyChildView(Context context, AttributeSet attrs)</p>
+<p>MyChildView-&gt;onFinishInflate()</p>
+<p>MyParentView-&gt;onFinishInflate()<br>
+<br>
+</p>
+   
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad" style="float: right;" data-mod="popu_172">
+<a href="#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间" style="background-position:0 -52px !important"></a>
+<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博" style="background-position:0 -104px !important"></a>
+<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博" style="background-position:0 -260px !important"></a>
+<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网" style="background-position:0 -208px !important"></a>
+<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信" style="background-position:0 -1612px !important"></a>
+</div>
+
+<!-- Baidu Button END -->
+
+   <link rel="stylesheet" href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/blog_detail.css">
+
+    
+<!--172.16.140.15-->
+
+<!-- Baidu Button BEGIN -->
+
+
+
+<!-- Baidu Button END -->
+
+ 
+
+        <div id="digg" articleid="51432069">
+            <dl id="btnDigg" class="digg digg_disable" onclick="btndigga();">
+               
+                 <dt>顶</dt>
+                <dd>0</dd>
+            </dl>
+           
+              
+            <dl id="btnBury" class="digg digg_disable" onclick="btnburya();">
+              
+                  <dt>踩</dt>
+                <dd>0</dd>               
+            </dl>
+            
+        </div>
+     <div class="tracking-ad" data-mod="popu_222"><a href="javascript:void(0);">&nbsp;</a>   </div>
+    <div class="tracking-ad" data-mod="popu_223"> <a href="javascript:void(0);">&nbsp;</a></div>
+    
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian']);location.href='/yzpbright/article/details/51431403';">上一篇</span><a href="http://blog.csdn.net/yzpbright/article/details/51431403" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian'])">记录一下Android大神们的博客地址，学习之路漫漫啊</a></li>
+                <li class="next_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian']);location.href='/yzpbright/article/details/51464872';">下一篇</span><a href="http://blog.csdn.net/yzpbright/article/details/51464872" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian'])">linux的ulimit各种限制之深入分析</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+        <div class="similar_article" style="display:none">
+                <h4>我的同类文章</h4>
+                <div class="similar_c" style="margin:20px 0px 0px 0px">
+                    <div class="similar_c_t">
+                                <label class="similar_cur">
+                                    <span style="cursor:pointer" onclick="GetCategoryArticles('5626461','yzpbright','foot','51432069');">Android<em>（70）</em></span>
+                                </label>
+                    </div>
+                   
+                    <div class="similar_wrap tracking-ad" data-mod="popu_141" style="max-height:195px;">
+                        <a href="http://blog.csdn.net/" style="display:none">http://blog.csdn.net</a>
+                        <ul class="similar_list fl">                          
+                        </ul>
+
+                        <ul class="similar_list fr">                           
+                        </ul>
+                    </div>
+                </div>
+            </div>    
+    
+      
+</div>
+
+     <div>
+    <ins data-revive-zoneid="206" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins> 
+          </div>
+
+<div id="suggest"></div>
+           
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+ <link rel="stylesheet" href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/replace.css">
+
+<div id="relate" data-mod="popu_218" class="tracking-ad">
+        <div class="relate_t">
+            <h3><span>参考知识库</span></h3>
+        </div>
+        <div class="relate_c">
+        </div>
+</div>
+ 
+
+<dl class="blog-ass-articl" id="res-relatived"> 
+    <div class="embody embody_b" id="libkeyparent" style="display:none">
+            <span class="embody_t">更多资料请参考：</span>
+            <div class="embody_c" id="libkey"></div>
+    </div>
+
+
+     <dt><span>猜你在找</span></dt>    
+
+
+   
+
+
+    <div id="adCollege" style="width: 42%;float: left;"> 
+         
+         
+    </div>  
+
+    
+     <div id="res" data-mod="popu_36" class="tracking-ad" style="width: 42%;float: left;margin-right: 30px;"></div>
+   
+</dl>
+
+
+  
+
+    <div id="ad_cen">        
+                      <ins data-revive-zoneid="199" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    </div>  
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list">
+    </div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form">
+    </div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+
+
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top" style="bottom:60px;">
+
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/blog-icon-reply.png" alt="快速回复">
+        </a>    
+
+    <a id="d-top-a" class="btn btn-top backtop" style="display: none;" title="返回顶部" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_huidaodingbu'])">         
+         <img src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/top.png" alt="TOP">
+    </a>
+</div>
+
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="display:none"></div>
+   
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+
+       
+
+
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+                   
+           <div id="side">
+               
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/yzpbright" target="_blank">
+    <img src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/1_yzpbright.html" title="访问我的空间" style="max-width:90%">
+    </a>
+    <br>
+    <span><a href="http://my.csdn.net/yzpbright" class="user_name" target="_blank">yzpbright</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter" title="[发私信]" onclick="window.open('http://msg.csdn.net/letters/model?receiver=yzpbright','_blank','height=350,width=700');_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_sixin'])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>12441次</span></li>
+    <li>积分：<span>846</span> </li>    
+    <li>等级： <span style="position:relative;display:inline-block;z-index:1">
+            <img src="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/blog3.html" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：846 </div>
+        </span>  </li>
+    <li>排名：<span>千里之外</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>65篇</span></li>
+    <li>转载：<span>41篇</span></li>
+    <li>译文：<span>1篇</span></li>
+    <li>评论：<span>6条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" class="blogsearch" title="请输入关键字" type="text"></span>
+        <input id="btnSubmit" value="搜索" title="search in blog" type="button">
+        <input name="q" id="inputQ" type="hidden">
+        <input name="t" value="blog" type="hidden">
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">    
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/5626461" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Android</a><span>(71)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/5758385" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">互联网</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6134348" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Git</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6154563" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">JAVA</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6154564" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Linux</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6173864" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">UML</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6173865" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">协议</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6176620" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">HTTP</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6182281" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">图片缓存</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6199258" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Android UI</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6203396" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">界面适配</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6211882" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">长连接</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6212456" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Android Studio</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6225002" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">开源框架和项目</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6323978" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">view绘制，canvas</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6323981" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">view绘制</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6323982" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">canvas</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6480103" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">android事件机制</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6480122" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">android动画</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6526222" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">软键盘</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/yzpbright/article/category/6537804" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">gradle</a><span>(11)</span>
+                </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="http://blog.csdn.net/yzpbright/article/month/2016/12">2016年12月</a><span>(10)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2016/11">2016年11月</a><span>(15)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2016/10">2016年10月</a><span>(2)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2016/08">2016年08月</a><span>(4)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2016/07">2016年07月</a><span>(9)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2016/05">2016年05月</a><span>(16)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2016/04">2016年04月</a><span>(27)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2016/03">2016年03月</a><span>(10)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2015/12">2015年12月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2015/11">2015年11月</a><span>(2)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2015/10">2015年10月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2015/09">2015年09月</a><span>(6)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2015/08">2015年08月</a><span>(5)</span></li><li><a href="http://blog.csdn.net/yzpbright/article/month/2015/07">2015年07月</a><span>(1)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/47983893" title="Adt-Bundle v22.3.0升级到v23.0.7时出错">Adt-Bundle v22.3.0升级到v23.0.7时出错</a><span>(1118)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/52140893" title="Android 自定义TextView实现文本内容自动调整字体大小以适应TextView的大小">Android 自定义TextView实现文本内容自动调整字体大小以适应TextView的大小</a><span>(991)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/48009397" title="安装Android Studio结束时提示VT is not enabled in the system">安装Android Studio结束时提示VT is not enabled in the system</a><span>(622)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/51231826" title="AS 2.0 开启Instant Run出现的问题：Error:Access to the dex task is now impossible, starting with 1.4.0">AS 2.0 开启Instant Run出现的问题：Error:Access to the dex task is now impossible, starting with 1.4.0</a><span>(619)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/48251987" title="Android Studio 第一次新建Android Gradle项目超级慢的解决方案">Android Studio 第一次新建Android Gradle项目超级慢的解决方案</a><span>(437)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/51099623" title="关于URL.openConnection()得到的连接对象问题">关于URL.openConnection()得到的连接对象问题</a><span>(332)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/49668441" title="tcp长连接和保活时间">tcp长连接和保活时间</a><span>(266)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/53335521" title="为什么  compile 'com.android.support:appcompat-v7:25.0.1' 执行后会在External libraries里引入很多个jar包">为什么  compile 'com.android.support:appcompat-v7:25.0.1' 执行后会在External libraries里引入很多个jar包</a><span>(243)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/48475869" title="SVN从服务器update时报错，提示Working copy和文件被锁的解决方法">SVN从服务器update时报错，提示Working copy和文件被锁的解决方法</a><span>(223)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/51114527" title="Http请求头探讨">Http请求头探讨</a><span>(211)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/51099623" title="关于URL.openConnection()得到的连接对象问题">关于URL.openConnection()得到的连接对象问题</a><span>(4)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/51231826" title="AS 2.0 开启Instant Run出现的问题：Error:Access to the dex task is now impossible, starting with 1.4.0">AS 2.0 开启Instant Run出现的问题：Error:Access to the dex task is now impossible, starting with 1.4.0</a><span>(1)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/52915889" title="android属性动画">android属性动画</a><span>(1)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/48364099" title="CRC16校验算法">CRC16校验算法</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/48275035" title="Android Studio注释模板介绍">Android Studio注释模板介绍</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/53509594" title="gradle执行脚本报错unsupported major.minor version 52.0">gradle执行脚本报错unsupported major.minor version 52.0</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/48251987" title="Android Studio 第一次新建Android Gradle项目超级慢的解决方案">Android Studio 第一次新建Android Gradle项目超级慢的解决方案</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/48032209" title="eclipse安装了adt之后再选择了sdk路径，工具栏里找不到sdk和avd的manager">eclipse安装了adt之后再选择了sdk路径，工具栏里找不到sdk和avd的manager</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/48009397" title="安装Android Studio结束时提示VT is not enabled in the system">安装Android Studio结束时提示VT is not enabled in the system</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/yzpbright/article/details/47981483" title="记录几个Android开发相关的网站">记录几个Android开发相关的网站</a><span>(0)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/lmj623565791/article/details/53370414" target="_blank">* Android 反编译初探 应用是如何被注入广告的</a></li>
+<li><a href="http://blog.csdn.net/foruok/article/details/53500801" target="_blank">* 凭兴趣求职80%会失败，为什么</a></li>
+<li><a href="http://blog.csdn.net/AndroidMsky/article/details/53490459" target="_blank">* 安卓微信自动抢红包插件优化和实现</a></li>
+<li><a href="http://blog.csdn.net/poem_qianmo/article/details/53240330" target="_blank">* 【游戏设计模式】之四 《游戏编程模式》全书内容提炼总结</a></li>
+<li><a href="http://blog.csdn.net/jiangwei0910410003/article/details/53404018" target="_blank">* 带你开发一款给Apk中自动注入代码工具icodetools(完善篇)</a></li>
+
+
+</ul></ul>
+</div>
+
+
+<div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+   
+         <a href="http://blog.csdn.net/yzpbright/article/details/52915889#comments">android属性动画</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/w690333243" class="user_name">w690333243</a>:
+你好，能帮解释下URLStreamHandler中 openConnection是怎么返回URLCo...
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/yzpbright/article/details/51099623#comments">关于URL.openConnection()得到的连接对象问题</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/w690333243" class="user_name">w690333243</a>:
+你好，我还是不明白url.openConnection()为什么会返回HttpURLConnecti...
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/yzpbright/article/details/51099623#comments">关于URL.openConnection()得到的连接对象问题</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/w690333243" class="user_name">w690333243</a>:
+@w690333243: 好吧，楼主，我明白了，我打印的是android项目，你的是java项目。因...
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/yzpbright/article/details/51099623#comments">关于URL.openConnection()得到的连接对象问题</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/w690333243" class="user_name">w690333243</a>:
+现在okhttp框架的本质应该就是你上面所讲到的例子吧
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/yzpbright/article/details/51099623#comments">关于URL.openConnection()得到的连接对象问题</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/w690333243" class="user_name">w690333243</a>:
+楼主你说的“其实输出一下们可以看到得到的是sun.NET.www.protocol.http.Htt...
+    </p>
+    </li>
+    <li>
+   
+         <a href="http://blog.csdn.net/yzpbright/article/details/51231826#comments">AS 2.0 开启Instant Run出现的问题：Error:Access to the dex task is now impossible, starting with 1.4.0</a>
+    <p style="margin:0px;"><a href="http://blog.csdn.net/qq_23191031" class="user_name">qq_23191031</a>:
+作者想对你说：原文更新了，你看看，
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+
+
+                   <!-- 广告位开始 --> 
+                    <ins data-revive-zoneid="190" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins> 
+                    <!-- 广告位结束 -->
+
+           </div>   
+
+            <div class="clear">
+            </div>
+        </div>
+
+        
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    </div>
+      <!--new top-->
+    
+    
+     <!--new top-->
+   
+    <link href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/ask_float_block.html" type="text/css" rel="stylesheet">
+    
+    
+    
+    
+   
+
+  <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    
+                    
+   </div>
+
+    <link rel="stylesheet" href="LayoutInflater.inflate%28%29%E8%B0%83%E7%94%A8%E5%90%8EView%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95%E5%92%8ConFinishInflate%28%29%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%9A%84%E9%A1%BA%E5%BA%8F%20-%20yzpbright%E7%9A%84%E5%8D%9A%E5%AE%A2%20-%20%E5%8D%9A%E5%AE%A2%E9%A2%91%E9%81%93%20-%20CSDN.NET_files/blog_code.css">
+    
+      
+
+   
+ 
+</div>
+
+
+
+</body></html>

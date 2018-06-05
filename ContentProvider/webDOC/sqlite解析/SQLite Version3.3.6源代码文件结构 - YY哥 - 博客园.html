@@ -1,0 +1,1228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0062)http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script async="" src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/widget"></script>
+
+<title>SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/bundle-ClassicBlue.css">
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/hustcat/rss">
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/hustcat/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/hustcat/wlwmanifest.xml">
+<script async="" src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/analytics.js"></script><script src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'hustcat', cb_enable_mathjax=false;</script>
+<script src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/blog-common.js" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/hustcat/"><img id="blogLogo" src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/hustcat/">YY哥的技术随笔</a></h1>
+<h2>——关注Linux、数据库和云计算</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/hustcat/">首页</a></li>
+<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://msg.cnblogs.com/send/YY%E5%93%A5">联系</a></li>
+<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/hustcat/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/hustcat/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+<!--done-->
+随笔- 125&nbsp;
+文章- 114&nbsp;
+评论- 378&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园.html">SQLite Version3.3.6源代码文件结构</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><table style="border: medium none ; width: 426.1pt; border-collapse: collapse;" border="1" cellpadding="0" cellspacing="0" width="568">
+    <tbody><tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p align="center"><strong><span style="font-size: 14pt; color: red;">Version 3.3.6</span></strong><strong><span style="font-size: 14pt; font-family: 宋体; color: red;">源代码文件结构</span></strong></p>
+        <p align="center"><strong><span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   </span></span></strong><strong><span style="font-family: 宋体;">——整理：</span></strong><strong>hustcat&nbsp;2009-2-19</strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt; font-family: 宋体;">文件名称</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><strong><span style="font-size: 12pt; font-family: 宋体;">大小</span></strong><strong><span style="font-size: 12pt;">byte</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><strong><span style="font-size: 12pt; font-family: 宋体;">备注</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; color: red;">API</span></strong><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">部分</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">main.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">35414</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">SQLite Library</span><span style="font-size: 12pt; font-family: 宋体;">的大部分接口</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">legacy.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">3734</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">sqlite3_exec</span><span style="font-size: 12pt; font-family: 宋体;">的实现</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">table.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">5464</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">the   sqlite3_get_table() and sqlite3_free_table()</span><span style="font-size: 12pt; font-family: 宋体;">的实现，它们是</span><span style="font-size: 12pt;">sqlite3_exec</span><span style="font-size: 12pt; font-family: 宋体;">的包装</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">preprare.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">17983</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">主要实现</span><span style="font-size: 12pt;">sqlite3_prepare()</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">分词器部分</span></strong><strong><span style="font-size: 12pt; color: red;">(Tokenizer)</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">tokenize.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">14495</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">分词器的实现</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">语法分析器部分</span></strong><strong><span style="font-size: 12pt; color: red;">(Parser)</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">parser.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">116917</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">分析器的实现，由</span><span style="font-size: 12pt;">Lemon</span><span style="font-size: 12pt; font-family: 宋体;">实现</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">parser.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">6847</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">分析器内部定义的关键字</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong>&nbsp;</strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">代码生成器部分</span></strong><strong><span style="font-size: 12pt; color: red;">(Code Generator)</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">update.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">23878</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">UPDATTE</span><span style="font-size: 12pt; font-family: 宋体;">语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">delete.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">21978</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">DELETE</span><span style="font-size: 12pt; font-family: 宋体;">语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">insert.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">62026</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">INSERT</span><span style="font-size: 12pt; font-family: 宋体;">语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">trigger.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">29065</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">TRIGGER</span><span style="font-size: 12pt; font-family: 宋体;">语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">attach.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">15941</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">ATTACHT </span><span style="font-size: 12pt; font-family: 宋体;">和</span><span style="font-size: 12pt;">DEATTACH</span><span style="font-size: 12pt; font-family: 宋体;">语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">select.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">112084</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">SELECT</span><span style="font-size: 12pt; font-family: 宋体;">语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">where.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">75826</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">WHERE</span><span style="font-size: 12pt; font-family: 宋体;">语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">vacuum.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">11005</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">VACUUM</span><span style="font-size: 12pt; font-family: 宋体;">语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">pragma.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">34289</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">处理</span><span style="font-size: 12pt;">PRAGMA</span><span style="font-size: 12pt; font-family: 宋体;">命令</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt; color: black;">expr.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt; color: black;">73963</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体; color: black;">处理</span><span style="font-size: 12pt; color: black;">SQL</span><span style="font-size: 12pt; font-family: 宋体; color: black;">语句中的表达式</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt; color: black;">auth.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt; color: black;">7496</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体; color: black;">主要实现</span><span style="font-size: 12pt; color: black;">sqlite3_set_authorizer()</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt; color: black;">analyze.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt; color: black;">13149</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体; color: black;">实现</span><span style="font-size: 12pt; color: black;">ANALYZE</span><span style="font-size: 12pt; font-family: 宋体; color: black;">命令</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt; color: black;">alter.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt; color: black;">18414</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体; color: black;">实现</span><span style="font-size: 12pt; color: black;">ALTER TABLE</span><span style="font-size: 12pt; font-family: 宋体; color: black;">功能</span> </p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt; color: black;">build.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt; color: black;">104052</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体; color: black;">处理以下语法：</span></p>
+        <p><span style="font-size: 12pt; color: black;">CREATE   TABLE</span></p>
+        <p><span style="font-size: 12pt; color: black;">DROP   TABLE</span></p>
+        <p><span style="font-size: 12pt; color: black;">CREATE   INDEX</span></p>
+        <p><span style="font-size: 12pt; color: black;">DROP   INDEX</span></p>
+        <p><span style="font-size: 12pt; color: black;">creating   ID lists</span></p>
+        <p><span style="font-size: 12pt; color: black;">BEGIN   TRANSACTION</span></p>
+        <p><span style="font-size: 12pt; color: black;">COMMIT</span></p>
+        <p><span style="font-size: 12pt; color: black;">ROLLBACK</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">func.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt; color: black;">34335</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体; color: black;">实现</span><span style="font-size: 12pt; color: black;">SQL</span><span style="font-size: 12pt; font-family: 宋体; color: black;">语句的函数语句</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt; color: black;">date.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt; color: black;">24031</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体; color: black;">与日期和时间转换有关的函数</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">虚拟机部分</span></strong><strong><span style="font-size: 12pt; color: red;">(Virtual Machine)</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">vdbeapi.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">23300</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">虚拟机提供上层模块调用的</span><span style="font-size: 12pt;">API</span><span style="font-size: 12pt; font-family: 宋体;">实现部分</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">vdbe.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">143552</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">虚拟机的主要实现部分</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">vdbe.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">5309</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">定义了</span><span style="font-size: 12pt;">VDBE</span><span style="font-size: 12pt; font-family: 宋体;">的接口，</span><span style="font-size: 12pt;">VdbeOp</span><span style="font-size: 12pt; font-family: 宋体;">结构体</span><span style="font-size: 12pt;">(</span><span style="font-size: 12pt; font-family: 宋体;">代表一条指令</span><span style="font-size: 12pt;">)</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">vdbeaux.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">58741</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">Vdbe.h</span><span style="font-size: 12pt; font-family: 宋体;">的接口的实现</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">vdbeInt.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">17595</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">Vdbe.c</span><span style="font-size: 12pt; font-family: 宋体;">的私有头文件，定义了</span><span style="font-size: 12pt;">VDBE</span><span style="font-size: 12pt; font-family: 宋体;">常用的数据结构：</span></p>
+        <p><span style="font-size: 12pt;">Cursor</span><span style="font-size: 12pt; font-family: 宋体;">——虚拟机中使用的游标</span></p>
+        <p><span style="font-size: 12pt;">Mem</span><span style="font-size: 12pt; font-family: 宋体;">——</span><span style="font-size: 12pt;">vdbe</span><span style="font-size: 12pt; font-family: 宋体;">在内部把所有的</span><span style="font-size: 12pt;">SQL</span><span style="font-size: 12pt; font-family: 宋体;">值当作一个</span><span style="font-size: 12pt;">Mem</span><span style="font-size: 12pt; font-family: 宋体;">数据结构来处理</span></p>
+        <p><span style="font-size: 12pt;">Vdbe</span><span style="font-size: 12pt; font-family: 宋体;">——虚拟机数据结构</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">vdbemem.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">26375</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">操作</span><span style="font-size: 12pt;">”Mem”</span><span style="font-size: 12pt; font-family: 宋体;">数据结构的函数</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">vdbefifo.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">2927</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; color: red;">B-Tree</span></strong><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">部分</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">btree.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">5260</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">头文件，定义了</span><span style="font-size: 12pt;">B-tree</span><span style="font-size: 12pt; font-family: 宋体;">提供的操作接口</span></p>
+        <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">btree.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">215570</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">B-Tree</span><span style="font-size: 12pt; font-family: 宋体;">部分的主要实现，并定义了以下数据结构：</span></p>
+        <p><span style="font-size: 12pt;">Btree</span><span style="font-size: 12pt; font-family: 宋体;">——</span><span style="font-size: 12pt;">Btree handler</span></p>
+        <p><span style="font-size: 12pt;">BtCursor</span><span style="font-size: 12pt; font-family: 宋体;">——使用的游标</span></p>
+        <p><span style="font-size: 12pt;">BtLock</span><span style="font-size: 12pt; font-family: 宋体;">——锁</span></p>
+        <p><span style="font-size: 12pt;">BtShared</span><span style="font-size: 12pt; font-family: 宋体;">——包含了一个打开的数据库的所有信息</span></p>
+        <p><span style="font-size: 12pt;">MemPage</span><span style="font-size: 12pt; font-family: 宋体;">——文件在内存存放在该数据结构中</span></p>
+        <p><span style="font-size: 12pt;">CellInfo</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; color: red;">Pager</span></strong><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">部分</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">pager.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">4161</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">定义</span><span style="font-size: 12pt;">sqlite page cache</span><span style="font-size: 12pt; font-family: 宋体;">子系统提供的接口</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">pager.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">127490</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">Pager</span><span style="font-size: 12pt; font-family: 宋体;">模块的主要实现，并定义了以下数据结构：</span></p>
+        <p><span style="font-size: 12pt;">PgHdr</span><span style="font-size: 12pt; font-family: 宋体;">——每一个内存中的页面的页面头</span></p>
+        <p><span style="font-size: 12pt;">Pager</span><span style="font-size: 12pt; font-family: 宋体;">——该模块中最重要的数据结构</span></p>
+        <p><span style="font-size: 12pt;">PgHistory</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong>&nbsp;</strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; color: red;">OS Interface</span></strong><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">部分</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">os.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">18355</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">定义了为上层模块提供的操作函数，并定义了以下数据结构：</span></p>
+        <p><span style="font-size: 12pt;">OsFile</span><span style="font-size: 12pt; font-family: 宋体;">——描述一个文件</span></p>
+        <p><span style="font-size: 12pt;">IoMethod</span><span style="font-size: 12pt; font-family: 宋体;">——</span><span style="font-size: 12pt;">OsFile</span><span style="font-size: 12pt; font-family: 宋体;">所支持的操作函数（对所有架构都适用的</span><span style="font-size: 12pt;">OS Interface</span><span style="font-size: 12pt; font-family: 宋体;">）</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">os.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">2866</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">对</span><span style="font-size: 12pt;">IoMethod</span><span style="font-size: 12pt; font-family: 宋体;">中的函数的包装</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">os_win.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">42975</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">Windows</span><span style="font-size: 12pt; font-family: 宋体;">平台下的</span><span style="font-size: 12pt;">OS Interface</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">os_unix.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">60831</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">Unix</span><span style="font-size: 12pt; font-family: 宋体;">平台下的</span><span style="font-size: 12pt;">OS Interface</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">os_os2.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">28451</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">OS2</span><span style="font-size: 12pt; font-family: 宋体;">平台下的</span><span style="font-size: 12pt;">OS Interface</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong>&nbsp;</strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p>&nbsp;</p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p>&nbsp;</p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" style="padding: 0cm 5.4pt; width: 426.1pt;" valign="top" width="568">
+        <p><strong><span style="font-size: 12pt; font-family: 宋体; color: red;">其它部分</span></strong></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">utf.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">20891</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">与</span><span style="font-size: 12pt;">UTF</span><span style="font-size: 12pt; font-family: 宋体;">编码有关的函数</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">util.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">43575</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">一些实用函数，比如：</span></p>
+        <p><span style="font-size: 12pt;">sqlite3Malloc()</span><span style="font-size: 12pt; font-family: 宋体;">，</span><span style="font-size: 12pt;">sqlite3FreeX()</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">sqlite3.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">63873</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">SQLite</span><span style="font-size: 12pt; font-family: 宋体;">的头文件，定义了提供给应用使用的</span><span style="font-size: 12pt;">API</span><span style="font-size: 12pt; font-family: 宋体;">和数据结构。</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">sqliteInt.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">78886</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">定义了</span><span style="font-size: 12pt;">SQLite</span><span style="font-size: 12pt; font-family: 宋体;">内部使用的接口和数据结构</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">printf.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">29556</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">主要实现与</span><span style="font-size: 12pt;">printf</span><span style="font-size: 12pt; font-family: 宋体;">有关的函数</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">random.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">3078</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt; font-family: 宋体;">随机数生成</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">hash.c</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">11896</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">SQLite</span><span style="font-size: 12pt; font-family: 宋体;">使用的</span><span style="font-size: 12pt;">hash</span><span style="font-size: 12pt; font-family: 宋体;">表</span></p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 0cm 5.4pt; width: 77.4pt;" valign="top" width="103">
+        <p><strong><span style="font-size: 12pt;">hash.h</span></strong></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 63pt;" valign="top" width="84">
+        <p><span style="font-size: 12pt;">4033</span></p>
+        </td>
+        <td style="padding: 0cm 5.4pt; width: 285.7pt;" valign="top" width="381">
+        <p><span style="font-size: 12pt;">Hash </span><span style="font-size: 12pt; font-family: 宋体;">表头文件</span></p>
+        </td>
+    </tr>
+</tbody></table>
+<p>&nbsp;</p>
+<p style="color: red;">注：目前，我还没有把SQLite的源码读完，所以文件的归类可能有漏掉的。</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+<a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1398896,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+<a id="green_channel_follow" onclick="c_follow();" href="javascript:void(0);">关注我</a>
+<a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a><a id="green_channel_contact" href="http://msg.cnblogs.com/send/YY%E5%93%A5" target="_blank">联系我</a>
+<a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/icon_weibo_24.png" alt=""></a>
+<a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+<div id="author_profile_info" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/" target="_blank"><img src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/sample_face.gif" class="author_avatar" alt=""></a>
+<div id="author_profile_detail" class="author_profile_info">
+<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followees">关注 - 2</a><br>
+<a href="http://home.cnblogs.com/u/hustcat/followers">粉丝 - 528</a>
+</div>
+</div>
+<div class="clear"></div>
+<div id="author_profile_honor"></div>
+<div id="author_profile_follow">
+    <a href="javascript:void(0);" onclick="c_follow();return false;">+加关注</a>
+</div>
+</div>
+<div id="div_digg">										
+    <div class="diggit" onclick="votePost(1398896,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">2</span>
+    </div>
+	<div class="buryit" onclick="votePost(1398896,&#39;Bury&#39;)"> 
+		<span class="burynum" id="bury_count">0</span>
+	</div>
+	<div class="clear"></div>	
+	<div class="diggword" id="digg_tips">
+    (请您对文章做出评价)
+    </div>	
+</div>
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html" class="p_n_p_prefix">« </a> 上一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398826.html" title="发布于2009-02-26 14:53">SQLite入门与分析(四)---Page Cache之事务处理(3)</a><br><a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/hustcat/archive/2009/03/01/1400757.html" title="发布于2009-03-01 12:32">SQLite入门与分析(五)---Page Cache之并发控制</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2009-02-26 16:18</span> <a href="http://www.cnblogs.com/hustcat/">YY哥</a> 阅读(<span id="post_view_count">8380</span>) 评论(<span id="post_comment_count">9</span>)  <a href="http://i.cnblogs.com/EditPosts.aspx?postid=1398896" rel="nofollow">编辑</a> <a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#" onclick="AddToWz(1398896);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=26761,cb_entryId=1398896,cb_blogApp=currentBlogApp,cb_blogUserGuid='a9743d0b-63cf-dd11-9e4d-001cf0cd104b',cb_entryCreatedDate='2009/2/26 16:18:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#1462320" class="layer">#1楼</a><a name="1462320" id="comment_anchor_1462320"></a>  <span class="comment_date">2009-02-26 17:37</span> <a id="a_comment_author_1462320" href="http://www.cnblogs.com/kim4apple/" target="_blank">kim4apple</a> <a href="http://msg.cnblogs.com/send/kim4apple" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1462320" class="blog_comment_body">好文章，持续关注中。。。。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1462320,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1462320,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1462320_avatar" style="display:none;">http://pic.cnblogs.com/face/33728/20160118204651.png</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#1462390" class="layer">#2楼</a><a name="1462390" id="comment_anchor_1462390"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2009-02-26 18:40</span> <a id="a_comment_author_1462390" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1462390" class="blog_comment_body">谢谢支持.</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1462390,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1462390,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#1462752" class="layer">#3楼</a><a name="1462752" id="comment_anchor_1462752"></a>  <span class="comment_date">2009-02-27 09:36</span> <a id="ctl00_CommentList_NameLink_2" target="_blank">ajax+u[未注册用户]</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1462752" class="blog_comment_body">希望看到楼主讲虚拟机</div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#1463492" class="layer">#4楼</a><a name="1463492" id="comment_anchor_1463492"></a>[<span class="louzhu">楼主</span>]  <span class="comment_date">2009-02-27 18:34</span> <a id="a_comment_author_1463492" href="http://www.cnblogs.com/hustcat/" target="_blank">YY哥</a> <a href="http://msg.cnblogs.com/send/YY%E5%93%A5" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1463492" class="blog_comment_body">谢谢你的关注，如果可能，以后会慢慢讨论的。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1463492,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1463492,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#1469973" class="layer">#5楼</a><a name="1469973" id="comment_anchor_1469973"></a>  <span class="comment_date">2009-03-06 22:40</span> <a id="a_comment_author_1469973" href="http://www.cnblogs.com/soli/" target="_blank">Soli</a> <a href="http://msg.cnblogs.com/send/Soli" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_1469973" class="blog_comment_body">How many lines in all?</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(1469973,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(1469973,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_1469973_avatar" style="display:none;">http://pic.cnblogs.com/face/u1946.jpg</span>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#2155365" class="layer">#6楼</a><a name="2155365" id="comment_anchor_2155365"></a>  <span class="comment_date">2011-07-19 19:49</span> <a id="a_comment_author_2155365" href="http://www.cnblogs.com/Gingber/" target="_blank">Gingber</a> <a href="http://msg.cnblogs.com/send/Gingber" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2155365" class="blog_comment_body">您好！看到你写的这篇文章《SQLite Version3.3.6源代码文件结构》，本人十分佩服。感谢您的无私奉献。<br>   同时本人目前正在做关于SQLite源码的调试功能，但苦于没有任何的关于SQL语句的调试资料可以查考，在这里真心希望可以给我一些指导。或者关于SQL调试方面的书籍、代码或网站等等。感激不尽！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2155365,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2155365,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#2465005" class="layer">#7楼</a><a name="2465005" id="comment_anchor_2465005"></a>  <span class="comment_date">2012-09-05 20:53</span> <a id="a_comment_author_2465005" href="http://home.cnblogs.com/u/444846/" target="_blank">yutingkt</a> <a href="http://msg.cnblogs.com/send/yutingkt" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2465005" class="blog_comment_body">谢谢!  ^_^</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2465005,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2465005,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#2907442" class="layer">#8楼</a><a name="2907442" id="comment_anchor_2907442"></a>  <span class="comment_date">2014-03-30 17:50</span> <a id="a_comment_author_2907442" href="http://www.cnblogs.com/elvestar/" target="_blank">elvestar</a> <a href="http://msg.cnblogs.com/send/elvestar" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_2907442" class="blog_comment_body">SQLite的架构非常的赞，层次非常的清晰。楼主总结的也非常的赞。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2907442,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2907442,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#3124881" class="layer">#9楼</a><a name="3124881" id="comment_anchor_3124881"></a><span id="comment-maxId" style="display:none;">3124881</span><span id="comment-maxDate" style="display:none;">2015/2/6 13:55:48</span>  <span class="comment_date">2015-02-06 13:55</span> <a id="a_comment_author_3124881" href="http://home.cnblogs.com/u/721558/" target="_blank">0.0!</a> <a href="http://msg.cnblogs.com/send/0.0%21" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3124881" class="blog_comment_body">支持楼主啊，希望能多出一些技术文章，供大家参考学习</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3124881,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3124881,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#" onclick="return RefreshPage();">刷新页面</a><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank">【推荐】50万行VC++源码: 大型组态工控、电力仿真CAD与GIS源码库</a><br><a href="http://www.rongcloud.cn/" target="_blank">【推荐】融云即时通讯云－专注为 App 开发者提供IM云服务</a><br><a href="http://click.aliyun.com/m/3037/" target="_blank">【阿里云SSD云盘】速度行业领先</a><br></div>
+<div id="opt_under_post"></div>
+<div id="ad_c1" class="c_ad_block"><a href="http://job.cnblogs.com/offer/51018/" target="_blank"><img width="300" height="250" src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/35695-20160215151750532-1876432241.png" alt="招聘ASP.NET 5开发工程师" title="招聘ASP.NET 5开发工程师"></a></div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/539687/" target="_blank">怎样交付业余项目</a><br> ·  <a href="http://news.cnblogs.com/n/539774/" target="_blank">《黑暗之魂3》新预告片公布 国区Steam预购仅199元</a><br> ·  <a href="http://news.cnblogs.com/n/539773/" target="_blank">梅西暖人一幕：送签名球衣圆梦塑料男孩</a><br> ·  <a href="http://news.cnblogs.com/n/539772/" target="_blank">中国科学家培育出人工精子 给不育男士带来福音</a><br> ·  <a href="http://news.cnblogs.com/n/539771/" target="_blank">市场份额已不足1% Opera欲推新浏览器摆脱困境</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/538249/" target="_blank">谷歌背后的数学</a><br> ·  <a href="http://kb.cnblogs.com/page/533808/" target="_blank">Medium开发团队谈架构设计</a><br> ·  <a href="http://kb.cnblogs.com/page/539274/" target="_blank">理解“渐进增强(Progressive Enhancement)”</a><br> ·  <a href="http://kb.cnblogs.com/page/534571/" target="_blank">为什么说DOM操作很慢</a><br> ·  <a href="http://kb.cnblogs.com/page/527518/" target="_blank">为什么你应该尝试全栈</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+$(function () {
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);    
+});
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><p><strong>
+</strong></p><div align="center"><strong><img border="0" alt="" src="./SQLite Version3.3.6源代码文件结构 - YY哥 - 博客园_files/jim_gray.jpg" width="160" height="268"></strong></div>
+<p>&nbsp;</p>
+<p><strong>个人简介</strong></p>
+<p>专业打杂程序员  @<a href="http://hustcat.github.io/">github</a></p><p>
+<br>
+</p><p><strong>联系方式</strong></p>
+<p><a title="新浪微博" href="http://weibo.com/hustcat"><span style="font-family: Courier">新浪微博</span></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a title="腾讯微博" href="http://t.qq.com/hustcat">腾讯微博</a></p>
+<p><br></p>
+<p><!-- 博客园新闻频道引用代码 num-显示条数 --><a href="http://news.cnblogs.com/" target="_blank">IT新闻:</a><br></p><div style="display: none" id="__document_write_ajax_div-1"></div><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/hustcat/">YY哥</a><br>园龄：<a href="http://home.cnblogs.com/u/hustcat/" title="入园时间：2007-05-23">8年9个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/hustcat/followers/">528</a><br>关注：<a href="http://home.cnblogs.com/u/hustcat/followees/">2</a><div id="p_b_follow"></div><div style="display: none" id="__document_write_ajax_div-2"></div></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="日历">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/01/01&#39;);return false;">&lt;</a></td><td align="center">2009年2月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2009/03/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">25</td><td class="CalOtherMonthDay" align="center">26</td><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td class="CalOtherMonthDay" align="center">31</td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/01.html"><u>1</u></a></td><td align="center">2</td><td align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td class="CalWeekendDay" align="center">7</td></tr><tr><td class="CalWeekendDay" align="center">8</td><td align="center">9</td><td align="center">10</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/11.html"><u>11</u></a></td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12.html"><u>12</u></a></td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/13.html"><u>13</u></a></td><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/14.html"><u>14</u></a></td></tr><tr><td class="CalWeekendDay" align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/15.html"><u>15</u></a></td><td align="center">16</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/17.html"><u>17</u></a></td><td align="center">18</td><td align="center">19</td><td align="center">20</td><td class="CalWeekendDay" align="center">21</td></tr><tr><td class="CalWeekendDay" align="center">22</td><td align="center">23</td><td align="center">24</td><td align="center">25</td><td align="center"><a href="http://www.cnblogs.com/hustcat/archive/2009/02/26.html"><u>26</u></a></td><td align="center">27</td><td class="CalWeekendDay" align="center">28</td></tr><tr><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
+<div id="sidebar_search" class="mySearch">
+<h3 class="catListTitle">搜索</h3>
+<div id="sidebar_search_box">
+<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
+<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
+</div>
+</div>
+
+</div><div id="sidebar_shortcut" class="sidebar-block">
+<div class="catListLink">
+<h3 class="catListTitle">常用链接</h3>
+<ul>
+<li><a href="http://www.cnblogs.com/hustcat/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/hustcat/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/hustcat/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/hustcat/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/hustcat/tag/" title="我的博客的标签列表">我的标签</a></li>
+<li><a id="itemListLink" onclick="this.blur();WarpClass(&#39;itemListLink&#39;, &#39;itemListLin_con&#39;);return false;" href="http://www.cnblogs.com/hustcat/archive/2009/02/26/1398896.html#">更多链接</a></li>
+</ul>
+<div id="itemListLin_con" style="display:none;">
+<ul>
+
+</ul>
+</div>
+</div></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/hustcat/category/191424.html">Linux相关(26)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/hustcat/category/214566.html">MySQL(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/hustcat/category/175619.html">Others(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/hustcat/category/139956.html">Web技术(12)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/hustcat/category/183836.html">编程语言(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/hustcat/category/605980.html">存储(1)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/hustcat/category/130051.html">数据结构与算法(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="http://www.cnblogs.com/hustcat/category/175618.html">数据库技术(30)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="http://www.cnblogs.com/hustcat/category/196365.html">系统相关(3)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="http://www.cnblogs.com/hustcat/category/427554.html">云计算与虚拟化(10)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/hustcat/archive/2014/11.html">2014年11月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/hustcat/archive/2014/10.html">2014年10月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/hustcat/archive/2014/09.html">2014年9月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/hustcat/archive/2014/08.html">2014年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/hustcat/archive/2014/07.html">2014年7月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/hustcat/archive/2014/03.html">2014年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/hustcat/archive/2013/09.html">2013年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/hustcat/archive/2013/08.html">2013年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/hustcat/archive/2013/02.html">2013年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/hustcat/archive/2012/11.html">2012年11月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/hustcat/archive/2012/01.html">2012年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/hustcat/archive/2011/12.html">2011年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/hustcat/archive/2011/10.html">2011年10月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/hustcat/archive/2011/03.html">2011年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/hustcat/archive/2010/09.html">2010年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/hustcat/archive/2010/08.html">2010年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/hustcat/archive/2010/07.html">2010年7月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/hustcat/archive/2010/06.html">2010年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/hustcat/archive/2010/05.html">2010年5月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/hustcat/archive/2010/04.html">2010年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/hustcat/archive/2010/03.html">2010年3月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/hustcat/archive/2010/01.html">2010年1月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="http://www.cnblogs.com/hustcat/archive/2009/12.html">2009年12月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="http://www.cnblogs.com/hustcat/archive/2009/10.html">2009年10月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="http://www.cnblogs.com/hustcat/archive/2009/09.html">2009年9月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="http://www.cnblogs.com/hustcat/archive/2009/08.html">2009年8月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="http://www.cnblogs.com/hustcat/archive/2009/06.html">2009年6月 (14)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="http://www.cnblogs.com/hustcat/archive/2009/05.html">2009年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="http://www.cnblogs.com/hustcat/archive/2009/04.html">2009年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="http://www.cnblogs.com/hustcat/archive/2009/03.html">2009年3月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="http://www.cnblogs.com/hustcat/archive/2009/02.html">2009年2月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="http://www.cnblogs.com/hustcat/archive/2008/10.html">2008年10月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="http://www.cnblogs.com/hustcat/archive/2008/08.html">2008年8月 (5)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_33" href="http://www.cnblogs.com/hustcat/archive/2008/07.html">2008年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_34" href="http://www.cnblogs.com/hustcat/archive/2008/06.html">2008年6月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_35" href="http://www.cnblogs.com/hustcat/archive/2008/05.html">2008年5月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_36" href="http://www.cnblogs.com/hustcat/archive/2008/04.html">2008年4月 (5)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_kernel" class="catListkernel sidebar-block">
+<h3 class="catListTitle">kernel</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_2_Link_0" href="http://wiki.zh-kernel.org/" rel="nofollow">kernel中文社区</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_1" href="http://ldn.linuxfoundation.org/" rel="nofollow">LDN</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_2" href="http://www.tldp.org/" rel="nofollow">The Linux Document Project</a> </li>
+
+<li><a id="CatList_LinkList_2_Link_3" href="http://www.kernel.org/" rel="nofollow">The Linux Kernel Archives</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links210847" class="catList sidebar-block">
+<h3 class="catListTitle">manual</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_3_Link_0" href="http://www.cppreference.com/wiki/" rel="nofollow">cppreference</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_1" href="http://gcc.gnu.org/onlinedocs/" rel="nofollow">gcc manual</a> </li>
+
+<li><a id="CatList_LinkList_3_Link_2" href="http://dev.mysql.com/doc/refman/5.1/zh/index.html" rel="nofollow">mysql manual</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_links198983" class="catList sidebar-block">
+<h3 class="catListTitle">sites</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_4_Link_0" href="http://www.databasejournal.com/" rel="nofollow">Database Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_1" href="http://mirrors.fedoraproject.org/publiclist/Fedora/" rel="nofollow">Fedora镜象</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_2" href="http://highscalability.com/" rel="nofollow">highscalability</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_3" href="https://eprints.kfupm.edu.sa/" rel="nofollow">KFUPM ePrints</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_4" href="http://www.die.net/" rel="nofollow">Linux docs</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_5" href="http://www.linuxjournal.com/" rel="nofollow">Linux Journal</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_6" href="http://nosql-database.org/" rel="nofollow">NoSQL</a> </li>
+
+<li><a id="CatList_LinkList_4_Link_7" href="http://www.sqlite.org/" rel="nofollow">SQLite</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_technology website" class="catListtechnology website sidebar-block">
+<h3 class="catListTitle">技术社区</h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_5_Link_0" href="http://www.apache.org/" rel="nofollow">apache</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_1" href="http://www.csdn.net/" rel="nofollow">CSDN</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_2" href="http://www.ibm.com/developerworks/cn/" rel="nofollow">IBM-developerworks</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_3" href="http://www.lucene.com.cn/" rel="nofollow">lucene中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_4" href="http://www.nutchchina.com/" rel="nofollow">nutch中国</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_5" href="http://www.oldlinux.org/oldlinux/index.php" rel="nofollow">oldlinux</a> </li>
+
+<li><a id="CatList_LinkList_5_Link_6" href="http://forums.oracle.com/forums/main.jspa?categoryID=84" rel="nofollow">oracle's forum</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/3993712.html#3345657">1. Re:Docker实践(6)—CentOS7上部署Kubernetes</a></li>
+    <li class="recent_comment_body">Mark</li>
+    <li class="recent_comment_author">--Ant</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/p/4004889.html#3343804">2. Re:深入学习golang(4)—new与make</a></li>
+    <li class="recent_comment_body">讲的让我懂了，反正我顶</li>
+    <li class="recent_comment_author">--一页天书不分说</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568738.html#3336424">3. Re:Linux网络协议栈(一)——Socket入门(1)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/09/17/1568765.html#3336421">4. Re:Linux网络协议栈(一)——Socket入门(2)</a></li>
+    <li class="recent_comment_body">学习</li>
+    <li class="recent_comment_author">--血洗女生宿舍</li>
+    <li class="recent_comment_title"><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html#3269030">5. Re:理解MySQL——索引与优化</a></li>
+    <li class="recent_comment_body">楼主我收藏了</li>
+    <li class="recent_comment_author">--Ｍ&amp;amp;N</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(166180)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(51843)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/12/19/1627525.html">3. 理解MySQL——复制(Replication)(45305)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">4. libevent源码分析(39126)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2008/04/09/1144645.html">5. 算法系列---回溯算法(25309)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/06/02/1494311.html">1. (i++)+(i++)与(++i)+(++i)(40)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(31)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">3. 理解MySQL——索引与优化(23)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/01/27/1657821.html">4. 浅谈SQLite——实现与应用(21)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/05/14/1735774.html">5. 一道算法题,求更好的解法(18)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">推荐排行榜</h3>
+<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/hustcat/archive/2009/10/28/1591648.html">1. 理解MySQL——索引与优化(30)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2009/02/12/1389448.html">2. SQLite入门与分析(一)---简介(13)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/08/31/1814022.html">3. libevent源码分析(12)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2010/06/23/1762987.html">4. 浅谈SQLite——查询处理及优化(10)</a></li><li><a href="http://www.cnblogs.com/hustcat/archive/2012/01/11/2319249.html">5. 乱谈服务器编程(10)</a></li></ul></div>
+</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2016 YY哥
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+</body></html>

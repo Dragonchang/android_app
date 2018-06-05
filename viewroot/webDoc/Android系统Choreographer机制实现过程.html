@@ -1,0 +1,708 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0065)http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta content="360doc" name="classification">
+    
+    <link rel="alternate" media="only screen and (max-width: 640px)" href="http://www.360doc.cn/article/10366845_481984948.html">
+    <meta content="vsync,callback,choreographer" name="keywords">
+    <meta content="Android系统Choreographer机制实现过程" name="description">
+    <meta name="mobile-agent" content="format=html5;url=http://www.360doc.cn/article/10366845_481984948.html">
+
+    <meta content="www.360doc.com" name="author">
+
+    <title>
+        Android系统Choreographer机制实现过程
+    </title>
+    <link href="./Android系统Choreographer机制实现过程_files/bdsstyle.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="./Android系统Choreographer机制实现过程_files/jquery1.js"></script>
+    <script type="text/javascript" src="./Android系统Choreographer机制实现过程_files/jQuery.md5.js"></script>
+    
+    <script type="text/javascript" language="javascript">
+        window.onerror = ignoreError;
+        function ignoreError() {
+            return true;
+        }
+    </script>
+
+    <link href="./Android系统Choreographer机制实现过程_files/wzhead-cleaned.css" rel="stylesheet" type="text/css">
+    <link href="./Android系统Choreographer机制实现过程_files/wz20130912-cleaned.css" rel="stylesheet" type="text/css">
+
+
+    
+
+    <script type="text/javascript" src="./Android系统Choreographer机制实现过程_files/indexhead.js"></script><script type="text/javascript" src="./Android系统Choreographer机制实现过程_files/chat.js"></script><script type="text/javascript" src="./Android系统Choreographer机制实现过程_files/chatuserlist.js"></script><link rel="stylesheet" type="text/css" href="./Android系统Choreographer机制实现过程_files/chat.css">
+    <script type="text/javascript" src="./Android系统Choreographer机制实现过程_files/showarticlefollow20130912.js"></script>
+<script type="text/javascript" src="./Android系统Choreographer机制实现过程_files/EssayforIE120425.js"></script><link href="./Android系统Choreographer机制实现过程_files/bdsstyle(1).css" rel="stylesheet" type="text/css"></head>
+<body style="font-family: Arial, Helvetica, sans-serif;" onmouseup="setDragEnd()" onmousemove="DragDiv();" onclick="delAllDiv(event)"><iframe frameborder="0" style="display: none;"></iframe><div id="bdshare_s" style="display: block;"><iframe id="bdsIfr" style="position:absolute;display:none;z-index:9999;" frameborder="0"></iframe><div id="bdshare_l" style="display: none;"><div id="bdshare_l_c"><h6>分享到</h6><ul><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_mshare mshare">一键分享</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_qzone qqkj">QQ空间</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_tsina xlwb">新浪微博</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_bdysc bdysc">百度云收藏</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_renren rrw">人人网</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_tqq txwb">腾讯微博</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_bdxc bdxc">百度相册</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_kaixin001 kxw">开心网</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_tqf txpy">腾讯朋友</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_tieba bdtb">百度贴吧</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_douban db">豆瓣网</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_tsohu shwb">搜狐微博</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_bdhome bdhome">百度新首页</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_sqq sqq">QQ好友</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_thx thx">和讯微博</a></li><li><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="bds_more">更多...</a></li></ul><p><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" class="goWebsite">百度分享</a></p></div></div></div>
+
+
+    <span id="LayerLogin"></span>
+    <div style="position: fixed; width: 100%; z-index: 1000;">
+        <div class="mainnav">
+            <div class="mainnav1">
+                <div class="lf360" style="padding-left: 5px;">
+                    <img src="./Android系统Choreographer机制实现过程_files/logoo.gif">
+                </div>
+                <div style="width: 625px; padding-top: 0px; padding-left: 4px; position: absolute;">
+                    <table height="34" border="0" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr id="daohangtr">
+                                <td style="width: 185px; _width: 0px; *width: 0px !important;"></td>
+                                <td class="navwz1" width="95">
+                                    <a href="http://www.360doc.com/index.html">首&nbsp;页</a>
+                                </td>
+                                <td width="100" class="  navwz1">
+                                    <a href="http://www.360doc.com/readroom.html">阅览室</a>
+                                </td>
+                                <td width="88" class="  navwz1">
+                                    <a href="http://www.360doc.com/weekstar.html">馆友</a>
+                                </td>
+                                <td width="132" class="  navwz1">
+                                    <a href="http://www.360doc.com/my360doc.aspx">我的图书馆</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="rt360" style="padding-top: 6px; width: 133px; padding-left: 38px;" id="outerdiv"><div class="denglbj lan2"><div style=" width:43px; float:left; text-align:center;" onmouseover="this.style.backgroundColor=&#39;#e5e5e5&#39;;this.parentNode.className=&#39;denglbj2 lan2&#39;" onmouseout="this.style.backgroundColor=&#39;#fcfcfc&#39;;this.parentNode.className=&#39;denglbj lan2&#39;"><a href="javascript:void(0)" onclick="loginnew()">登录</a></div><div style=" width:1px; float:left; "></div><div style="width:46px; float:left;text-align:center; margin-left:1px;*margin-left:0px;" onmouseover="this.style.backgroundColor=&#39;#e5e5e5&#39;;this.parentNode.className=&#39;denglbj3 lan2&#39;" onmouseout="this.style.backgroundColor=&#39;#fcfcfc&#39;;this.parentNode.className=&#39;denglbj lan2&#39;" id="regdiv"><a href="http://www.360doc.com/register.aspx?refer=800" target="_blank">注册</a></div><div class="boxwid xinngdui" id="bfdiv"><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#"><img id="imgbfabc" src="http://pubimage.360doc.com/index/5.gif"></a></div><div style=" position: absolute; margin-left:35px; *margin-left:-95px;_margin-left:-93px; width:96px;display:none;z-index:200;" id="func"><div class="tugduo3" id="divfunc" style="cursor:pointer;float:right; width:41px;"><div style=" height:26px; width:39px; border:1px solid #d4d4d4; border-bottom:none; background-color:#fff;"></div></div><div class="tipzhu3  right hui2" id="layerdiv"><ul><li><a href="http://www.360doc.com/advice.html" target="_blank">留言交流</a></li><li><a href="http://www.360doc.com/helpnew.html" target="_blank">网文摘手</a></li><li><a href="http://www.360doc.com/mobilapp.htm" target="_blank">手机客户端</a></li><li style=" border:none;"><a href="http://www.360doc.com/help.html" target="_blank">帮助</a></li></ul></div></div></div></div>
+                <div class=" rt360" style="padding-top: 6px; padding-right: 0px;">
+                    <div class="lf360 serch">
+                        <input name="input2" class="serchpt" id="txtSearchword" onkeydown="ongosearch()" onkeyup="showIntelliSense()" onfocus="if(this.value==&#39;搜文章 找馆友&#39;) this.value=&#39;&#39;;this.style.color=&#39;#272727&#39;" onblur="if(!this.value) {this.value=&#39;搜文章 找馆友&#39;;this.style.color=&#39;#b2b2b2&#39;;}" onpaste="showIntelliSense1()" type="text" value="搜文章 找馆友">
+                    </div>
+                    <div class="lf360 ssuo">
+                        <a id="searchlinkid" href="javascript:gosearch();"></a>
+                    </div>
+                    <div id="divsearch" style="margin-top: 25px; margin-left: 1px; display: none; position: absolute; z-index: 100;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="navxt">
+        </div>
+    </div>
+    <div style="height: 44px; _height: 0px; width: 100%;"></div>
+
+    <div class="both">
+    </div>
+    <div id="docTotalInfo" class="mainzt" style="width: 1047px;">
+        <table class="index_main" border="0" cellpadding="0" cellspacing="0">
+            <tbody>
+                <tr>
+                    <td align="left" valign="top" width="727px">
+                        <div id="ADAboveArtContent"><iframe marginwidth="0" marginheight="0" frameborder="0" scrolling="no" width="728" height="90" src="./Android系统Choreographer机制实现过程_files/aboveConentAD2.html"></iframe></div>
+                        <div style="height: 7px;">
+                        </div>
+                        <table border="0" cellpadding="0" cellspacing="0" class="mainbj6" id="docArtClass">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; text-align: center;">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <table style="width: 100%; text-align: left;" border="0" cellpadding="0" cellspacing="0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td class="biaoti">
+                                                                        <div class="biaoti2 lf360">
+                                                                            Android系统Choreographer机制实现过程
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="height: 32px;">
+
+
+                                                                        <div style="width: 670px; height: 28px; padding-left: 26px; color: #777b7a;">
+                                                                            <table>
+                                                                                <tbody><tr>
+                                                                                    <td>收藏人：<span class="name" onclick="wzhitnew(1);"><a href="http://www.360doc.com/userhome/10366845" target="_blank">老匹夫</a></span>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div class="btzctsg" id="spanfollowstatus"><div class="gzbt1"><a onclick="gzuser(10366845);wzhitnew(2);" href="javascript:void(0)"></a></div></div>
+                                                                                        <script>isfollow(10366845);</script>
+
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div class="ytdh1"><a onclick="doctalk();wzhitnew(106);" href="javascript:void(0)"></a></div>
+
+                                                                                    </td>
+
+                                                                                </tr>
+                                                                            </tbody></table>
+                                                                        </div>
+
+
+
+
+                                                                        <div class="wztopxx">
+                                                                            <div style="float: left; height: 28px; padding-top: 7px;">
+                                                                                <table cellpadding="0" cellspacing="0" style="position: relative; z-index: 4">
+                                                                                    <tbody>
+                                                                                        <tr>
+
+                                                                                            <td>
+                                                                                                2015-07-01&nbsp;|&nbsp;阅：<span id="360doc_Readnum">38</span>&nbsp;&nbsp;<span style="position: relative;">转：<span onclick="wzhitnew(3)" id="360doc_saverNum">0</span><span id="360doc_saverUser"></span></span>&nbsp;&nbsp;
+
+
+
+                                                                                            </td>
+
+                                                                                            <td>
+                                                                                                <div style="position: relative;">
+                                                                                                    &nbsp;|&nbsp;<span id="docsource">&nbsp;&nbsp;<a onclick="wzhitnew(14);" href="http://blog.csdn.net/yangwen123/article/details/39518923" target="_blank">来源</a></span>
+                                                                                                </div>
+                                                                                                <div class="sekuaibox" style="display: none; margin-left: 48px;" id="zihaoboxID">
+                                                                                                    <div style="padding-top: 10px; padding-left: 5px;">
+                                                                                                        <div class="lf360 danxunbt">
+                                                                                                            <input id="artdocfont3" onclick="ChangeArtSize(3, this); wzhitnew(15); " name="radio" type="radio" value="1">
+                                                                                                        </div>
+                                                                                                        <div class="lf360 danxunwz" onclick="ChangeArtSize(3,this);wzhitnew(15); " style="cursor: pointer;">
+                                                                                                            大
+                                                                                                        </div>
+                                                                                                        <div class="lf360 danxunbt">
+                                                                                                            <input id="artdocfont2" onclick="ChangeArtSize(2, this); wzhitnew(16); " name="radio" type="radio" value="2">
+                                                                                                        </div>
+                                                                                                        <div class="lf360 danxunwz" onclick="ChangeArtSize(2,this);wzhitnew(16); " style="cursor: pointer;">
+                                                                                                            中
+                                                                                                        </div>
+                                                                                                        <div class="lf360 danxunbt">
+                                                                                                            <input id="artdocfont1" onclick="ChangeArtSize(1, this); wzhitnew(17); " name="radio" type="radio" value="3">
+                                                                                                        </div>
+                                                                                                        <div class="lf360 danxunwz" onclick="ChangeArtSize(1,this);wzhitnew(17); " style="cursor: pointer;">
+                                                                                                            小
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div class="sekuaibox" style="margin-left: 76px; display: none;" id="sekuaiboxID">
+                                                                                                    <div style="padding-top: 10px; padding-left: 5px;">
+                                                                                                        <img src="./Android系统Choreographer机制实现过程_files/cr1.gif" id="docArtC1" onclick="ChangeArtClass(1,this);wzhitnew(18);" style="cursor: pointer;"><img src="./Android系统Choreographer机制实现过程_files/cr2.gif" id="docArtC2" onclick="ChangeArtClass(2,this);wzhitnew(19);" style="cursor: pointer;"><img src="./Android系统Choreographer机制实现过程_files/cr3.gif" id="docArtC3" onclick="ChangeArtClass(3,this);wzhitnew(20);" style="cursor: pointer;"><img src="./Android系统Choreographer机制实现过程_files/cr4.gif" id="docArtC4" onclick="ChangeArtClass(4,this);wzhitnew(21);" style="cursor: pointer;"><img src="./Android系统Choreographer机制实现过程_files/cr5.gif" id="docArtC5" onclick="ChangeArtClass(5,this);wzhitnew(22);" style="cursor: pointer;"><img src="./Android系统Choreographer机制实现过程_files/cr6-1.gif" id="docArtC6" onclick="ChangeArtClass(6,this);wzhitnew(23);" style="cursor: pointer;">
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <div style="padding-left: 10px;">
+                                                                                                    <a href="javascript:void(0)">
+                                                                                                        <img onmouseover="changedivdisplay(1);" src="./Android系统Choreographer机制实现过程_files/wz1.gif"></a>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <div style="padding-left: 10px;" onmouseover="changedivdisplay(2);">
+                                                                                                    <a href="javascript:void(0)">
+                                                                                                        <img src="./Android系统Choreographer机制实现过程_files/wz2.gif"></a>
+                                                                                                </div>
+                                                                                            </td>
+                                                                                            <td>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" onclick=" setTimeout(showShareLayer, 10);wzhitnew(4);">分享</a>&nbsp;</td>
+                                                                                            <td>
+                                                                                                <a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" onclick="  setTimeout(showShareLayer, 10);wzhitnew(5);">
+                                                                                                    <img style="cursor: pointer;" src="./Android系统Choreographer机制实现过程_files/tb10.gif"></a><div class="fenxiang" id="fenxiangLayer" style="display: none; border: none; width: 110px; margin-left: -28px; _margin-left: -40px;"><div style="border:1px solid #cbcbcb; height:240px; width:108px;"><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare share-bar-btn"><table cellpadding="0" cellspacing="0" width="108" style=" background-color:#fff; "><tbody><tr><td width="12"></td><td height="29" onclick="wzhitnew(6);"><a class="bds_qzone" href="javascript:void(0);" title="分享到QQ空间">&nbsp;&nbsp;&nbsp;&nbsp;腾讯空间</a></td></tr><tr><td width="12"></td><td height="29" onclick="wzhitnew(9);"><a class="bds_tsina" href="javascript:void(0);" title="分享到新浪微博">&nbsp;&nbsp;&nbsp;&nbsp;新浪微博</a></td></tr><tr><td width="12"></td><td height="29" onclick="wzhitnew(10);"><a class="bds_tqq" href="javascript:void(0);" title="分享到腾讯微博">&nbsp;&nbsp;&nbsp;&nbsp;腾讯微博</a></td></tr><tr><td width="12"></td><td height="29" onclick="wzhitnew(7);"><a class="bds_renren" href="javascript:void(0);" title="分享到人人网">&nbsp;&nbsp;&nbsp;&nbsp;人人网</a></td></tr><tr><td width="12"></td><td height="29" onclick="wzhitnew(8);"><a class="bds_kaixin001" href="javascript:void(0);" title="分享到开心网">&nbsp;&nbsp;&nbsp;&nbsp;开心网</a></td></tr><tr><td width="12"></td><td height="29" onclick="wzhitnew(11);"><a class="bds_tsohu" href="javascript:void(0);" title="分享到搜狐微博">&nbsp;&nbsp;&nbsp;&nbsp;搜狐微博</a></td></tr><tr><td width="12"></td><td height="29"><a href="javascript:void(0);" onclick="showdivemail();wzhitnew(12);"><div class="bds_py">&nbsp;&nbsp;&nbsp;&nbsp;推荐给朋友</div></a></td></tr><tr><td width="12"></td><td height="29"><a href="javascript:void(0);"><div class="bds_jubao" onclick="showAlertLayer();wzhitnew(13);">&nbsp;&nbsp;&nbsp;&nbsp;举报</div></a></td></tr></tbody></table></div></div></div>
+                                                                                            </td>
+                                                                                        </tr>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                            <div id="resavelayer1" class="rt360"><div class="zswdbtn1"><a href="javascript:void(0);" onclick="SaveArt();wzhitnew(24);"></a></div><div style="position: absolute;display:none;z-index:100000;" id="fuzhitishidiv"></div></div>
+
+
+                                                                            <div id="shareweixinabove" class="rt360"> <div class="fxwx2bt"><a href="javascript:void(0);" onclick="shareWeixin();wzhitnew(65);"></a></div></div>
+
+
+                                                                            <table cellpadding="0" cellspacing="0" style="text-align: center; margin: 0px auto;">
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <div id="AlertArt1" style="display: none; position: absolute;">
+                                                                                            </div>
+                                                                                            <div id="SendToFriends1" style="display: none; position: absolute; z-index: 100;">
+                                                                                            </div>
+                                                                                            <div class="lf360 zcbutton" style="margin-left: 100px;">
+                                                                                            </div>
+                                                                                            <div class="lf360">
+                                                                                                &nbsp;&nbsp;
+                                                                                            </div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        
+                                                        <table class="wenzhangcss" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>
+                                                                        <div class="xiantao">
+                                                                        </div>
+
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td align="left" valign="top" width="670px" style="height: 200px;">
+                                                                        <span id="articlecontent" onmousedown="newhighlight = true;" onmouseup="NewHighlight(event)" style="">
+                                                                            <table>
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td width="670px" style="position: relative;">
+
+                                                                                            <p>在Android4.1之后增加了Choreographer机制，用于同Vsync机制配合，实现统一调度界面绘图.</p>
+<h3><a name="t0"></a>Choreographer构造过程</h3>
+<p>frameworks\base\core\java\android\view\Choreographer.java</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 579px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_1" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=1&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>public</span><span>&nbsp;</span><span>static</span><span>&nbsp;Choreographer&nbsp;getInstance()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>&nbsp;sThreadInstance.get();&nbsp;&nbsp;</span></span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 686px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_2" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=2&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>private</span><span>&nbsp;</span><span>static</span><span>&nbsp;</span><span>final</span><span>&nbsp;ThreadLocal&lt;Choreographer&gt;&nbsp;sThreadInstance&nbsp;=&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>new</span><span>&nbsp;ThreadLocal&lt;Choreographer&gt;()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>@Override</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>protected</span><span>&nbsp;Choreographer&nbsp;initialValue()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Looper&nbsp;looper&nbsp;=&nbsp;Looper.myLooper();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(looper&nbsp;==&nbsp;</span><span>null</span><span>)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>throw</span><span>&nbsp;</span><span>new</span><span>&nbsp;IllegalStateException(</span><span>"The&nbsp;current&nbsp;thread&nbsp;must&nbsp;have&nbsp;a&nbsp;looper!"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>&nbsp;</span><span>new</span><span>&nbsp;Choreographer(looper);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>};&nbsp;&nbsp;</span></li></ol></div>
+<p>为调用线程创建一个Choreographer实例，调用线程必须具备消息循环功能，因为ViewRootImpl对象的构造是在应用程序进程的UI主线程中执行的，因此创建的Choreographer对象将使用UI线程消息队列。</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 1007px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_3" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=3&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>private</span><span>&nbsp;Choreographer(Looper&nbsp;looper)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mLooper&nbsp;=&nbsp;looper;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//创建消息处理Handler</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mHandler&nbsp;=&nbsp;<span>new</span><span>&nbsp;FrameHandler(looper);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//如果系统使用了Vsync机制，则注册一个FrameDisplayEventReceiver接收器</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mDisplayEventReceiver&nbsp;=&nbsp;USE_VSYNC&nbsp;?&nbsp;<span>new</span><span>&nbsp;FrameDisplayEventReceiver(looper)&nbsp;:&nbsp;</span><span>null</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mLastFrameTimeNanos&nbsp;=&nbsp;Long.MIN_VALUE;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//屏幕刷新周期</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mFrameIntervalNanos&nbsp;=&nbsp;(<span>long</span><span>)(</span><span>1000000000</span><span>&nbsp;/&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>new</span><span>&nbsp;Display(Display.DEFAULT_DISPLAY,&nbsp;</span><span>null</span><span>).getRefreshRate());&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//创建回调数组</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mCallbackQueues&nbsp;=&nbsp;<span>new</span><span>&nbsp;CallbackQueue[CALLBACK_LAST&nbsp;+&nbsp;</span><span>1</span><span>];&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//初始化数组</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>for</span><span>&nbsp;(</span><span>int</span><span>&nbsp;i&nbsp;=&nbsp;</span><span>0</span><span>;&nbsp;i&nbsp;&lt;=&nbsp;CALLBACK_LAST;&nbsp;i++)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mCallbackQueues[i]&nbsp;=&nbsp;<span>new</span><span>&nbsp;CallbackQueue();&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>变量USE_VSYNC用于表示系统是否是用了Vsync同步机制，该值是通过读取系统属性debug.choreographer.vsync来获取的。如果系统使用了Vsync同步机制，则创建一个FrameDisplayEventReceiver对象用于请求并接收Vsync事件，最后Choreographer创建了一个大小为3的CallbackQueue队列数组，用于保存不同类型的Callback。</p>
+<h3><a name="t1"></a>添加回调过程</h3>
+<p><span style="font-family:Calibri; font-size:14px">frameworks\base\core\java\android\view\Choreographer.java</span></p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 1542px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_4" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=4&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>public</span><span>&nbsp;</span><span>void</span><span>&nbsp;postCallback(</span><span>int</span><span>&nbsp;callbackType,&nbsp;Runnable&nbsp;action,&nbsp;Object&nbsp;token)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;postCallbackDelayed(callbackType,&nbsp;action,&nbsp;token,&nbsp;<span>0</span><span>);&nbsp;&nbsp;</span></span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>&nbsp;</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 1693px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_5" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=5&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>public</span><span>&nbsp;</span><span>void</span><span>&nbsp;postCallbackDelayed(</span><span>int</span><span>&nbsp;callbackType,&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Runnable&nbsp;action,&nbsp;Object&nbsp;token,&nbsp;<span>long</span><span>&nbsp;delayMillis)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(action&nbsp;==&nbsp;</span><span>null</span><span>)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>throw</span><span>&nbsp;</span><span>new</span><span>&nbsp;IllegalArgumentException(</span><span>"action&nbsp;must&nbsp;not&nbsp;be&nbsp;null"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(callbackType&nbsp;&lt;&nbsp;</span><span>0</span><span>&nbsp;||&nbsp;callbackType&nbsp;&gt;&nbsp;CALLBACK_LAST)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>throw</span><span>&nbsp;</span><span>new</span><span>&nbsp;IllegalArgumentException(</span><span>"callbackType&nbsp;is&nbsp;invalid"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;postCallbackDelayedInternal(callbackType,&nbsp;action,&nbsp;token,&nbsp;delayMillis);&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>&nbsp;</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 1970px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_6" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=6&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>private</span><span>&nbsp;</span><span>void</span><span>&nbsp;postCallbackDelayedInternal(</span><span>int</span><span>&nbsp;callbackType,&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Object&nbsp;action,&nbsp;Object&nbsp;token,&nbsp;<span>long</span><span>&nbsp;delayMillis)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>synchronized</span><span>&nbsp;(mLock)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;now&nbsp;=&nbsp;SystemClock.uptimeMillis();&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;dueTime&nbsp;=&nbsp;now&nbsp;+&nbsp;delayMillis;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//将要执行的回调封装成CallbackRecord对象，保存到mCallbackQueues数组中</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mCallbackQueues[callbackType].addCallbackLocked(dueTime,&nbsp;action,&nbsp;token);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//函数执行时间到</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(dueTime&nbsp;&lt;=&nbsp;now)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scheduleFrameLocked(now);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span>else</span><span>&nbsp;{</span><span>//通过异步消息方式实现函数延时执行</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;msg&nbsp;=&nbsp;mHandler.obtainMessage(MSG_DO_SCHEDULE_CALLBACK,&nbsp;action);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msg.arg1&nbsp;=&nbsp;callbackType;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msg.setAsynchronous(<span>true</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mHandler.sendMessageAtTime(msg,&nbsp;dueTime);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>&nbsp;</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 2391px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_7" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=7&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>private</span><span>&nbsp;</span><span>final</span><span>&nbsp;</span><span>class</span><span>&nbsp;FrameHandler&nbsp;</span><span>extends</span><span>&nbsp;Handler&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>@Override</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>public</span><span>&nbsp;</span><span>void</span><span>&nbsp;handleMessage(Message&nbsp;msg)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>switch</span><span>&nbsp;(msg.what)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>case</span><span>&nbsp;MSG_DO_SCHEDULE_CALLBACK:&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;doScheduleCallback(msg.arg1);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>break</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>&nbsp;</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 2668px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_8" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=8&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>void</span><span>&nbsp;doScheduleCallback(</span><span>int</span><span>&nbsp;callbackType)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>synchronized</span><span>&nbsp;(mLock)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(!mFrameScheduled)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;now&nbsp;=&nbsp;SystemClock.uptimeMillis();&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(mCallbackQueues[callbackType].hasDueCallbacksLocked(now))&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scheduleFrameLocked(now);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>&nbsp;</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 2945px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_9" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=9&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>private</span><span>&nbsp;</span><span>void</span><span>&nbsp;scheduleFrameLocked(</span><span>long</span><span>&nbsp;now)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(!mFrameScheduled)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mFrameScheduled&nbsp;=&nbsp;<span>true</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//检查是否使用了Vsync机制</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(USE_VSYNC)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//如果当前线程具备消息循环，则直接请求VSync信号</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(isRunningOnLooperThreadLocked())&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scheduleVsyncLocked();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span>else</span><span>&nbsp;{</span><span>//如果当前线程不具备消息循环，则通过主线程请求VSync信号</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;msg&nbsp;=&nbsp;mHandler.obtainMessage(MSG_DO_SCHEDULE_VSYNC);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msg.setAsynchronous(<span>true</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mHandler.sendMessageAtFrontOfQueue(msg);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span>else</span><span>&nbsp;{&nbsp;</span><span>//如果系统没有使用VSync机制，则使用异步消息延时执行屏幕刷新</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;nextFrameTime&nbsp;=&nbsp;Math.max(&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mLastFrameTimeNanos&nbsp;/&nbsp;NANOS_PER_MS&nbsp;+&nbsp;sFrameDelay,&nbsp;now);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;msg&nbsp;=&nbsp;mHandler.obtainMessage(MSG_DO_FRAME);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msg.setAsynchronous(<span>true</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mHandler.sendMessageAtTime(msg,&nbsp;nextFrameTime);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>在该函数中考虑了两种情况，一种是系统没有使用Vsync机制，在这种情况下，首先根据屏幕刷新频率计算下一次刷新时间，通过异步消息方式延时执行doFrame()函数实现屏幕刷新。如果系统使用了Vsync机制，并且当前线程具备消息循环，则直接请求Vsync信号，否则就通过主线程来请求Vsync信号。FrameDisplayEventReceiver对象用于请求并接收Vsync信号，当Vsync信号到来时，系统会自动调用其onVsync()函数，在该回调函数中执行doFrame()实现屏幕刷新。</p>
+<p align="center"><img alt="" src="./Android系统Choreographer机制实现过程_files/55576504_1"></p>
+<p>当VSYNC信号到达时，Choreographer doFrame()函数被调用</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 4362px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_10" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=10&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>void</span><span>&nbsp;doFrame(</span><span>long</span><span>&nbsp;frameTimeNanos,&nbsp;</span><span>int</span><span>&nbsp;frame)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;startNanos;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>synchronized</span><span>&nbsp;(mLock)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(!mFrameScheduled)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>;&nbsp;</span><span>//&nbsp;no&nbsp;work&nbsp;to&nbsp;do</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//保存起始时间</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;startNanos&nbsp;=&nbsp;System.nanoTime();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//由于Vsync事件处理采用的是异步方式，因此这里计算消息发送与函数调用开始之间所花费的时间</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;jitterNanos&nbsp;=&nbsp;startNanos&nbsp;-&nbsp;frameTimeNanos;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//如果线程处理该消息的时间超过了屏幕刷新周期</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(jitterNanos&nbsp;&gt;=&nbsp;mFrameIntervalNanos)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//计算函数调用期间所错过的帧数</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;skippedFrames&nbsp;=&nbsp;jitterNanos&nbsp;/&nbsp;mFrameIntervalNanos;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(skippedFrames&nbsp;&gt;=&nbsp;SKIPPED_FRAME_WARNING_LIMIT)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Log.i(TAG,&nbsp;<span>"Skipped&nbsp;"</span><span>&nbsp;+&nbsp;skippedFrames&nbsp;+&nbsp;</span><span>"&nbsp;frames!&nbsp;&nbsp;"</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;<span>"The&nbsp;application&nbsp;may&nbsp;be&nbsp;doing&nbsp;too&nbsp;much&nbsp;work&nbsp;on&nbsp;its&nbsp;main&nbsp;thread."</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;lastFrameOffset&nbsp;=&nbsp;jitterNanos&nbsp;%&nbsp;mFrameIntervalNanos;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;frameTimeNanos&nbsp;=&nbsp;startNanos&nbsp;-&nbsp;lastFrameOffset;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//如果frameTimeNanos小于一个屏幕刷新周期，则重新请求VSync信号</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(frameTimeNanos&nbsp;&lt;&nbsp;mLastFrameTimeNanos)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scheduleVsyncLocked();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mFrameScheduled&nbsp;=&nbsp;<span>false</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mLastFrameTimeNanos&nbsp;=&nbsp;frameTimeNanos;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//分别回调CALLBACK_INPUT、CALLBACK_ANIMATION、CALLBACK_TRAVERSAL事件</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;doCallbacks(Choreographer.CALLBACK_INPUT,&nbsp;frameTimeNanos);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;doCallbacks(Choreographer.CALLBACK_ANIMATION,&nbsp;frameTimeNanos);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;doCallbacks(Choreographer.CALLBACK_TRAVERSAL,&nbsp;frameTimeNanos);&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p align="center"><img alt="" src="./Android系统Choreographer机制实现过程_files/55576504_2"></p>
+<p><br>
+Choreographer类中分别定义了CallbackRecord、CallbackQueue内部类，CallbackQueue是一个按时间先后顺序保存CallbackRecord的单向循环链表。</p>
+<p align="center"><img alt="" src="./Android系统Choreographer机制实现过程_files/55576504_3"></p>
+<p>在Choreographer中定义了三个CallbackQueue队列，用数组mCallbackQueues表示，用于分别保存CALLBACK_INPUT、CALLBACK_ANIMATION、CALLBACK_TRAVERSAL这三种类型的Callback，当调用Choreographer类的postCallback()函数时，就是往指定类型的CallbackQueue队列中通过addCallbackLocked()函数添加一个CallbackRecord项：首先构造一个CallbackRecord对象，然后按时间先后顺序插入到CallbackQueue链表中。从代码注释中，我们可以知道CALLBACK_INPUT是指输入回调，该回调优先级最高，首先得到执行，而CALLBACK_TRAVERSAL是指处理布局和绘图的回调，只有在所有异步消息都执行完后才得到执行，CALLBACK_ANIMATION是指动画回调，比CALLBACK_TRAVERSAL优先执行，从doFrame()函数中的doCallbacks调用就能印证这点。</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 5715px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_11" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=11&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>doCallbacks(Choreographer.CALLBACK_INPUT,&nbsp;frameTimeNanos);&nbsp;&nbsp;</span></span></li><li><span>doCallbacks(Choreographer.CALLBACK_ANIMATION,&nbsp;frameTimeNanos);&nbsp;&nbsp;</span></li><li><span>doCallbacks(Choreographer.CALLBACK_TRAVERSAL,&nbsp;frameTimeNanos);&nbsp;&nbsp;</span></li></ol></div>
+<p>当Vsync事件到来时，顺序执行CALLBACK_INPUT、CALLBACK_ANIMATION和CALLBACK_TRAVERSAL对应CallbackQueue队列中注册的回调。</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 5892px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_12" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=12&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>void</span><span>&nbsp;doCallbacks(</span><span>int</span><span>&nbsp;callbackType,&nbsp;</span><span>long</span><span>&nbsp;frameTimeNanos)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;CallbackRecord&nbsp;callbacks;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>synchronized</span><span>&nbsp;(mLock)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;</span><span>long</span><span>&nbsp;now&nbsp;=&nbsp;SystemClock.uptimeMillis();&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//从指定类型的CallbackQueue队列中查找执行时间到的CallbackRecord</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callbacks&nbsp;=&nbsp;mCallbackQueues[callbackType].extractDueCallbacksLocked(now);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(callbacks&nbsp;==&nbsp;</span><span>null</span><span>)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mCallbacksRunning&nbsp;=&nbsp;<span>true</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//由于CallbackQueues是按时间先后顺序排序的，因此遍历执行所有时间到的CallbackRecord</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>for</span><span>&nbsp;(CallbackRecord&nbsp;c&nbsp;=&nbsp;callbacks;&nbsp;c&nbsp;!=&nbsp;</span><span>null</span><span>;&nbsp;c&nbsp;=&nbsp;c.next)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c.run(frameTimeNanos);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span>finally</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>synchronized</span><span>&nbsp;(mLock)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mCallbacksRunning&nbsp;=&nbsp;<span>false</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>do</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>final</span><span>&nbsp;CallbackRecord&nbsp;next&nbsp;=&nbsp;callbacks.next;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recycleCallbackLocked(callbacks);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;callbacks&nbsp;=&nbsp;next;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span>while</span><span>&nbsp;(callbacks&nbsp;!=&nbsp;</span><span>null</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>该函数就是按时间顺序先后执行到时的CallbackRecord</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 6475px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_13" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=13&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>private</span><span>&nbsp;</span><span>static</span><span>&nbsp;</span><span>final</span><span>&nbsp;</span><span>class</span><span>&nbsp;CallbackRecord&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>public</span><span>&nbsp;CallbackRecord&nbsp;next;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>public</span><span>&nbsp;</span><span>long</span><span>&nbsp;dueTime;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>public</span><span>&nbsp;Object&nbsp;action;&nbsp;</span><span>//&nbsp;Runnable&nbsp;or&nbsp;FrameCallback</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>public</span><span>&nbsp;Object&nbsp;token;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>public</span><span>&nbsp;</span><span>void</span><span>&nbsp;run(</span><span>long</span><span>&nbsp;frameTimeNanos)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(token&nbsp;==&nbsp;FRAME_CALLBACK_TOKEN)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((FrameCallback)action).doFrame(frameTimeNanos);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span>else</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((Runnable)action).run();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>我们知道Choreographer对外提供了两个接口函数用于注册指定的Callback，postCallback()用于注册Runnable对象，而postFrameCallback()函数用于注册FrameCallback对象，无论注册的是Runnable对象还是FrameCallback对象，在CallbackRecord对象中统一装箱为Object类型。在执行其回调函数时，就需要区别这两种对象类型，如果注册的是Runnable对象，则调用其run()函数，如果注册的是FrameCallback对象，则调用它的doFrame()函数。</p>
+<p align="center"><img alt="" src="./Android系统Choreographer机制实现过程_files/55576504_4"></p>
+<h3><a name="t2"></a>Vsync请求过程</h3>
+<p>我们知道在Choreographer构造函数中，构造了一个FrameDisplayEventReceiver对象，用于请求并接收Vsync信号，Vsync信号请求过程如下：</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 7310px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_14" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=14&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>private</span><span>&nbsp;</span><span>void</span><span>&nbsp;scheduleVsyncLocked()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//申请Vsync信号</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;mDisplayEventReceiver.scheduleVsync();&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>FrameDisplayEventReceiver继承于DisplayEventReceiver类，Vsync请求在DisplayEventReceiver中实现。</p>
+<p>frameworks\base\core\java\android\view\ DisplayEventReceiver.java</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 7519px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_15" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=15&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>public</span><span>&nbsp;</span><span>void</span><span>&nbsp;scheduleVsync()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(mReceiverPtr&nbsp;==&nbsp;</span><span>0</span><span>)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Log.w(TAG,&nbsp;<span>"Attempted&nbsp;to&nbsp;schedule&nbsp;a&nbsp;vertical&nbsp;sync&nbsp;pulse&nbsp;but&nbsp;the&nbsp;display&nbsp;event&nbsp;"</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;<span>"receiver&nbsp;has&nbsp;already&nbsp;been&nbsp;disposed."</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span>else</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//通过Jni方式调用native层的NativeDisplayEventReceiver对象来请求VSync</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nativeScheduleVsync(mReceiverPtr);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>frameworks\base\core\jni\ android_view_DisplayEventReceiver.cpp</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 7778px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_16" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=16&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>static</span><span>&nbsp;</span><span>void</span><span>&nbsp;nativeScheduleVsync(JNIEnv*&nbsp;env,&nbsp;jclass&nbsp;clazz,&nbsp;jint&nbsp;receiverPtr)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//得到NativeDisplayEventReceiver对象指针</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;sp&lt;NativeDisplayEventReceiver&gt;&nbsp;receiver&nbsp;=&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reinterpret_cast&lt;NativeDisplayEventReceiver*&gt;(receiverPtr);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>//通过NativeDisplayEventReceiver请求VSync</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;status_t&nbsp;status&nbsp;=&nbsp;receiver-&gt;scheduleVsync();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(status)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String8&nbsp;message;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message.appendFormat(<span>"Failed&nbsp;to&nbsp;schedule&nbsp;next&nbsp;vertical&nbsp;sync&nbsp;pulse.&nbsp;&nbsp;status=%d"</span><span>,&nbsp;status);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jniThrowRuntimeException(env,&nbsp;message.string());&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p align="left">&nbsp;</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 8108px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_17" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=17&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>status_t&nbsp;NativeDisplayEventReceiver::scheduleVsync()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(!mWaitingForVsync)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALOGV(<span>"receiver&nbsp;%p&nbsp;~&nbsp;Scheduling&nbsp;vsync."</span><span>,&nbsp;</span><span>this</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>//&nbsp;Drain&nbsp;all&nbsp;pending&nbsp;events.</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nsecs_t&nbsp;vsyncTimestamp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uint32_t&nbsp;vsyncCount;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;readLastVsyncMessage(&amp;vsyncTimestamp,&nbsp;&amp;vsyncCount);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;status_t&nbsp;status&nbsp;=&nbsp;mReceiver.requestNextVsync();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(status)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ALOGW(<span>"Failed&nbsp;to&nbsp;request&nbsp;next&nbsp;vsync,&nbsp;status=%d"</span><span>,&nbsp;status);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>&nbsp;status;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mWaitingForVsync&nbsp;=&nbsp;<span>true</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>&nbsp;OK;&nbsp;&nbsp;</span></span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p align="left">VSync请求过程又转交给了DisplayEventReceiver</p>
+<p>frameworks\native\libs\gui\ DisplayEventReceiver.cpp</p>
+<div><div><div><b>[java]</b> <a href="" title="view plain">view plain</a><a href="" title="copy">copy</a><a href="https://code.csdn.net/snippets/413336" target="_blank" title="在CODE上查看代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/CODE_ico.png" alt="在CODE上查看代码片" style="position:relative;top:1px;left:2px;" width="12" height="12"></a><a href="https://code.csdn.net/snippets/413336/fork" target="_blank" title="派生到我的代码片" style="text-indent:0;"><img src="./Android系统Choreographer机制实现过程_files/ico_fork.svg" alt="派生到我的代码片" style="position:relative;top:2px;left:2px;" width="12" height="12"></a><div style="position: absolute; left: 547px; top: 8533px; width: 18px; height: 18px; z-index: 0;"><embed style="z-index: 0;" src="http://static.blog.csdn.net/scripts/ZeroClipboard/ZeroClipboard.swf" loop="false" menu="false" quality="best" bgcolor="#ffffff" name="ZeroClipboardMovie_18" allowscriptaccess="always" allowfullscreen="false" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="id=18&amp;width=18&amp;height=18" wmode="transparent" align="middle" width="18" height="18"></div></div></div><ol start="1"><li><span><span>status_t&nbsp;DisplayEventReceiver::requestNextVsync()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>if</span><span>&nbsp;(mEventConnection&nbsp;!=&nbsp;NULL)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mEventConnection-&gt;requestNextVsync();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>&nbsp;NO_ERROR;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span>return</span><span>&nbsp;NO_INIT;&nbsp;&nbsp;</span></span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div>
+<p>这里又通过IDisplayEventConnection接口来请求Vsync信号，IDisplayEventConnection实现了Binder通信框架，可以跨进程调用，因为Vsync信号请求进程和Vsync产生进程有可能不在同一个进程空间，因此这里就借助IDisplayEventConnection接口来实现。下面通过图来梳理Vsync请求的调用流程：</p>
+<p align="center"><img alt="" src="./Android系统Choreographer机制实现过程_files/55576504_5"></p>
+<div><br>
+</div>
+    
+        <div style="padding-top:20px">         
+            <p style="font-size:12px;">版权声明：本文为博主原创文章，未经博主允许不得转载。</p>
+        </div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                            <div id="viewerPlaceHolder" style="width: 717px; height: 700px; display: none;">
+                                                                            </div>
+                                                                        </span>
+                                                                        <table>
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td></td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td align="left">
+                                                                        <a name="anchordoc1" id="anchordoc1"></a>
+                                                                        <div style="height: 28px">
+                                                                            <div style="font-size: 14px; color: #797b7a; float: left;">
+                                                                                来自：<span class="name" onclick="wzhitnew(59)"><a href="http://www.360doc.com/userhome/10366845" target="_blank">老匹夫</a></span>&nbsp;&gt;&nbsp;<span id="cname" onclick="wzhitnew(60)"><a href="http://www.360doc.com/userhome.aspx?userid=10366845&cid=17" target="_blank">《Graphics》</a></span>
+                                                                            </div>
+                                                                            <div style="float: left;">
+                                                                                <div class="btzctsg" id="spanfollowstatus1"><div class="gzbt1"><a onclick="gzuser(10366845);wzhitnew(61);" href="javascript:void(0)"></a></div></div>
+                                                                                <script>isfollow(10366845);</script>
+
+                                                                            </div>
+                                                                            <div style="float: left;">
+                                                                                <div class="ytdh1"><a onclick="doctalk();wzhitnew(107);" href="javascript:void(0)"></a></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div>
+                                                                            <div class="modlist lf360 list" style="padding-top: 0px;">
+                                                                                <ul>
+                                                                                    <div id="lastart"><div class="shangyp">上一篇：<a href="http://www.360doc.com/content/15/0630/20/10366845_481774941.shtml" target="_blank" onclick="wzhitnew(57);">[译]Android图形系统 II 图形架构</a></div></div>
+                                                                                    <div id="nextart">下一篇：<a href="http://www.360doc.com/content/15/0713/19/10366845_484707701.shtml" target="_blank" onclick="wzhitnew(58);">Android中的GraphicBuffer同步机制</a></div>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td align="left">
+                                                                        <div style="padding-top: 12px;">
+                                                                            <div id="docAdBelowContent"><iframe marginwidth="0" marginheight="0" frameborder="0" scrolling="no" width="650" height="120" src="./Android系统Choreographer机制实现过程_files/docAdBelowContent1.html"></iframe></div>
+
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="text-align: left;">
+                                                                        <div style="padding-top: 15px; width: 670px;">
+                                                                            <table style="width: 670px;" cellpadding="0" cellspacing="0">
+                                                                                <tbody>
+                                                                                    <tr>
+
+                                                                                        <td style="width: 530px;">
+                                                                                            <div class=" lf360" style="cursor: pointer" onmouseover="ChangeBtnStyle(1);" onmouseout="ChangeBtnStyle(2);">
+                                                                                                <div class="zscbt">
+                                                                                                    <a href="javascript:void(0);" onclick="SaveArt();wzhitnew(26);">
+                                                                                                        <div id="zscbtword" class="lf360 xianhua" style="padding-left: 38px;">
+                                                                                                            转藏到我的图书馆
+                                                                                                        </div>
+                                                                                                    </a>
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            <div style="margin-left: 10px; cursor: pointer;" class="lf360 xhmainbox" id="sendflowerdiv" onclick="Showflowerlayer(&quot;sendedLayer1&quot;);wzhitnew(27)" onmouseover="ChangeFlowerBtnStyle(1);" onmouseout="ChangeFlowerBtnStyle(2);">
+
+                                                                                                <div id="flowimg2" class="lf360 ">
+                                                                                                    <div style="padding-left: 10px; padding-top: 10px;">
+                                                                                                        <img id="flowimg3" src="./Android系统Choreographer机制实现过程_files/huahuanew.gif">
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div id="flowimg5" class="lf360 xianhua">
+                                                                                                    献花(<span id="articleflowernum">0</span>)<div id="flowernumadd" class="addtionone">
+                                                                                                        +1
+                                                                                                    </div>
+                                                                                                </div>
+
+                                                                                            </div>
+
+
+
+
+                                                                                            <div class="lf360" style="cursor: pointer; padding-left: 10px;" onmouseover="ChangeBtnStyle(3);" onmouseout="ChangeBtnStyle(4);">
+                                                                                                <div class="fxwxbt">
+
+                                                                                                    <a href="javascript:void(0);" onclick="shareWeixin();wzhitnew(64);">
+                                                                                                        <div id="fxwxword" class="lf360 xianhua" style="padding-left: 38px;">
+                                                                                                            分享到微信
+                                                                                                        </div>
+                                                                                                    </a>
+                                                                                                </div>
+                                                                                            </div>
+
+
+
+                                                                                             <div class="lf360" style="cursor: pointer; padding-left: 10px;" onmouseover="ChangeBtnStyle(5);" onmouseout="ChangeBtnStyle(6);">
+                                                                                                <div class="ywzwbt">
+
+                                                                                                    <a id="ywzwa" href="http://www.baidu.com/s?wd=vsync+callback+choreographer&tn=SE_hldp01010_6r0gix1f" onclick="wzhitnew(100);" target="_blank">
+                                                                                                        <div id="ywzwword" class="lf360 xianhua" style="padding-left: 44px;">
+                                                                                                            以文找文
+                                                                                                        </div>
+                                                                                                    </a>
+
+                                                                                                </div>
+                                                                                            </div>
+
+
+
+                                                                                        </td>
+                                                                                        <td style="vertical-align: bottom; font-size: 12px;" width="140">
+                                                                                            <div class="rt360" id="sharediv2"><table style=" vertical-align: text-bottom;" border="0" cellpadding="0" cellspacing="0"> <tbody><tr><td><div style="height:20px; width:105px;"><div style="float:left;"><span style="font-size:12px; line-height:16px; color:#959595;">分享：</span></div><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare share-bar-btn2" style="float:left;"><span onclick="wzhitnew(28);"><a class="bds_qzone" title="分享到QQ空间" href="javascript:void(0);"></a></span><span onclick="wzhitnew(31);"><a class="bds_tsina" title="分享到新浪微博" href="javascript:void(0);"></a></span><span onclick="wzhitnew(32);"><a class="bds_tqq" title="分享到腾讯微博" href="javascript:void(0);"></a></span></div></div></td><td width="24"><a><img style="cursor:pointer;" src="./Android系统Choreographer机制实现过程_files/tb10.gif" onclick="setTimeout(showShareLayer2, 10);wzhitnew(34);"></a><div id="fenxiangLayer1" class="fenxiang" style=" margin-left:-100px;*margin-left:-120px!important; margin-top:5px;*margin-top:16px!important;display:none;z-index:1000;"><div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare share-bar-btn"><table cellpadding="0" cellspacing="0" width="108" style=" background-color:#fff; "><tbody><tr><td width="12"></td><td height="29" onclick="wzhitnew(29);"><a class="bds_renren" href="javascript:void(0);" title="分享到人人网">&nbsp;&nbsp;&nbsp;&nbsp;人人网</a></td></tr><tr><td width="12"></td><td height="29" onclick="wzhitnew(30);"><a class="bds_kaixin001" href="javascript:void(0);" title="分享到开心网">&nbsp;&nbsp;&nbsp;&nbsp;开心网</a></td></tr><tr><td width="12"></td><td height="29" onclick="wzhitnew(33);"><a class="bds_tsohu" href="javascript:void(0);" title="分享到搜狐微博">&nbsp;&nbsp;&nbsp;&nbsp;搜狐微博</a></td></tr><tr><td width="12"></td><td height="29"><a href="javascript:void(0);" onclick="showdivemail1();wzhitnew(35);"><div class="bds_py">&nbsp;&nbsp;&nbsp;&nbsp;推荐给朋友</div></a></td></tr><tr><td width="12"></td><td height="29"><a href="javascript:void(0);"><div class="bds_jubao" onclick="showAlertLayer1();wzhitnew(36);">&nbsp;&nbsp;&nbsp;&nbsp;举报</div></a></td></tr></tbody></table></div></div></td></tr></tbody></table><div id="AlertArt2" style="display:none; position:absolute;"></div><div id="SendToFriends2" style="display:none;position:absolute;z-index:1000;"></div></div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td height="10"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="lswzbox" style="padding-top: 10px;">
+                            <div>
+                                <table cellpadding="0" cellspacing="0">
+                                    <tbody>
+                                        <tr>
+                                            <td width="330" valign="top">
+                                                <div class="lswz" style="height: 300px;">
+                                                    <div class="lstwtop">
+                                                        <div class="lswztit">
+                                                            <div class=" lf360">
+                                                                <div class="titwx1">
+                                                                    类似文章
+                                                                </div>
+                                                            </div>
+                                                            <div class="rt360" style="padding-top: 5px; padding-right: 9px;">
+                                                                <a href="http://www.360doc.com/relevant/481984948_more.shtml" target="_blank" onclick="wzhitnew(38)">更多</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modlist2 list">
+                                                            <ul>
+                                                                
+                                                                        <li style="height: 30px; line-height: 30px;"><span>
+                                                                            <a href="http://www.360doc.com/content/13/0327/01/11482448_274155740.shtml" target="_blank" onclick="wzhitnew(37)">android的Handler</a></span></li>
+                                                                    
+                                                                        <li style="height: 30px; line-height: 30px;"><span>
+                                                                            <a href="http://www.360doc.com/content/06/0811/17/7821_178972.shtml" target="_blank" onclick="wzhitnew(37)">串口驱动概述</a></span></li>
+                                                                    
+                                                                        <li style="height: 30px; line-height: 30px;"><span>
+                                                                            <a href="http://www.360doc.com/content/12/0614/18/7891085_218166500.shtml" target="_blank" onclick="wzhitnew(37)">一个activity中多个handler和消息的处理...</a></span></li>
+                                                                    
+                                                                        <li style="height: 30px; line-height: 30px;"><span>
+                                                                            <a href="http://www.360doc.com/content/14/0305/21/3700464_358037520.shtml" target="_blank" onclick="wzhitnew(37)">Android Handler</a></span></li>
+                                                                    
+                                                                        <li style="height: 30px; line-height: 30px;"><span>
+                                                                            <a href="http://www.360doc.com/content/12/0425/00/9369336_206310608.shtml" target="_blank" onclick="wzhitnew(37)">Sqlite c/c   api 学习</a></span></li>
+                                                                    
+                                                                        <li style="height: 30px; line-height: 30px;"><span>
+                                                                            <a href="http://www.360doc.com/content/12/0823/16/8516066_231924607.shtml" target="_blank" onclick="wzhitnew(37)">LRESULT CALLBACK WndProc (HWND, UINT,...</a></span></li>
+                                                                    
+                                                                        <li style="height: 30px; line-height: 30px;"><span>
+                                                                            <a href="http://www.360doc.com/content/09/0617/12/146681_3928913.shtml" target="_blank" onclick="wzhitnew(37)">Jsonp 方式跨域获取 json 数据原理 - Ja...</a></span></li>
+                                                                    
+                                                                        <li style="height: 30px; line-height: 30px;"><span>
+                                                                            <a href="http://www.360doc.com/content/13/1026/21/9206388_324421330.shtml" target="_blank" onclick="wzhitnew(37)">benchmark例程详解（不断更新中） |GNU ...</a></span></li>
+                                                                    
+                                                            </ul>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                           
+                                            <td width="330" valign="top">
+                                                <div class="lswz" style="margin-left: 9px; height: 300px;">
+                                                      <div class="lstwtop">
+                                                        <div class="lswztit">
+                                                            <div class=" lf360">
+                                                                <div class="titwx1">
+                                                                    热门推广
+                                                                </div>
+                                                            </div>
+                                                            <div class="rt360" style="padding-top: 5px; padding-right: 9px;">
+                                                            </div>
+                                                        </div>
+                                                        <div class="modlist2 list" id="dochotartabovecontent"><iframe marginwidth="0" marginheight="0" frameborder="0" scrolling="no" width="298" height="242" src="./Android系统Choreographer机制实现过程_files/saved_resource.html" allowtransparency="true"></iframe></div>
+
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div style="background-color: #fafafa; width: 670px; height: 317px; margin-top: 10px;">
+                                    <div style=" padding-top:7px; padding-left:12px; "> <div style=" height:30px;"><div class="titwx3 lf360">猜你喜欢</div><div class=" rt360" style=" padding-right:18px;"><img onclick="changefiveart2(&quot;19999&quot;,&quot;19999&quot;);wzhitnew(62);" src="./Android系统Choreographer机制实现过程_files/hyz.gif" onmouseover="this.src=&quot;http://pubimage.360doc.com/wz/hyza.gif&quot;" onmouseout="this.src=&quot;http://pubimage.360doc.com/wz/hyz.gif&quot;" width="76" height="24" style="cursor:pointer;"></div></div><table cellpadding="0" cellspacing="0"><tbody><tr id="fivearttdid" style="height:138px"><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/14/0116/16/1655598_345745218.shtml" target="_blank"><img src="http://artpic.360doc.com/14/0127/16/345745218_201401271627210436.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/14/0116/16/1655598_345745218.shtml" target="_blank">动动手自己存好，自个把自个养好吧...</a></div></td><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/14/1110/08/9121025_423965913.shtml" target="_blank"><img src="http://artpic2.360doc.com/14/1121/19/423965913_201411211905280168.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/14/1110/08/9121025_423965913.shtml" target="_blank">你真的知道你的电脑该瘦身了吗</a></div></td><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/14/0509/16/153907_376136140.shtml" target="_blank"><img src="http://artpic.360doc.com/14/0515/00/153907_201405150010320001.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/14/0509/16/153907_376136140.shtml" target="_blank">学学急救常识</a></div></td><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/14/0414/15/304398_368807540.shtml" target="_blank"><img src="http://artpic.360doc.com/14/0424/00/304398_201404240010190287.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/14/0414/15/304398_368807540.shtml" target="_blank">纸也能这么艺术啊?被震撼了</a></div></td><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/14/1021/12/19446_418637783.shtml" target="_blank"><img src="http://artpic2.360doc.com/14/1125/00/19446_201411250010330148.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/14/1021/12/19446_418637783.shtml" target="_blank">日子怎么过，就是文化</a></div></td></tr><tr id="fivearttdidtwo"><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/13/1211/14/4695499_336338388.shtml" target="_blank"><img src="http://artpic.360doc.com/13/1219/00/4695499_201312190010050199.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/13/1211/14/4695499_336338388.shtml" target="_blank">中华传统文化图案及寓意</a></div></td><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/13/0716/11/3397672_300325939.shtml" target="_blank"><img src="http://artpic.360doc.com/13/0926/17/300325939_201309261714130867.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/13/0716/11/3397672_300325939.shtml" target="_blank">做一个幽默的人！很经典！~</a></div></td><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/14/0508/19/5040297_375887002.shtml" target="_blank"><img src="http://artpic.360doc.com/14/0523/17/375887002_201405231716560344.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/14/0508/19/5040297_375887002.shtml" target="_blank">中国56个少数民族服饰</a></div></td><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/14/0605/21/9890766_384085554.shtml" target="_blank"><img src="http://artpic.360doc.com/14/0612/00/9890766_201406120010270208.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/14/0605/21/9890766_384085554.shtml" target="_blank">爱的天堂</a></div></td><td valign="top" width="131"><div><a onclick="wzhitnew(39);" href="http://www.360doc.com/content/14/0530/00/2283188_382157650.shtml" target="_blank"><img src="http://artpic.360doc.com/14/0611/18/382157650_201406111816270055.jpg" width="114" height="86"></a></div><div class="lan twentit"><a onclick="wzhitnew(40);" href="http://www.360doc.com/content/14/0530/00/2283188_382157650.shtml" target="_blank">玩转摄影模式:光圈优先模式详解</a></div></td></tr></tbody></table></div>
+                                   
+                                    <div id="adabtest" style="display: none;">
+                                    </div>
+
+                                </div>
+
+
+
+
+
+                                <div id="Reflction" style="padding-top: 15px; padding-left: 15px;">
+                                    <div id="360docRefTN" style="display: none;"></div>
+                                    <div id="360docRefCT"></div>
+                                    <div id="360docRefPB" align="center" style="display: none;"></div>
+                                </div>
+                                <a name="sf"></a>
+                                
+                                <div id="ReflectionPart"><div style=" height:206px; margin:0px 0px;"><div class="plbox"><div class="plmain"><div class="titwx" style=" height:23px;">发表评论：</div><div class="deluwx">您好，请&nbsp;<span><a href="javascript:void(0);" onclick="ReflectionLoginform();wzhitnew(45);">登录</a></span>&nbsp;或者&nbsp;<span><a href="http://www.360doc.com/register.aspx?refer=53&reurl=showweb/0/0/481984948.aspx" onclick="InsertLogData(4);wzhitnew(46);">注册</a></span>&nbsp;后再进行评论 </div><div class=" rt360"><div style=" float:left; color:#959595; width:90px; "><div style="padding-top:4px;">其它帐号登录：</div></div><div style=" float:left ; width:70px;"><img onclick="toSNSLogin(&#39;smb&#39;);wzhitnew(47);" style="cursor:pointer;" src="./Android系统Choreographer机制实现过程_files/tb25.gif">&nbsp;&nbsp;&nbsp;<img onclick="toSNSLogin(&#39;qq&#39;);wzhitnew(48);" style="cursor:pointer;" src="./Android系统Choreographer机制实现过程_files/tb26.gif">&nbsp;&nbsp;&nbsp;<img onclick="toSNSLogin(&#39;rr&#39;);wzhitnew(49);" style="cursor:pointer;" src="./Android系统Choreographer机制实现过程_files/tb27.gif"></div> </div> </div></div></div></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td align="center" valign="top" width="18px"></td>
+                    <td align="left" valign="top" width="252px">
+                        
+
+
+<div style="height: 98px" id="artrightad1"><iframe marginwidth="0" id="Iframeadabtest" marginheight="0" frameborder="0" scrolling="no" width="300" height="90" src="./Android系统Choreographer机制实现过程_files/ad1_300.html" allowtransparency="true"></iframe></div>
+
+
+    <div id="artrightnewarticle" class="remenwz" style="height: 219px; width: 300px;"><div class="rementop"><div class="titwx" style=" padding-top:10px; padding-left:24px;">最新文章</div></div><div class="modlist3 list" style=" padding-left:15px;"><ul><li><span><a href="http://www.360doc.com/content/15/0725/10/10366845_487271644.shtml" target="_blank" onclick="wzhitnew(51)">一个fork的面试题 | 酷 壳</a></span></li><li><span><a href="http://www.360doc.com/content/15/0725/10/10366845_487271595.shtml" target="_blank" onclick="wzhitnew(51)">vfork 挂掉的一个问题 | 酷 壳</a></span></li><li><span><a href="http://www.360doc.com/content/11/0502/11/6580811_113691501.shtml" target="_blank" onclick="wzhitnew(51)">linux进程创建：fork、vfork和clone联...</a></span></li><li><span><a href="http://www.360doc.com/content/11/0411/19/6580811_108904985.shtml" target="_blank" onclick="wzhitnew(51)">Linux进程学习总结  fork()和vfork()...</a></span></li><li><span><a href="http://www.360doc.com/content/15/0713/20/10366845_484708747.shtml" target="_blank" onclick="wzhitnew(51)">Android 5.0(Lollipop)事件输入系统(I...</a></span></li><li><span><a href="http://www.360doc.com/content/15/0713/20/10366845_484708342.shtml" target="_blank" onclick="wzhitnew(51)">Linux中的常用内存问题检测工具</a></span></li></ul> <div class=" rt360" style=" padding-right:23px;"><a href="http://www.360doc.com/userhome/10366845" target="_blank" onclick="wzhitnew(52);">更多</a></div></div></div>
+
+
+<div class="both" style="padding-top: 10px; height: 260px;">
+   <iframe id="ifartad1" height="250px" width="300px" frameborder="0" scrolling="no" src="./Android系统Choreographer机制实现过程_files/saved_resource.html"></iframe>
+    <div style="height: 10px;">
+    </div>
+</div>
+
+<div class="remenwz" id="artrighthotarticle" style="width: 300px;">
+    <div class="rementop">
+        <div class="titwx" style="padding-top: 10px; padding-left: 24px;">
+            热门文章</div>
+    </div>
+    <div class="modlist3 list" style="padding-left: 15px;">
+        <ul>
+            
+                    <li><span>
+                        <a href="http://www.360doc.com/content/14/0805/21/0_399687909.shtml" target="_blank" onclick="wzhitnew(55)">太全了！【13种馅料调法+8种饺子的包...</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/14/1218/14/0_433881066.shtml" target="_blank" onclick="wzhitnew(55)">中国成功研制30吨轻型坦克</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/14/1108/15/0_423587268.shtml" target="_blank" onclick="wzhitnew(55)">五花肉 肥肠 猪蹄 排骨</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/15/0806/08/0_489814089.shtml" target="_blank" onclick="wzhitnew(55)">【精美抠图 透明人物图片】(100张)</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/14/1104/15/0_422447155.shtml" target="_blank" onclick="wzhitnew(55)">保健秘方，无价之宝！</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/14/0730/20/0_398204424.shtml" target="_blank" onclick="wzhitnew(55)">图文：净宅方法</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/13/1220/10/0_338613728.shtml" target="_blank" onclick="wzhitnew(55)">一份好实习，一位好学姐，一篇好日志</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/14/1202/16/0_429869949.shtml" target="_blank" onclick="wzhitnew(55)">测试解析你性格弱点</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/13/1018/17/0_322394502.shtml" target="_blank" onclick="wzhitnew(55)">花生猪肚汤的做法大全</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/14/1031/08/0_421339723.shtml" target="_blank" onclick="wzhitnew(55)">你应该给女儿的忠告</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/15/0208/08/0_447157261.shtml" target="_blank" onclick="wzhitnew(55)">所谓人脉，不够优秀就不要腆脸占便宜了</a></span></li>
+                
+                    <li><span>
+                        <a href="http://www.360doc.com/content/14/0605/11/0_383823468.shtml" target="_blank" onclick="wzhitnew(55)">从高一到高三 请不要做以下傻事</a></span></li>
+                
+        </ul>
+        <div class=" rt360" style="padding-right: 23px;">
+            <a href="http://www.360doc.com/readroom.html" target="_blank" onclick="wzhitnew(56)">更多&gt;&gt;</a></div>
+    </div>
+</div>
+
+<div class="both" style="padding-top: 10px;">
+    <iframe id="ifartad2" height="250px" width="300px" frameborder="0" scrolling="no" src="./Android系统Choreographer机制实现过程_files/saved_resource.html"></iframe>
+</div>
+<br>
+
+
+ <iframe id="ifartrightsogou" height="328px" width="300px" frameborder="0" scrolling="no" src="./Android系统Choreographer机制实现过程_files/saved_resource.html"></iframe>
+
+
+
+<script>
+    function change(pro_name, i) {
+        var pro = document.getElementById(pro_name); 
+        var pro_arr = pro.getElementsByTagName("span");
+
+        for (var m = 0; m < pro_arr.length; m++) {
+            pro_arr[m].className = "unclecked link_black";
+        }
+        pro_arr[i].className = "checked link_bai";
+
+        if (i == 1) {
+            document.getElementById("qh_ul_1").style.display = "";
+            document.getElementById("qh_ul_0").style.display = "none";
+        }
+        else if (i == 0) {
+            document.getElementById("qh_ul_1").style.display = "none";
+            document.getElementById("qh_ul_0").style.display = "";
+        }
+    }
+</script>
+
+                        <div class="both" id="divad5" style="padding-top: 11px; zoom: 1; position: fixed; top: 55px; left: 1177.5px;">
+                            <div id="divad4" style="">
+                                <div>
+                                    <iframe id="ifartad" height="250px" width="300px" frameborder="0" scrolling="no" src="./Android系统Choreographer机制实现过程_files/saved_resource.html"></iframe>
+                                </div>
+                                <div class="ggwz">
+                                    <a href="javascript:void(0);" onclick="closead(2);">关闭</a>
+                                </div>
+                                <div style="height: 13px;">
+                                </div>
+                            </div>
+                            <div style="clear: both;" id="divad6">
+                                <div id="adfloatbaidu">
+                                    <iframe id="ifartadfloadbaidu" height="250px" width="300px" frameborder="0" scrolling="no" src="./Android系统Choreographer机制实现过程_files/saved_resource.html"></iframe>
+                                </div>
+                                <div class="ggwz">
+                                    <a href="javascript:void(0);" onclick="closead(3);">关闭</a>
+                                </div>
+                                <div style="height: 13px;">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <input type="hidden" id="docarttitle" value="Android%e7%b3%bb%e7%bb%9fChoreographer%e6%9c%ba%e5%88%b6%e5%ae%9e%e7%8e%b0%e8%bf%87%e7%a8%8b">
+    <input type="hidden" id="artreadroomid" value="0">
+    <script>var asw='Android%e7%b3%bb%e7%bb%9fChoreographer%e6%9c%ba%e5%88%b6%e5%ae%9e%e7%8e%b0%e8%bf%87%e7%a8%8b'</script>
+    <div id="docdiviframe"></div>
+
+
+    <script language="javascript" type="text/javascript">
+        var appName = navigator.appName.toLowerCase();
+        if (appName.indexOf("microsoft internet explorer") > -1) {
+            document.write("<scr" + "ipt type='text/javascript' src='http://www.360doc.com/js/StickySystemIE20130911.js?t=2015073105'></sc" + "ript>");
+        }
+        else {
+
+            document.write("<scr" + "ipt type='text/javascript' src='http://www.360doc.com/js/StickySystemOther20130911.js?t=2015073105'></sc" + "ript>");
+        }
+    </script><script type="text/javascript" src="./Android系统Choreographer机制实现过程_files/StickySystemOther20130911.js"></script>
+
+    <script>GerLookingUserInfo(1,10366845,1,0,'-1',-1,10,0);OutputSource('http%3a%2f%2fblog.csdn.net%2fyangwen123%2farticle%2fdetails%2f39518923');OutputCategory(10366845,17,'%e3%80%8aGraphics%e3%80%8b');OutputLastNextArt('%5b%e8%af%91%5dAndroid%e5%9b%be%e5%bd%a2%e7%b3%bb%e7%bb%9f+II+%e5%9b%be%e5%bd%a2%e6%9e%b6%e6%9e%84','http://www.360doc.com/content/15/0630/20/10366845_481774941.shtml',0);OutputLastNextArt('Android%e4%b8%ad%e7%9a%84GraphicBuffer%e5%90%8c%e6%ad%a5%e6%9c%ba%e5%88%b6','http://www.360doc.com/content/15/0713/19/10366845_484707701.shtml',1);</script>
+
+    <script type="text/javascript">
+        var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+        document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fd86954201130d615136257dde062a503' type='text/javascript'%3E%3C/script%3E"));
+    </script><script src="http://hm.baidu.com/h.js?d86954201130d615136257dde062a503" type="text/javascript"></script>
+
+    <script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=6857724" src="./Android系统Choreographer机制实现过程_files/bds_s_v2.js"></script>
+
+    <script type="text/javascript">
+        document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date() / 3600000);
+    </script>
+    <!-- Baidu Button END -->
+    <script src="./Android系统Choreographer机制实现过程_files/logger.js"></script>
+
+
+
+
+<div id="goTop2" style="left: 1519px;"><div id="goTop"><a href="http://www.360doc.com/content/15/0701/19/10366845_481984948.shtml#" id="go_top"></a></div><div id="goTop1"><a href="javascript:void(0);" id="go_top1"></a></div><div><div id="artweixinDiv" style="position: relative;display:none;"><div style="position: absolute; z-index: 2001;margin-left:-220px;*margin-left:-244px;!important;margin-top:-34px;*margin-top:-134px;!important;"><img src="http://pubimage.360doc.com/wz/wzweixin.gif"></div></div><div id="goTop3" onmouseover="document.getElementById(&#39;artweixinDiv&#39;).style.display=&#39;&#39;;" onmouseout="document.getElementById(&#39;artweixinDiv&#39;).style.display=&#39;none&#39;;"><a href="javascript:void(0);" id="go_top3"></a></div></div></div></body></html>

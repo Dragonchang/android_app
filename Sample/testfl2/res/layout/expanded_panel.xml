@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.testfl2.PullView.ExpandedPanelView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/expanded_panel" 
+    android:background="@color/expanded_panel_background_colors" >
+    
+		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		 android:layout_width="match_parent"
+		 android:layout_height="match_parent"
+		 android:orientation="vertical">
+		       <TextView
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@null"
+		        android:singleLine="true"
+               android:ellipsize="end"
+               android:gravity="center" 
+               android:textSize = "60sp"/>
+		       <TextView
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/expanded_world"
+		        android:singleLine="true"
+               android:ellipsize="end"
+               android:gravity="center" 
+               android:textSize = "50sp"/>
+		       <TextView
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/expanded_world"
+		        android:singleLine="true"
+               android:ellipsize="end"
+               android:gravity="center" 
+               android:textSize = "50sp"/>		       		       		 
+		       <TextView
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/expanded_world"
+		        android:singleLine="true"
+               android:ellipsize="end"
+               android:gravity="center" 
+               android:textSize = "50sp"/>
+		       <TextView
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/expanded_world"
+		        android:singleLine="true"
+               android:ellipsize="end"
+               android:gravity="center" 
+               android:textSize = "50sp"/>
+		       <TextView
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/expanded_world"
+		        android:singleLine="true"
+               android:ellipsize="end"
+               android:gravity="center" 
+               android:textSize = "50sp"/>
+		       <TextView
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:text="@string/expanded_world"
+		        android:singleLine="true"
+               android:ellipsize="end"
+               android:gravity="center" 
+               android:textSize = "50sp"/>       		       		       
+		</LinearLayout>
+</com.example.testfl2.PullView.ExpandedPanelView>

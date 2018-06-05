@@ -1,0 +1,1413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0056)http://blog.csdn.net/u011453773/article/details/50731331 -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript" async="" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/acom"></script>   
+    
+     
+    <script type="text/javascript" async="" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/acom(1)"></script><script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/tracking.js" charset="utf-8"></script>  
+
+    <script type="text/javascript">
+        var protocol = window.location.protocol;
+        document.write('<script type="text/javascript" src="' + protocol + '//csdnimg.cn/pubfooter/js/repoAddr2.js?v=' + Math.random() + '"></' + 'script>');
+    </script><script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/repoAddr2.js"></script>
+
+  
+ <meta http-equiv="Cache-Control" content="no-siteapp"><link rel="alternate" media="handheld" href="http://blog.csdn.net/u011453773/article/details/50731331#">
+
+    <title>SQLITE在ANDROID上的一个BUG - 梦里风林的专栏
+        - 博客频道 - CSDN.NET</title>
+    
+    <meta name="description" content="构造自己的adapter，在getView中，设置颜色，点击item，刷新listview。代码：import java.util.ArrayList;import java.util.HashMap;import java.util.List;import java.util.Map;import android.app.Activity;import android.content.Context;import android.graphics.Color;import an">
+    <script src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/jquery.js" type="text/javascript"></script>
+    <script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ad.js"></script>
+        <!--new top-->
+       
+        <link rel="stylesheet" href="http://c.csdnimg.cn/public/common/toolbar/css/index.css">
+        <!--new top-->
+
+    <link rel="Stylesheet" type="text/css" href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/style.css">
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="http://blog.csdn.net/u011453773/rss/list">
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/green_black.css">
+ 
+
+
+<script src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/share.js"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Hover_Arrow {position: absolute; width: 15px; height: 11px; cursor: pointer}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; color: #666666}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_Menu_Close {position: absolute; width: 31px; height: 31px; top: -15px; left: -15px}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><link rel="stylesheet" type="text/css" href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/job_reco.css"><link href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/bdsstyle.css" rel="stylesheet" type="text/css"><script type="text/javascript" charset="utf-8" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/main.js"></script><link rel="stylesheet" type="text/css" href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/style(1).css"><link type="text/css" rel="stylesheet" href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/style(2).css"><script src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/logger.js"></script><link rel="stylesheet" href="http://bdimg.share.baidu.com/static/api/css/share_style0_16.css?v=6aba13f0.css"></head>
+<body><div id="BAIDU_DUP_fp_wrapper" style="position: absolute; left: -1px; bottom: -1px; z-index: 0; width: 0px; height: 0px; overflow: hidden; visibility: hidden; display: none;"><iframe id="BAIDU_DUP_fp_iframe" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/o.html" style="width: 0px; height: 0px; visibility: hidden; display: none;"></iframe></div><iframe frameborder="0" style="display: none;"></iframe><div id="MathJax_Message" style="display: none;"></div>
+    
+   
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/html.js" type="text/javascript"></script><div class="csdn-toolbar csdn-toolbar-skin-black ">        <div class="container row center-block ">          <div class="col-md-3 pull-left logo clearfix"><a href="http://www.csdn.net/?ref=toolbar" title="CSDN首页" target="_blank" class="icon"></a><a title="频道首页" href="http://blog.csdn.net/?ref=toolbar_logo" class="img blog-icon"></a></div>          <div class="pull-right login-wrap unlogin">            <ul class="btns">              <li class="loginlink"><a href="https://passport.csdn.net/account/login?ref=toolbar" target="_top">登录&nbsp;</a>|<a target="_top" href="http://passport.csdn.net/account/mobileregister?ref=toolbar&action=mobileRegister">&nbsp;注册</a></li>              <li class="search">                <div class="icon on-search-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <form action="http://so.csdn.net/search" method="get" target="_blank">                      <input type="hidden" value="toolbar" name="ref" accesskey="2">                      <div class="border">                        <input placeholder="搜索" type="text" value="" name="q" accesskey="2"><span class="icon-enter-sm"></span>                      </div>                    </form>                  </div>                </div>              </li>              <li class="favor">                <div class="icon on-favor-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div style="display:none;" class="favor-success"><span class="msg">收藏成功</span>                      <div class="btns"><span class="btn btn-primary ok">确定</span></div>                    </div>                    <div style="display:none;" class="favor-failed"><span class="icon-danger-lg"></span><span class="msg">收藏失败，请重新收藏</span>                      <div class="btns"><span class="btn btn-primary ok">确定</span></div>                    </div>                    <form role="form" class="form-horizontal favor-form">                      <div class="form-group">                        <div class="clearfix">                          <label for="input-title" class="col-sm-2 control-label">标题</label>                          <div class="col-sm-10">                            <input id="inputTitle" type="text" placeholder="" class="title form-control">                          </div>                        </div>                        <div class="alert alert-danger"><strong></strong>标题不能为空</div>                      </div>                      <div class="form-group">                        <label for="input-url" class="col-sm-2 control-label">网址</label>                        <div class="col-sm-10">                          <input id="input-url" type="text" placeholder="" class="url form-control">                        </div>                      </div>                      <div class="form-group">                        <label for="input-tag" class="col-sm-2 tag control-label">标签</label>                        <div class="col-sm-10">                          <input id="input-tag" type="text" class="form-control tag">                        </div>                      </div>                      <div class="form-group">                        <label for="input-description" class="description col-sm-2 control-label">摘要</label>                        <div class="col-sm-10">                          <textarea id="input-description" class="form-control description"></textarea>                        </div>                      </div>                      <div class="form-group">                        <div class="col-sm-offset-2 col-sm-10 ft">                          <div class="col-sm-4 pull-left">                            <div class="checkbox">                              <label>                                <input type="checkbox" name="share" checked="checked" class="share">公开                              </label>                            </div>                          </div>                          <div class="col-sm-8 pull-right favor-btns">                            <button type="button" class="cancel btn btn-default">取消</button>                            <button type="submit" class="submit btn btn-primary">收藏</button>                          </div>                        </div>                      </div>                    </form>                  </div>                </div>              </li>              <li class="notify">                <div style="display:none" class="number"></div>                <div style="display:none" class="icon-hasnotes-sm"></div>                <div id="header_notice_num"></div>                <div class="icon on-notify-icon">                  <div class="wrap">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div id="note1" class="csdn_note">                      <div class="box"></div>                    <iframe src="about:block" frameborder="0" allowtransparency="true" style="z-index:-1;position:absolute;top:0;left:0;width:100%;height:100%;background:transparent"></iframe></div>                  </div>                </div>              </li>              <li class="ugc">                <div class="icon on-ugc-icon">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <dl>                      <dt><a href="http://geek.csdn.net/news/expert?ref=toolbar" target="_blank" class="p-news clearfix" style="display:none;"><em class="icon"></em><span>分享资讯</span></a></dt>                      <dt style="border: none;"><a href="http://u.download.csdn.net/upload?ref=toolbar" target="_blank" class="p-doc clearfix"><em class="icon"></em><span>传PPT/文档</span></a></dt>                      <dt><a href="http://bbs.csdn.net/topics/new?ref=toolbar" target="_blank" class="p-ask clearfix"><em class="icon"></em><span>提问题</span></a></dt>                      <dt><a href="http://write.blog.csdn.net/postedit?ref=toolbar" target="_blank" class="p-blog clearfix"><em class="icon"></em><span>写博客</span></a></dt>                      <dt><a href="http://u.download.csdn.net/upload?ref=toolbar" target="_blank" class="p-src clearfix"><em class="icon"></em><span>传资源</span></a></dt>                      <dt><a href="https://code.csdn.net/projects/new?ref=toolbar" target="_blank" class="c-obj clearfix"><em class="icon"></em><span>创建项目</span></a></dt>                      <dt><a href="https://code.csdn.net/snippets/new?ref=toolbar" target="_blank" class="c-code clearfix"><em class="icon"></em><span>创建代码片</span></a></dt>                    </dl>                  </div>                </div>              </li>              <li class="profile">                <div class="icon on-profile-icon"><img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/100x100.jpg" class="curr-icon-img">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                    <div class="bd">                      <dl class="clearfix">                        <dt class="pull-left img"><a target="_blank" href="http://my.csdn.net/?ref=toolbar" class="avatar"><img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/100x100.jpg"></a></dt>                        <dd class="info" style="border: none;"><a target="_blank" href="http://my.csdn.net/?ref=toolbar" class="nickname"></a><a class="set-nick" href="https://passport.csdn.net/account/profile">设置昵称<span class="write-icon"></span></a><span class="dec"><a class="fill-dec" href="http://my.csdn.net/" target="_blank">编辑自我介绍，让更多人了解你<span class="write-icon"></span></a></span></dd>                      </dl>                    </div>                    <div class="ft clearfix"><a target="_blank" href="http://my.csdn.net/my/account/changepwd?ref=toolbar" class="pull-left"><span class="icon-cog"></span>帐号设置</a><a href="https://passport.csdn.net/account/logout?ref=toolbar" target="_top" class="pull-left" style="margin-left:132px; width:18px; height:27px; white-space:nowrap; overflow:hidden;"><span class="icon-signout"></span><span class="out">退出</span></a></div>                  </div>                </div>              </li>              <li class="apps">                <div id="chasnew123" class="hasnew" style="display: none;"></div>                <div id="cappsarea123" class="icon on-apps-icon">                  <div class="wrap clearfix">                    <div class="curr-icon-wrap">                      <div class="curr-icon"></div>                    </div>                  <div class="detail">                    <dl>                      <dt>                        <h5>社区</h5>                      </dt>                      <dd> <a href="http://blog.csdn.net/?ref=toolbar" target="_blank">博客</a></dd>                      <dd> <a href="http://bbs.csdn.net/?ref=toolbar" target="_blank">论坛</a></dd>                      <dd> <a href="http://download.csdn.net/?ref=toolbar" target="_blank">下载</a></dd>                      <dd><a href="http://ask.csdn.net/?ref=toolbar" target="_blank">技术问答</a></dd>                      <dd><a href="http://geek.csdn.net/?ref=toolbar" target="_blank">极客头条</a></dd>                      <dd style="display:none"> <a href="http://hero.csdn.net/?ref=toolbar" target="_blank">英雄会</a></dd>                    </dl>                  </div>                  <div class="detail">                    <dl>                      <dt>                        <h5>服务</h5>                      </dt>                      <dd style="display:none"> <a href="http://job.csdn.net/?ref=toolbar" target="_blank">JOB<img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/new.gif" style="display: none; margin-top: -26px; width: 23px;"></a></dd>                      <dd> <a href="http://edu.csdn.net/?ref=toolbar" target="_blank">学院<img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/new.gif" style="display: none; margin-top: -26px; width: 23px;"></a></dd>                      <dd> <a href="https://code.csdn.net/?ref=toolbar" target="_blank">CODE</a></dd>                      <dd> <a href="http://huiyi.csdn.net/?ref=toolbar" target="_blank">活动</a></dd>                      <dd> <a href="http://www.csto.com/?ref=toolbar" target="_blank">CSTO</a></dd>                      <dd> <a href="http://mall.csdn.net/?ref=toolbar" target="_blank">C币兑换<img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/new.gif" style="display: none; margin-top: -26px; width: 23px;"></a></dd>                    </dl>                  </div>                  <div class="detail last">                    <dl>                      <dt>                        <h5>俱乐部</h5>                      </dt>                      <dd> <a href="http://cto.csdn.net/?ref=toolbar" target="_blank">CTO俱乐部</a></dd>                      <dd> <a href="http://student.csdn.net/?ref=toolbar" target="_blank">高校俱乐部</a></dd>                    </dl>                  </div>                </div>              </div>            </li>            </ul>          </div>        </div>    </div>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/u011453773">梦里风林的专栏</a></h2>
+            <h3>https://ahangchen.gitbooks.io/windy-afternoon/content/</h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>
+            
+                <li id="btnContents"><a href="http://blog.csdn.net/u011453773?viewmode=contents"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_mulu&#39;])">
+                    <img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/u011453773?viewmode=list"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_zhaiyao&#39;])">
+                    <img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/u011453773/rss/list"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_RSS&#39;])">
+                    <img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ico_rss.gif">订阅</span></a></li>                
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "u011453773";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/u011453773";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";  
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod="popu_3"> 
+
+<a href="http://blog.csdn.net/lmj623565791/article/details/50709663" target="_blank">
+<font color="red">Android 6.0 运行时权限处理完全解析
+</font></a>
+&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/xingjiarong/article/details/50651235" target="_blank">
+<font color="blue">python编程常用模板总结
+</font></a>
+&nbsp;&nbsp;&nbsp;
+<a href="http://lib.csdn.net/base/15/structure" target="_blank">
+<font color="red">【知识库】一张大图看懂Android架构
+</font></a>
+
+</div>                        </div>
+                        
+
+<!--AdForward Begin:-->
+<script type="text/javascript" ads-src="http://csdnim.qtmojo.com/main/s?user=csdn|blog|fumeiti&amp;db=csdnim&amp;border=0&amp;local=yes&amp;js=ie" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/AllyesDeliver.min.js" charset="gbk" id="allyes_ins_7359f0af" ads-outputs="0" ads-tid="1e99e1b8_0"></script><div id="1e99e1b8_0" style="padding:0;margin:0;border:0;"><script type="text/javascript" data-belong="allyes" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/s"></script><script type="text/javascript">
+var cpro_id="u2392861";
+(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"300",rsi1:"250",pat:"17",tn:"baiduCustNativeAD_xuanfu",rss1:"#FFFFFF",conBW:"1",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0"}
+</script>
+<script src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/f.js" type="text/javascript"></script><script type="text/javascript" data-belong="allyes" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/delay.min.js"></script><script type="text/javascript" data-belong="allyes" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/delay.min.js"></script><script type="text/javascript" data-belong="allyes" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/delay.min.js"></script><script type="text/javascript" data-belong="allyes" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/delay.min.js"></script><script type="text/javascript" data-belong="allyes" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/delay.min.js"></script></div>
+<!--AdForward End-->
+
+  
+<link href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/comment1.css" type="text/css" rel="stylesheet">
+<link href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/style1.css" type="text/css" rel="stylesheet">
+<script language="JavaScript" type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/jquery.cookie.js"></script>
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/main(1).js"></script>
+<link rel="stylesheet" href="http://static.blog.csdn.net/public/res-min/markdown_views.css?v=1.0">
+<link rel="stylesheet" href="http://static.blog.csdn.net/css/category.css?v=1.0">
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/MathJax.js"></script>
+
+  <script type="text/ecmascript">
+      window.quickReplyflag = true;
+           
+            var isBole = false;
+            
+          
+    </script>
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Original"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET.html">
+        SQLITE在ANDROID上的一个BUG            
+        </a></span>
+    </h1>
+</div>
+
+   
+
+        <div class="article_manage clearfix">
+        <div class="article_l">
+            <span class="link_categories">
+            标签：
+              <a href="http://www.csdn.net/tag/android" target="_blank" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_tag&#39;]);">android</a><a href="http://www.csdn.net/tag/sqlite" target="_blank" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_tag&#39;]);">sqlite</a><a href="http://www.csdn.net/tag/%e6%95%b0%e6%8d%ae%e5%ba%93" target="_blank" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_tag&#39;]);">数据库</a><a href="http://www.csdn.net/tag/bug" target="_blank" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_tag&#39;]);">bug</a><a href="http://www.csdn.net/tag/code-14" target="_blank" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_tag&#39;]);">code-14</a>
+            </span>
+        </div>
+        <div class="article_r">
+            <span class="link_postdate">2016-02-24 15:42</span>
+            <span class="link_view" title="阅读次数">6人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="http://blog.csdn.net/u011453773/article/details/50731331#comments" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_pinglun&#39;])">评论</a>(0)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle(&#39;SQLITE在ANDROID上的一个BUG&#39;,&#39;50731331&#39;);return false;" title="收藏" target="_blank">收藏</a></span>
+             <span class="link_report"> <a href="http://blog.csdn.net/u011453773/article/details/50731331#report" onclick="javascript:report(50731331,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+      <div class="category clearfix">
+        <div class="category_l">
+           <img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/category_icon.jpg">
+            <span>分类：</span>
+        </div>
+        <div class="category_r">
+                    <label onclick="GetCategoryArticles(&#39;6105693&#39;,&#39;u011453773&#39;,&#39;top&#39;,&#39;50731331&#39;);">
+                        <span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_fenlei&#39;]);">Android<em>（4）</em></span>
+                      <img class="arrow-down" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a href="http://blog.csdn.net/u011453773/article/category/6105693" target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_6105693">                            
+                            </ul>
+                        </div>
+                    </label>                    
+                    <label>
+                        <span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_fenlei&#39;]);">sqlite<em></em></span>                       
+                    </label>      
+        </div>
+    </div>
+    <script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/category.js"></script>  
+        <div class="bog_copyright">         
+            <p class="copyright_p">版权声明：转载请注明出处，博客地址 https://ahangchen.gitbooks.io/windy-afternoon/content/</p>
+        </div>
+
+  
+
+  
+  
+     
+
+<div id="article_content" class="article_content">
+        <div class="markdown_views"><h2 id="sqlite在android上的一个bug">SQLITE在ANDROID上的一个BUG：</h2>
+
+<blockquote>
+  <p>SQLiteCantOpenDatabaseException: unable to open database file</p>
+</blockquote>
+
+<p>更多内容在这里查看 <br>
+<a href="https://ahangchen.gitbooks.io/windy-afternoon/content">https://ahangchen.gitbooks.io/windy-afternoon/content</a></p>
+
+<p>先上log</p>
+
+<pre class="prettyprint" name="code"><code class="hljs avrasm has-numbering"><span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>: <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.SQLiteCantOpenDatabaseException</span>: unable to open database file (code <span class="hljs-number">14</span>)
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>:     at <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.SQLiteConnection</span><span class="hljs-preprocessor">.nativeExecuteForCursorWindow</span>(Native Method)
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>:     at <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.SQLiteConnection</span><span class="hljs-preprocessor">.executeForCursorWindow</span>(SQLiteConnection<span class="hljs-preprocessor">.java</span>:<span class="hljs-number">913</span>)
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>:     at <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.SQLiteSession</span><span class="hljs-preprocessor">.executeForCursorWindow</span>(SQLiteSession<span class="hljs-preprocessor">.java</span>:<span class="hljs-number">819</span>)
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>:     at <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.SQLiteQuery</span><span class="hljs-preprocessor">.fillWindow</span>(SQLiteQuery<span class="hljs-preprocessor">.java</span>:<span class="hljs-number">62</span>)
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>:     at <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.SQLiteCursor</span><span class="hljs-preprocessor">.fillWindow</span>(SQLiteCursor<span class="hljs-preprocessor">.java</span>:<span class="hljs-number">159</span>)
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>:     at <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.SQLiteCursor</span><span class="hljs-preprocessor">.getCount</span>(SQLiteCursor<span class="hljs-preprocessor">.java</span>:<span class="hljs-number">147</span>)
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>:     at <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.AbstractCursor</span><span class="hljs-preprocessor">.moveToPosition</span>(AbstractCursor<span class="hljs-preprocessor">.java</span>:<span class="hljs-number">218</span>)
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span> W/System<span class="hljs-preprocessor">.err</span>:     at <span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.product</span><span class="hljs-preprocessor">.database</span><span class="hljs-preprocessor">.sqlite</span><span class="hljs-preprocessor">.AbstractCursor</span><span class="hljs-preprocessor">.moveToFirst</span>(AbstractCursor<span class="hljs-preprocessor">.java</span>:<span class="hljs-number">258</span>)</code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li></ul></pre>
+
+<p>先给出结论，</p>
+
+<ul>
+<li><p><strong>这是sqlite在Android系统上的一个bug，在需要建立索引的sql语句频繁执行时，会发生这个异常。</strong></p></li>
+<li><p><strong>（如果你是在SQLiteDatabase执行open()时看到的这个exception，那应该是线程冲突的问题，跟这篇文章讲的不是同一个）</strong></p></li>
+<li><p><strong>根本原因是sqlite临时文件目录不可用。</strong></p></li>
+<li><p><strong>解决方案是第一次建立连接时设置临时文件目录。</strong></p></li>
+</ul>
+
+<p>在项目里遇到了这样一个奇怪的crash，长期占据各个版本crash上报榜首，但在开发中一直不能重现。</p>
+
+<p>在许多查DB的代码路径里，都会在moveToFirst()，getCount()等需要执行fillWindow的地方出现这个crash。</p>
+
+<p><em>* 网络上的解决方案：*</em></p>
+
+<p>谷歌搜索SQLiteCantOpenDatabaseException，多是一些执行SQLiteDatabase open()时线程冲突的问题，与我们这个问题不同。</p>
+
+<p>跟这个问题相关的回答屈指可数，一直没找到解决方案，最相关的两种回答来自github：</p>
+
+<p><a href="https://github.com/Raizlabs/DBFlow/issues/380">https://github.com/Raizlabs/DBFlow/issues/380</a></p>
+
+<p><a href="https://github.com/dxopt/OpenFilesLeakTest/blob/master/bugs-show/AbstractCursor.moveToFirst.md">https://github.com/dxopt/OpenFilesLeakTest/blob/master/bugs-show/AbstractCursor.moveToFirst.md</a></p>
+
+<p>第一个链接与我们的情况相符，但是没有根本的解决方案，只有try – catch</p>
+
+<p>第二个链接讲的是FD泄露导致打不开文件，于是我排查了app中各种泄露的地方，并且写了一个计算文件句柄数的上报工具，发现用户发生此类crash时，FD都不超过256，低于系统对单个进程默认FD数量1024的限制。排除这个可能。</p>
+
+<p>（但有些时候也有可能是由这个问题引发的，可以用StrictMode detectLeak去排查）</p>
+
+<p>于是先尝试在一些可能触发这个Exception的地方try-catch</p>
+
+<p>再分析用户日志，发现try – catch住这个Exception后是可以继续执行一些DB查询的，</p>
+
+<p>于是全都上了try – catch</p>
+
+<p><em>* 重现路径*</em></p>
+
+<p>分析用户日志，发现用户的一些共性，由于业务保密限制这里总结一下，共性是DB中数据量很大，并且查询中有大量的子查询。</p>
+
+<p>于是尝试重现这个问题：</p>
+
+<p>在数据量很大的情况下，多次查询就会重现。</p>
+
+<p>可以重现的话就可以开始打log了。</p>
+
+<p>为了在sqlite native层打log，编译sqlite，使用sqlite3_log来输出自己想观察的信息。</p>
+
+<p>首先我们可以看到sqlite的log</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="hljs avrasm has-numbering"><span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.package</span> E/SQLiteLog: (<span class="hljs-number">14</span>) cannot open file at line <span class="hljs-number">32440</span> of [bda77dda96]
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.package</span> E/SQLiteLog: (<span class="hljs-number">14</span>) os_unix<span class="hljs-preprocessor">.c</span>:<span class="hljs-number">32440</span>: (<span class="hljs-number">30</span>) open(./etilqs_3P2SKRP0Ge6cj3T) -
+
+<span class="hljs-number">12</span>-<span class="hljs-number">14</span> <span class="hljs-number">19</span>:<span class="hljs-number">51</span>:<span class="hljs-number">30.346</span> <span class="hljs-number">17770</span>-<span class="hljs-number">18098</span>/<span class="hljs-keyword">com</span><span class="hljs-preprocessor">.company</span><span class="hljs-preprocessor">.package</span> E/SQLiteLog: (<span class="hljs-number">14</span>) statement aborts at <span class="hljs-number">180</span>: [SELECT M.*,…………………</code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li></ul></pre>
+
+<p>可以看到是打开一个”./etilqs_3P2SKRP0Ge6cj3T”的文件时打开失败。</p>
+
+<p>先查查这个临时文件是什么鬼，</p>
+
+<p>在sqlite3.c搜索前缀etilqs_里可以看到这样的注释：</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="language-c hljs  has-numbering"><span class="hljs-comment">/*
+** Temporary files are named starting with this prefix followed by 16 random
+** alphanumeric characters, and no file extension. They are stored in the
+** OS's standard temporary file directory, and are deleted prior to exit.
+** If sqlite is being embedded in another program, you may wish to change the
+** prefix to reflect your program's name, so that if your program exits
+** prematurely, old temporary files can be easily identified. This can be done
+** using -DSQLITE_TEMP_FILE_PREFIX=myprefix_ on the compiler command line.
+**
+** 2006-10-31:  The default prefix used to be "sqlite_".  But then
+** Mcafee started using SQLite in their anti-virus product and it
+** started putting files with the "sqlite" name in the c:/temp folder.
+** This annoyed many windows users.  Those users would then do a 
+** Google search for "sqlite", find the telephone numbers of the
+** developers and call to wake them up at night and complain.
+** For this reason, the default name prefix is changed to be "sqlite" 
+** spelled backwards.  So the temp files are still identified, but
+** anybody smart enough to figure out the code is also likely smart
+** enough to know that calling the developer will not help get rid
+** of the file.
+*/</span>
+<span class="hljs-preprocessor">#ifndef SQLITE_TEMP_FILE_PREFIX</span>
+<span class="hljs-preprocessor"># define SQLITE_TEMP_FILE_PREFIX "etilqs_"</span>
+<span class="hljs-preprocessor">#endif</span></code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li><li>22</li><li>23</li><li>24</li></ul></pre>
+
+<p>总之就是临时文件就对了。</p>
+
+<p><strong>临时文件源码追踪</strong></p>
+
+<p>然后找找这个东西在哪里用的，</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="language-c hljs  has-numbering"><span class="hljs-comment">/*
+** Create a temporary file name in zBuf.  zBuf must be allocated
+** by the calling process and must be big enough to hold at least
+** pVfs-&gt;mxPathname bytes.
+*/</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> unixGetTempname(<span class="hljs-keyword">int</span> nBuf, <span class="hljs-keyword">char</span> *zBuf){
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">const</span> <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> zChars[] =
+    <span class="hljs-string">"abcdefghijklmnopqrstuvwxyz"</span>
+    <span class="hljs-string">"ABCDEFGHIJKLMNOPQRSTUVWXYZ"</span>
+    <span class="hljs-string">"0123456789"</span>;
+  <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> i, j;
+  <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *zDir;
+
+  <span class="hljs-comment">/* It's odd to simulate an io-error here, but really this is just
+  ** using the io-error infrastructure to test that SQLite handles this
+  ** function failing. 
+  */</span>
+  SimulateIOError( <span class="hljs-keyword">return</span> SQLITE_IOERR );
+
+  zDir = unixTempFileDir();
+  <span class="hljs-keyword">if</span>( zDir==<span class="hljs-number">0</span> ) zDir = <span class="hljs-string">"."</span>;
+
+  <span class="hljs-comment">/* Check that the output buffer is large enough for the temporary file 
+  ** name. If it is not, return SQLITE_ERROR.
+  */</span>
+  <span class="hljs-keyword">if</span>( (<span class="hljs-built_in">strlen</span>(zDir) + <span class="hljs-built_in">strlen</span>(SQLITE_TEMP_FILE_PREFIX) + <span class="hljs-number">18</span>) &gt;= (size_t)nBuf ){
+    <span class="hljs-keyword">return</span> SQLITE_ERROR;
+  }
+
+  <span class="hljs-keyword">do</span>{
+    sqlite3_snprintf(nBuf-<span class="hljs-number">18</span>, zBuf, <span class="hljs-string">"%s/"</span>SQLITE_TEMP_FILE_PREFIX, zDir);
+    j = (<span class="hljs-keyword">int</span>)<span class="hljs-built_in">strlen</span>(zBuf);
+    sqlite3_randomness(<span class="hljs-number">15</span>, &amp;zBuf[j]);
+    <span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">15</span>; i++, j++){
+      zBuf[j] = (<span class="hljs-keyword">char</span>)zChars[ ((<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span>)zBuf[j])%(<span class="hljs-keyword">sizeof</span>(zChars)-<span class="hljs-number">1</span>) ];
+    }
+    zBuf[j] = <span class="hljs-number">0</span>;
+    zBuf[j+<span class="hljs-number">1</span>] = <span class="hljs-number">0</span>;
+  }<span class="hljs-keyword">while</span>( osAccess(zBuf,<span class="hljs-number">0</span>)==<span class="hljs-number">0</span> );
+  <span class="hljs-keyword">return</span> SQLITE_OK;
+}</code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li><li>22</li><li>23</li><li>24</li><li>25</li><li>26</li><li>27</li><li>28</li><li>29</li><li>30</li><li>31</li><li>32</li><li>33</li><li>34</li><li>35</li><li>36</li><li>37</li><li>38</li><li>39</li><li>40</li><li>41</li></ul></pre>
+
+<p>这里可以留意到一个神奇的东西</p>
+
+<p><strong>zDir = unixTempFileDir();</strong></p>
+
+<p><strong>if( zDir==0 ) zDir = “.”;</strong> <br>
+我们的文件是 <strong>./etilqs_3P2SKRP0Ge6cj3T</strong></p>
+
+<p>所以<strong>unixTempFileDir()</strong>确实是返回了0</p>
+
+<p>那再看下<strong>unixTempFileDir();</strong></p>
+
+
+
+<pre class="prettyprint" name="code"><code class="language-c hljs  has-numbering"><span class="hljs-comment">/*
+** Return the name of a directory in which to put temporary files.
+** If no suitable temporary file directory can be found, return NULL.
+*/</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *unixTempFileDir(<span class="hljs-keyword">void</span>){
+  <span class="hljs-keyword">static</span> <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *azDirs[] = {
+     <span class="hljs-number">0</span>,
+     <span class="hljs-number">0</span>,
+     <span class="hljs-number">0</span>,
+     <span class="hljs-string">"/var/tmp"</span>,
+     <span class="hljs-string">"/usr/tmp"</span>,
+     <span class="hljs-string">"/tmp"</span>,
+       <span class="hljs-comment">/* List terminator */</span>
+  };
+  <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> i;
+  <span class="hljs-keyword">struct</span> stat buf;
+  <span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *zDir = <span class="hljs-number">0</span>;
+
+  azDirs[<span class="hljs-number">0</span>] = sqlite3_temp_directory;
+  <span class="hljs-keyword">if</span>( !azDirs[<span class="hljs-number">1</span>] ) azDirs[<span class="hljs-number">1</span>] = getenv(<span class="hljs-string">"SQLITE_TMPDIR"</span>);
+  <span class="hljs-keyword">if</span>( !azDirs[<span class="hljs-number">2</span>] ) azDirs[<span class="hljs-number">2</span>] = getenv(<span class="hljs-string">"TMPDIR"</span>);
+  <span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-keyword">sizeof</span>(azDirs)/<span class="hljs-keyword">sizeof</span>(azDirs[<span class="hljs-number">0</span>]); zDir=azDirs[i++]){
+    <span class="hljs-keyword">if</span>( zDir==<span class="hljs-number">0</span> ) <span class="hljs-keyword">continue</span>;
+    <span class="hljs-keyword">if</span>( osStat(zDir, &amp;buf) ) <span class="hljs-keyword">continue</span>;
+    <span class="hljs-keyword">if</span>( !S_ISDIR(buf.st_mode) ) <span class="hljs-keyword">continue</span>;
+    <span class="hljs-keyword">if</span>( osAccess(zDir, <span class="hljs-number">07</span>) ) <span class="hljs-keyword">continue</span>;
+    <span class="hljs-keyword">break</span>;
+  }
+  <span class="hljs-keyword">return</span> zDir;
+}</code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li><li>22</li><li>23</li><li>24</li><li>25</li><li>26</li><li>27</li><li>28</li><li>29</li><li>30</li></ul></pre>
+
+<p>azDirs[0]是sqlite3_temp_directory，我们没有设置过，</p>
+
+<p>azDirs[1]和[2]是环境变量，用sqlite3_log打出来是</p>
+
+<p><img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/780612-20151220203024664-638008562.png" alt="" title=""></p>
+
+<p>即环境变量里没有设置这两个值，</p>
+
+<p>而另外三个目录/var/tmp，/usr/tmp，/tmp在Android系统里都是应用不可写的，</p>
+
+<p>所以会返回0给unixGetTemp，</p>
+
+<p>于是unixGetTemp使用了”.”作为临时文件的目录，</p>
+
+<p>那”.”是哪个目录呢？</p>
+
+<p>使用</p>
+
+<pre class="prettyprint" name="code"><code class="language-c hljs  has-numbering">system(“ls . &gt;  /sdcard/<span class="hljs-number">0.</span>txt”);</code><ul class="pre-numbering" style=""><li>1</li></ul></pre>
+
+<p>结果是：</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="language-shell hljs avrasm has-numbering">acct
+adb_keys
+cache
+config
+d
+data
+default<span class="hljs-preprocessor">.prop</span>
+dev
+etc
+firmware
+fstab<span class="hljs-preprocessor">.qcom</span>
+init
+init<span class="hljs-preprocessor">.goldfish</span><span class="hljs-preprocessor">.rc</span>
+init<span class="hljs-preprocessor">.qcom</span><span class="hljs-preprocessor">.class</span>_core<span class="hljs-preprocessor">.sh</span>
+init<span class="hljs-preprocessor">.qcom</span><span class="hljs-preprocessor">.class</span>_main<span class="hljs-preprocessor">.sh</span>
+init<span class="hljs-preprocessor">.qcom</span><span class="hljs-preprocessor">.rc</span>
+init<span class="hljs-preprocessor">.qcom</span><span class="hljs-preprocessor">.sh</span>
+init<span class="hljs-preprocessor">.qcom</span><span class="hljs-preprocessor">.usb</span><span class="hljs-preprocessor">.rc</span>
+init<span class="hljs-preprocessor">.qcom</span><span class="hljs-preprocessor">.usb</span><span class="hljs-preprocessor">.sh</span>
+init<span class="hljs-preprocessor">.rc</span>
+init<span class="hljs-preprocessor">.target</span><span class="hljs-preprocessor">.rc</span>
+init<span class="hljs-preprocessor">.trace</span><span class="hljs-preprocessor">.rc</span>
+init<span class="hljs-preprocessor">.usb</span><span class="hljs-preprocessor">.rc</span>
+mnt
+persist
+proc
+root
+sbin
+sdcard
+storage
+storage_int
+sys
+system
+tombstones
+ueventd<span class="hljs-preprocessor">.goldfish</span><span class="hljs-preprocessor">.rc</span>
+ueventd<span class="hljs-preprocessor">.qcom</span><span class="hljs-preprocessor">.rc</span>
+ueventd<span class="hljs-preprocessor">.rc</span>
+vendor</code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li><li>22</li><li>23</li><li>24</li><li>25</li><li>26</li><li>27</li><li>28</li><li>29</li><li>30</li><li>31</li><li>32</li><li>33</li><li>34</li><li>35</li><li>36</li><li>37</li><li>38</li></ul></pre>
+
+<p>这特么是根目录！当前工作目录是根目录我也是醉了。。。</p>
+
+<p>所以在根目录创建临时文件一定会失败！</p>
+
+<p><strong>etilqs临时文件创建时机</strong></p>
+
+<p>那为什么平时使用都是正常的呢？</p>
+
+<p>找一找这个临时文件的创建时机：</p>
+
+<p>在unixGetTempname函数里，人为地造一个crash，通过crash堆栈配合addr2line来查看调用栈：</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="hljs lasso has-numbering"><span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">45.633</span> <span class="hljs-number">13680</span><span class="hljs-subst">-</span><span class="hljs-number">14105</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package E/SQLiteLog: (<span class="hljs-number">14</span>) pagerstress;/<span class="hljs-built_in">data</span>/<span class="hljs-built_in">data</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package/databases/push
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">45.633</span> <span class="hljs-number">13680</span><span class="hljs-subst">-</span><span class="hljs-number">14105</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package E/SQLiteLog: (<span class="hljs-number">14</span>) pager_write_pagelist
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.083</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#00</span>  pc <span class="hljs-number">00037202</span>  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so unixGetTempname <span class="hljs-number">32107</span>
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.083</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#01</span>  pc <span class="hljs-number">000376</span>a7  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so unixOpen <span class="hljs-number">32396</span>
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.083</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#02</span>  pc <span class="hljs-number">00015</span>ec5  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so sqlite3OsOpen <span class="hljs-number">17420</span>
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.083</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#03</span>  pc <span class="hljs-number">0003</span>a16b  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#04</span>  pc <span class="hljs-number">0003e0</span>c7  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#05</span>  pc <span class="hljs-number">00038e75</span>  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#06</span>  pc <span class="hljs-number">00038</span>f55  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#07</span>  pc <span class="hljs-number">00039445</span>  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#08</span>  pc <span class="hljs-number">0003</span>add1  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#09</span>  pc <span class="hljs-number">0003</span>c1f1  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#10</span>  pc <span class="hljs-number">0003</span>d8df  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#11</span>  pc <span class="hljs-number">0004</span>c2e7  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#12</span>  pc <span class="hljs-number">0004e317</span>  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so (sqlite3_step<span class="hljs-subst">+</span><span class="hljs-number">334</span>)
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#13</span>  pc <span class="hljs-number">00063</span>ebd  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so (sqlite3_blocking_step<span class="hljs-subst">+</span><span class="hljs-number">6</span>)
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.093</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:     <span class="hljs-variable">#14</span>  pc <span class="hljs-number">00012279</span>  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.103</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:          <span class="hljs-number">61e75</span>c04  <span class="hljs-number">61</span>ced1f7  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.103</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:          <span class="hljs-number">61e75</span>c24  <span class="hljs-number">61</span>ced6ab  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.103</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:          <span class="hljs-number">61e75</span>c50  <span class="hljs-number">61</span>d71f4c  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so
+<span class="hljs-number">12</span><span class="hljs-subst">-</span><span class="hljs-number">19</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">46.113</span> <span class="hljs-number">3727</span><span class="hljs-subst">-</span><span class="hljs-number">3727</span><span class="hljs-subst">/</span><span class="hljs-subst">?</span> I/DEBUG:          <span class="hljs-number">61e7610</span>c  <span class="hljs-number">61</span>cf016f  /<span class="hljs-built_in">data</span>/app<span class="hljs-attribute">-lib</span>/com<span class="hljs-built_in">.</span>company<span class="hljs-built_in">.</span>package<span class="hljs-subst">-</span><span class="hljs-number">1</span>/libqmsqlite<span class="hljs-built_in">.</span>so</code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li></ul></pre>
+
+<p>使用addr2line –C –f –e 加上面14个pc地址，结果：</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="hljs profile has-numbering">pagerOpentemp
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">46566</span>
+pagerStress
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">47482</span>
+sqlite3PcacheFetchStress
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">40751</span>
+btreeGetPage
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">56428</span>
+btreeGetUnusedPage
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">56556</span>
+allocateBtreePage
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">60283</span>
+balance_nonroot
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">61869</span>
+sqlite3BtreeInsert
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">62554</span>
+sqlite3VdbeExec
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">77746</span> <span class="hljs-function">(<span class="hljs-title">discriminator</span> 3)</span>
+sqlite3Step
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3.c</span>:<span class="hljs-number">71550</span>
+sqlite3_blocking_step
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">sqlite3_unlock_notify.c</span>:<span class="hljs-number">85</span> <span class="hljs-function">(<span class="hljs-title">discriminator</span> 1)</span>
+nativeExecuteForCursorWindow
+/media/Software/company/qmsqlite/jni/sqlite/<span class="hljs-filename">SQLiteConnection.cpp</span>:<span class="hljs-number">994</span></code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li><li>22</li><li>23</li><li>24</li></ul></pre>
+
+<p><img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/780612-20151220203807429-73523169.jpg" alt="" title=""></p>
+
+<p><strong>懒得看图的童鞋还是听我说吧，</strong></p>
+
+<p>先看sqlite的architecture</p>
+
+<p><img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/780612-20151220203837633-715688502.gif" alt="" title=""></p>
+
+<p>因为我们crash的地方是查DB的地方，所以拿query操作来解释这个architecture是怎么运行的</p>
+
+<p>先用SQL Command Processor解析sql语句，变成类似汇编的命令给Virtual Machine执行，</p>
+
+<p>我们可以用explain plan select …. 这样的语句来查看virtual machine要执行的命令，比如</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="language-sql hljs  has-numbering">explain plan <span class="hljs-operator"><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> A <span class="hljs-keyword">where</span> A.a <span class="hljs-keyword">in</span> (<span class="hljs-keyword">select</span> b <span class="hljs-keyword">from</span> B)</span></code><ul class="pre-numbering" style=""><li>1</li></ul></pre>
+
+<p>对应的命令是：</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="language-asm hljs 1c has-numbering"> <span class="hljs-number">0</span><span class="hljs-string">| Trace| 0| 0| 0| | 00</span>
+ <span class="hljs-number">1</span><span class="hljs-string">| Goto| 0| 56| 0| | 00</span>
+ <span class="hljs-number">2</span><span class="hljs-string">| OpenRead| 0| 4| 0| 13| 00</span>
+ <span class="hljs-number">3</span><span class="hljs-string">| Rewind| 0| 54| 0| | 00</span>
+ <span class="hljs-number">4</span><span class="hljs-string">| null| 0| 1| 0| | 00</span>
+ <span class="hljs-number">5</span><span class="hljs-string">| Once| 0| 17| 0| | 00</span>
+ <span class="hljs-number">6</span><span class="hljs-string">| null| 0| 1| 0| | 00</span>
+ <span class="hljs-number">7</span><span class="hljs-string">| OpenEphemeral| 4| 1| 0| keyinfo(1,BINARY)| 00</span>
+ <span class="hljs-number">8</span><span class="hljs-string">| Integer| 10000| 2| 0| | 00</span>
+ <span class="hljs-number">9</span><span class="hljs-string">| OpenRead| 1| 5| 0| 1| 00</span>
+ <span class="hljs-number">10</span><span class="hljs-string">| Rewind| 1| 16| 0| | 00</span>
+ <span class="hljs-number">11</span><span class="hljs-string">| Column| 1| 0| 3| | 00</span>
+ <span class="hljs-number">12</span><span class="hljs-string">| MakeRecord| 3| 1| 4| b| 00</span>
+ <span class="hljs-number">13</span><span class="hljs-string">| IdxInsert| 4| 4| 0| | 00</span>
+ <span class="hljs-number">14</span><span class="hljs-string">| IfZero| 2| 16| -1| | 00</span>
+ <span class="hljs-number">15</span><span class="hljs-string">| Next| 1| 11| 0| | 01</span>
+ <span class="hljs-number">16</span><span class="hljs-string">| Close| 1| 0| 0| | 00</span>
+ <span class="hljs-number">17</span><span class="hljs-string">| Column| 0| 0| 4| | 00</span>
+ <span class="hljs-number">18</span><span class="hljs-string">| IsNull| 4| 22| 0| | 00</span>
+ <span class="hljs-number">19</span><span class="hljs-string">| Affinity| 4| 1| 0| b| 00</span>
+ <span class="hljs-number">20</span><span class="hljs-string">| NotFound| 4| 22| 4| 1| 00</span>
+ <span class="hljs-number">21</span><span class="hljs-string">| Goto| 0| 39| 0| | 00</span>
+ <span class="hljs-number">22</span><span class="hljs-string">| null| 0| 5| 0| | 00</span>
+ <span class="hljs-number">23</span><span class="hljs-string">| Once| 1| 35| 0| | 00</span>
+ <span class="hljs-number">24</span><span class="hljs-string">| null| 0| 5| 0| | 00</span>
+ <span class="hljs-number">25</span><span class="hljs-string">| OpenEphemeral| 6| 1| 0| keyinfo(1,BINARY)| 00</span>
+ <span class="hljs-number">26</span><span class="hljs-string">| Integer| 10000| 6| 0| | 00</span>
+ <span class="hljs-number">27</span><span class="hljs-string">| OpenRead| 2| 5| 0| 12| 00</span>
+ <span class="hljs-number">28</span><span class="hljs-string">| Rewind| 2| 34| 0| | 00</span>
+ <span class="hljs-number">29</span><span class="hljs-string">| Column| 2| 11| 7| | 00</span>
+ <span class="hljs-number">30</span><span class="hljs-string">| MakeRecord| 7| 1| 4| b| 00</span>
+ <span class="hljs-number">31</span><span class="hljs-string">| IdxInsert| 6| 4| 0| | 00</span>
+ <span class="hljs-number">32</span><span class="hljs-string">| IfZero| 6| 34| -1| | 00</span>
+ <span class="hljs-number">33</span><span class="hljs-string">| Next| 2| 29| 0| | 01</span>
+ <span class="hljs-number">34</span><span class="hljs-string">| Close| 2| 0| 0| | 00</span>
+ <span class="hljs-number">35</span><span class="hljs-string">| Column| 0| 1| 4| | 00</span>
+ <span class="hljs-number">36</span><span class="hljs-string">| IsNull| 4| 53| 0| | 00</span>
+ <span class="hljs-number">37</span><span class="hljs-string">| Affinity| 4| 1| 0| b| 00</span>
+ <span class="hljs-number">38</span><span class="hljs-string">| NotFound| 6| 53| 4| 1| 00</span>
+ <span class="hljs-number">39</span><span class="hljs-string">| Column| 0| 0| 8| | 00</span>
+ <span class="hljs-number">40</span><span class="hljs-string">| Column| 0| 1| 9| | 00</span>
+ <span class="hljs-number">41</span><span class="hljs-string">| Column| 0| 2| 10| | 00</span>
+ <span class="hljs-number">42</span><span class="hljs-string">| Column| 0| 3| 11| | 00</span>
+ <span class="hljs-number">43</span><span class="hljs-string">| Column| 0| 4| 12| | 00</span>
+ <span class="hljs-number">44</span><span class="hljs-string">| Column| 0| 5| 13| | 00</span>
+ <span class="hljs-number">45</span><span class="hljs-string">| Column| 0| 6| 14| | 00</span>
+ <span class="hljs-number">46</span><span class="hljs-string">| Column| 0| 7| 15| | 00</span>
+ <span class="hljs-number">47</span><span class="hljs-string">| Column| 0| 8| 16| | 00</span>
+ <span class="hljs-number">48</span><span class="hljs-string">| Column| 0| 9| 17| | 00</span>
+ <span class="hljs-number">49</span><span class="hljs-string">| Column| 0| 10| 18| | 00</span>
+ <span class="hljs-number">50</span><span class="hljs-string">| Column| 0| 11| 19| | 00</span>
+ <span class="hljs-number">51</span><span class="hljs-string">| Column| 0| 12| 20| | 00</span>
+ <span class="hljs-number">52</span><span class="hljs-string">| ResultRow| 8| 13| 0| | 00</span>
+ <span class="hljs-number">53</span><span class="hljs-string">| Next| 0| 4| 0| | 01</span>
+ <span class="hljs-number">54</span><span class="hljs-string">| Close| 0| 0| 0| | 00</span>
+ <span class="hljs-number">55</span><span class="hljs-string">| Halt| 0| 0| 0| | 00</span>
+ <span class="hljs-number">56</span><span class="hljs-string">| Transaction| 0| 0| 0| | 00</span>
+ <span class="hljs-number">57</span><span class="hljs-string">| VerifyCookie| 0| 3| 0| | 00</span>
+ <span class="hljs-number">58</span><span class="hljs-string">| TableLock| 0| 4| 0| labels| 00</span>
+ <span class="hljs-number">59</span><span class="hljs-string">| TableLock| 0| 5| 0| Items| 00</span>
+ <span class="hljs-number">60</span><span class="hljs-string">| Goto| 0| 2| 0| | 00</span></code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15</li><li>16</li><li>17</li><li>18</li><li>19</li><li>20</li><li>21</li><li>22</li><li>23</li><li>24</li><li>25</li><li>26</li><li>27</li><li>28</li><li>29</li><li>30</li><li>31</li><li>32</li><li>33</li><li>34</li><li>35</li><li>36</li><li>37</li><li>38</li><li>39</li><li>40</li><li>41</li><li>42</li><li>43</li><li>44</li><li>45</li><li>46</li><li>47</li><li>48</li><li>49</li><li>50</li><li>51</li><li>52</li><li>53</li><li>54</li><li>55</li><li>56</li><li>57</li><li>58</li><li>59</li><li>60</li><li>61</li></ul></pre>
+
+<p>可以看到其中需要建立索引，IdxInsert，于是在sqlite3VdbeExec中会进入</p>
+
+<p><strong>OP_IdxInsert分支</strong>，然后</p>
+
+<p><strong>会调用sqlite3BtreeInsert</strong>，向B树中插入一个节点，</p>
+
+<p>此时如果pPage满了，会执行<strong>balance</strong>平衡B树，</p>
+
+<p>在这里面就会<strong>btreeGetPage</strong>去获取可用的page，</p>
+
+<p>获取page的过程最终会执行<strong>sqlite3_malloc</strong>，为page分配空间，一旦分配失败，就会在<strong>fetch</strong>处触发pBase == 0的条件，</p>
+
+<p>于是执行<strong>sqlite3PcacheFetchStress</strong>，在其中调用<strong>pager_write_pagelist</strong>时触发<strong>pPager-&gt;fd == 0</strong>的条件（因为page在前面没有分配到空间），</p>
+
+<p>于是触发<strong>pagerOpenTemp</strong>，往下执行调用<strong>unixGetTempname</strong>，得到上面所说的那个不正确的文件路径，</p>
+
+<p>执行<strong>sqlite3Osopen</strong>时就会失败。</p>
+
+<p>从上面的分析看出，触发这个路径需要几个条件：</p>
+
+<ul>
+<li>执行的sql语句需要建立索引，</li>
+<li>B树不平衡</li>
+<li>没有设置过环境变量</li>
+<li>分配的内存不足以新建新的page <br>
+所以触发条件还是比较严格的。</li>
+</ul>
+
+<p>在<strong>unixOpenTempname</strong>执行时用一个变量计算临时文件的打开次数，也可以发现确实是一打开这样的文件就会失败（在打开第一个的时候就失败）。</p>
+
+<p><strong>解决方案(Solution)</strong></p>
+
+<p>那么最重要的事情来了，怎么修复呢？</p>
+
+<p>既然是临时文件的目录没有写权限，那就改目录吧！</p>
+
+<p>翻了翻sqlite的一些资料，找到了这样一个programa</p>
+
+<p><a href="http://www.sqlite.org/c3ref/temp_directory.html">http://www.sqlite.org/c3ref/temp_directory.html</a></p>
+
+
+
+<pre class="prettyprint" name="code"><code class="language-sql hljs  has-numbering"><span class="hljs-operator"><span class="hljs-keyword">PRAGMA</span> temp_store_directory = <span class="hljs-string">'your dir'</span></span></code><ul class="pre-numbering" style=""><li>1</li></ul></pre>
+
+<p>这个东西仅对当前SqliteConncetion有效，</p>
+
+<p>在第一次建立sqlite连接的时候（我是重写了getReadabelDatabase()方法），设置一下临时文件目录，like this:</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="language-java hljs  has-numbering"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">boolean</span> mainTmpDirSet = <span class="hljs-keyword">false</span>;
+<span class="hljs-annotation">@Override</span>
+    <span class="hljs-keyword">public</span> SQLiteDatabase <span class="hljs-title">getReadableDatabase</span>() {
+        <span class="hljs-keyword">if</span> (!mainTmpDirSet) {
+            <span class="hljs-keyword">boolean</span> rs = <span class="hljs-keyword">new</span> File(<span class="hljs-string">"/data/data/com.cmp.pkg/databases/main"</span>).mkdir();
+            Log.d(<span class="hljs-string">"ahang"</span>, rs + <span class="hljs-string">""</span>);
+            <span class="hljs-keyword">super</span>.getReadableDatabase().execSQL(<span class="hljs-string">"PRAGMA temp_store_directory = '/data/data/com.cmp.pkg/databases/main'"</span>);
+            mainTmpDirSet = <span class="hljs-keyword">true</span>;
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">super</span>.getReadableDatabase();
+        } 
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">super</span>.getReadableDatabase();
+    }</code><ul class="pre-numbering" style=""><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li></ul></pre>
+
+<p>然后再去执行那些繁重的查询，你会发现问题消失了，</p>
+
+<p>并且sqlite3会在不需要这个临时文件时自动删除它，所以你不需要做一套清理逻辑。</p>
+
+<p>于是问题解决!</p></div>
+        <script type="text/javascript">
+            $(function () {
+                $('pre.prettyprint code').each(function () {
+                    var lines = $(this).text().split('\n').length;
+                    var $numbering = $('<ul/>').addClass('pre-numbering').hide();
+                    $(this).addClass('has-numbering').parent().append($numbering);
+                    for (i = 1; i <= lines; i++) {
+                        $numbering.append($('<li/>').text(i));
+                    };
+                    $numbering.fadeIn(1700);
+                });
+            });
+        </script>
+   
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad bdshare-button-style0-16" style="float: right;" data-mod="popu_172" data-bd-bind="1456468130179">
+<a href="http://blog.csdn.net/u011453773/article/details/50731331#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important" target="_blank"></a>
+<a href="http://blog.csdn.net/u011453773/article/details/50731331#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间" style="background-position:0 -52px !important" target="_blank"></a>
+<a href="http://blog.csdn.net/u011453773/article/details/50731331#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博" style="background-position:0 -104px !important" target="_blank"></a>
+<a href="http://blog.csdn.net/u011453773/article/details/50731331#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博" style="background-position:0 -260px !important" target="_blank"></a>
+<a href="http://blog.csdn.net/u011453773/article/details/50731331#" class="bds_renren" data-cmd="renren" title="分享到人人网" style="background-position:0 -208px !important" target="_blank"></a>
+<a href="http://blog.csdn.net/u011453773/article/details/50731331#" class="bds_weixin" data-cmd="weixin" title="分享到微信" style="background-position:0 -1612px !important" target="_blank"></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+   <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_detail.css">
+
+    
+<!--172.16.140.11-->
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/bds_s_v2.js"></script>
+
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+ 
+
+        <div id="digg" articleid="50731331">
+            <dl id="btnDigg" class="digg digg_disable">
+               
+                 <dt>顶</dt>
+                <dd>0</dd>
+            </dl>
+            <dl id="btnBury" class="digg digg_disable">
+              
+                  <dt>踩</dt>
+                <dd>0</dd>
+            </dl>
+        </div>
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_shangyipian&#39;]);location.href=&#39;/u011453773/article/details/50731212&#39;;">上一篇</span><a href="http://blog.csdn.net/u011453773/article/details/50731212" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_shangyipian&#39;])">多TASK的应用</a></li>
+                <li class="next_article"><span onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_xiayipian&#39;]);location.href=&#39;/u011453773/article/details/50731364&#39;;">下一篇</span><a href="http://blog.csdn.net/u011453773/article/details/50731364" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_xiayipian&#39;])">一个由PROGUARD与FASTJSON引起的血案</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+        <div class="similar_article" style="">
+                <h4>我的同类文章</h4>
+                <div class="similar_c" style="margin:20px 0px 0px 0px">
+                    <div class="similar_c_t">
+                                <label class="similar_cur">
+                                    <span style="cursor:pointer" onclick="GetCategoryArticles(&#39;6105693&#39;,&#39;u011453773&#39;,&#39;foot&#39;,&#39;50731331&#39;);">Android<em>（4）</em></span>
+                                </label>
+                    </div>
+                   
+                    <div class="similar_wrap tracking-ad" data-mod="popu_141" style="max-height:195px;">
+                        <a href="http://blog.csdn.net/" style="display:none" target="_blank">http://blog.csdn.net</a>
+                        <ul class="similar_list fl"><li><em>•</em><a href="http://blog.csdn.net/u011453773/article/details/50731011" id="foot_aritcle_50731011undefined7338908379897475" target="_blank" title="ACTIVITY四种LAUNCHMODE">ACTIVITY四种LAUNCHMODE</a><span>2016-02-24</span><label><i>阅读</i><b>0</b></label></li> </ul>
+
+                        <ul class="similar_list fr"></ul>
+                    </div>
+                </div>
+            </div>    
+    <script type="text/javascript">
+        $(function () {
+            GetCategoryArticles('6105693', 'u011453773','foot','50731331');
+        });
+    </script>
+      
+</div>
+<div id="suggest">
+
+    <dl class="blog-associat-tag">
+        <dt>主题推荐</dt>
+        <dd>
+                <a href="http://www.csdn.net/tag/android" target="_blank" class="blog-tage-red">android</a> 
+                <a href="http://www.csdn.net/tag/bug" target="_blank" class="blog-tage-red">bug</a> 
+                <a href="http://www.csdn.net/tag/windows" target="_blank" class="blog-tage-red">windows</a> 
+                <a href="http://www.csdn.net/tag/command" target="_blank" class="blog-tage-red">command</a> 
+                <a href="http://www.csdn.net/tag/github" target="_blank" class="blog-tage-red">github</a> 
+                <a href="http://www.csdn.net/tag/unix" target="_blank" class="blog-tage-red">unix</a> 
+                <a href="http://www.csdn.net/tag/c%E8%AF%AD%E8%A8%80" target="_blank" class="blog-tage-red">c语言</a> 
+                <a href="http://www.csdn.net/tag/sqlite" target="_blank" class="blog-tage-red">sqlite</a> 
+                <a href="http://www.csdn.net/tag/%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88" target="_blank" class="blog-tage-red">解决方案</a> 
+                <a href="http://www.csdn.net/tag/%E6%95%B0%E6%8D%AE%E5%BA%93" target="_blank" class="blog-tage-red">数据库</a> 
+                <a href="http://www.csdn.net/tag/sqlite3" target="_blank" class="blog-tage-red">sqlite3</a> 
+                <a href="http://www.csdn.net/tag/native" target="_blank" class="blog-tage-red">native</a> 
+                <a href="http://www.csdn.net/tag/%E6%90%9C%E7%B4%A2" target="_blank" class="blog-tage-red">搜索</a> 
+                <a href="http://www.csdn.net/tag/%E6%95%B0%E6%8D%AE" target="_blank" class="blog-tage-red">数据</a> 
+                <a href="http://www.csdn.net/tag/%E7%BA%BF%E7%A8%8B" target="_blank" class="blog-tage-red">线程</a> 
+                <a href="http://www.csdn.net/tag/compiler" target="_blank" class="blog-tage-red">compiler</a> 
+        </dd>        
+    </dl> 
+    <span style="display:none" id="tags">android,bug,windows,command,github,unix,c语言,sqlite,解决方案,数据库,sqlite3,native,搜索,数据,线程,compiler</span>
+
+</div>
+         <script language="javascript" type="text/javascript">     
+             $(function(){
+                 $.get("/u011453773/svc/GetSuggestContent/50731331",function(data){
+                     $("#suggest").html(data);
+                 });     
+             });             
+         </script>  
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+<dl class="blog-ass-articl" id="res-relatived"> 
+     <dt><span>猜你在找</span></dt>    
+
+
+   
+
+
+    <div id="adCollege" style="width: 42%;float: left;"> 
+        <script src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/job_reco.js" type="text/javascript"></script> 
+        <script type="text/javascript">
+            csdn.position.showEdu({
+                sourceType: "blog",
+                searchType: "detail",
+                searchKey: "50731331",
+                username: "",
+                recordcount: "5",
+                containerId: "adCollege" //容器DIV的id。 
+            });
+        </script> 
+    <div class="tracking-ad" data-mod="popu_84"><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px; white-space: nowrap;"><a href="http://edu.csdn.net/course/detail/458" title="Oracle数据库从入门到精通" strategy="v4:content" target="_blank">Oracle数据库从入门到精通</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px; white-space: nowrap;"><a href="http://edu.csdn.net/course/detail/1480" title="Android底层技术：Java层系统服务(Android Service)" strategy="v4:content" target="_blank">Android底层技术：Java层系统服务(Android Service)</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px; white-space: nowrap;"><a href="http://edu.csdn.net/course/detail/1760" title="Android开发—Nfc" strategy="v4:content" target="_blank">Android开发—Nfc</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px; white-space: nowrap;"><a href="http://edu.csdn.net/course/detail/1337" title="CSDN“攒课”课题1：高并发网站中的数据库设计视频回顾" strategy="v4:content" target="_blank">CSDN“攒课”课题1：高并发网站中的数据库设计视频回顾</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px; white-space: nowrap;"><a href="http://edu.csdn.net/course/detail/767" title="Oracle、SQL、PLSQL 编程从入门到精通" strategy="v4:content" target="_blank">Oracle、SQL、PLSQL 编程从入门到精通</a></dd></div></div>  
+
+    
+     <div id="res" data-mod="popu_36" class="tracking-ad" style="width: 42%; float: left; margin-right: 30px; display: block;"><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/xdw1123/article/details/38303499" title="查看android数据库sqlite3中的表及数据手机上直接编辑数据库" strategy="SearchAlgorithm" target="_blank">查看android数据库sqlite3中的表及数据手机上直接编辑数据库</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/annkie/article/details/7992854" title="AndroidNative C源码NDK如何使用sqlite3进行编程" strategy="SearchAlgorithm" target="_blank">AndroidNative C源码NDK如何使用sqlite3进行编程</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/zouchengxufei/article/details/17436981" title="android手机命令行下不能使用sqlite3命令查看db数据库文件解决办法" strategy="SearchAlgorithm" target="_blank">android手机命令行下不能使用sqlite3命令查看db数据库文件解决办法</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/mxy111111/article/details/17053843" title="android手机命令行下不能使用sqlite3命令查看db数据库文件解决办法" strategy="SearchAlgorithm" target="_blank">android手机命令行下不能使用sqlite3命令查看db数据库文件解决办法</a></dd><dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="http://blog.csdn.net/u014225510/article/details/50300247" title="android手机命令行下不能使用sqlite3命令查看db数据库文件解决办法" strategy="SearchAlgorithm" target="_blank">android手机命令行下不能使用sqlite3命令查看db数据库文件解决办法</a></dd></div>
+   
+</dl>
+
+
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () {
+            var searchtitletags = 'SQLITE在ANDROID上的一个BUG' + ',' + $("#tags").html();
+            searchService({
+                index: 'blog',
+                query: searchtitletags,
+                from: 5,
+                size: 5,
+                appendTo: '#res',
+                url: 'recommend',
+                his: 2,
+                client: "blog_cf_enhance",
+                tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+            });
+        }, 500);
+    });    
+
+ </script>   
+
+    <div id="ad_cen">        
+<!--AdForward Begin:-->
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/s(1)" charset="gbk"></script><script type="text/javascript">
+var cpro_id="u1607657";
+(window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id]={at:"3",rsi0:"728",rsi1:"90",pat:"6",tn:"baiduCustNativeAD",rss1:"#FFFFFF",conBW:"1",adp:"1",ptt:"0",titFF:"%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91",titFS:"14",rss2:"#000000",titSU:"0",ptbg:"90",piw:"0",pih:"0",ptp:"0"}
+</script>
+<script src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/c.js" type="text/javascript"></script><div id="BAIDU_UNION__wrapper_u1607657_0"><iframe id="iframeu1607657_0" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/acom.html" width="728" height="90" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0; vertical-align:bottom;margin:0;" allowtransparency="true"></iframe></div>
+<!--AdForward End-->    </div>  
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list"><br>&nbsp;&nbsp;暂无评论<br><br><div class="clear"></div></div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form"><div class="guest_link">您还没有登录,请<a href="javascript:void(0);" onclick="javascript:loginbox();">[登录]</a>或<a href="http://passport.csdn.net/account/register?from=http%3A%2F%2Fblog.csdn.net%2Fu011453773%2Farticle%2Fdetails%2F50731331">[注册]</a></div></div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '50731331';
+    var commentscount = 0;
+    var islock = false
+</script>
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top" style="bottom:60px;">
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/blog-icon-reply.png" alt="快速回复">
+        </a>    
+
+    <a id="d-top-a" class="btn btn-top backtop" style="display: none;" title="返回顶部" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_huidaodingbu&#39;])">         
+         <img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+        
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);    
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="">
+
+    <h5>
+        <a href="http://www.csdn.net/tag/" target="_blank">核心技术类目</a></h5>
+    <div class="classify">
+<a title="全部主题" href="http://www.csdn.net/tag" target="_blank" onclick="LogClickCount(this,336);">全部主题</a>
+<a title="Hadoop" href="http://g.csdn.net/5272865" target="_blank" onclick="LogClickCount(this,336);">Hadoop</a>
+<a title="AWS" href="http://g.csdn.net/5272866" target="_blank" onclick="LogClickCount(this,336);">AWS</a>
+<a title="移动游戏" href="http://g.csdn.net/5272870" target="_blank" onclick="LogClickCount(this,336);">移动游戏</a>
+<a title="Java" href="http://g.csdn.net/5272871" target="_blank" onclick="LogClickCount(this,336);">Java</a>
+<a title="Android" href="http://g.csdn.net/5272872" target="_blank" onclick="LogClickCount(this,336);">Android</a>
+<a title="iOS" href="http://g.csdn.net/5272873" target="_blank" onclick="LogClickCount(this,336);">iOS</a>
+<a title="Swift" href="http://g.csdn.net/5272868" target="_blank" onclick="LogClickCount(this,336);">Swift</a>
+<a title="智能硬件" href="http://g.csdn.net/5272869" target="_blank" onclick="LogClickCount(this,336);">智能硬件</a>
+<a title="Docker" href="http://g.csdn.net/5272867" target="_blank" onclick="LogClickCount(this,336);">Docker</a>
+<a title="OpenStack" href="http://g.csdn.net/5272925" target="_blank" onclick="LogClickCount(this,336);">OpenStack</a>
+<a title="VPN" href="http://www.csdn.net/tag/vpn" target="_blank" onclick="LogClickCount(this,336);">VPN</a>
+<a title="Spark" href="http://g.csdn.net/5272924" target="_blank" onclick="LogClickCount(this,336);">Spark</a>
+<a title="ERP" href="http://www.csdn.net/tag/erp" target="_blank" onclick="LogClickCount(this,336);">ERP</a>
+<a title="IE10" href="http://www.csdn.net/tag/ie10" target="_blank" onclick="LogClickCount(this,336);">IE10</a>
+<a title="Eclipse" href="http://www.csdn.net/tag/eclipse" target="_blank" onclick="LogClickCount(this,336);">Eclipse</a>
+<a title="CRM" href="http://www.csdn.net/tag/crm" target="_blank" onclick="LogClickCount(this,336);">CRM</a>
+<a title="JavaScript" href="http://www.csdn.net/tag/javascript" target="_blank" onclick="LogClickCount(this,336);">JavaScript</a>
+<a title="数据库" href="http://www.csdn.net/tag/%E6%95%B0%E6%8D%AE%E5%BA%93" target="_blank" onclick="LogClickCount(this,336);">数据库</a>
+<a title="Ubuntu" href="http://www.csdn.net/tag/ubuntu" target="_blank" onclick="LogClickCount(this,336);">Ubuntu</a>
+<a title="NFC" href="http://www.csdn.net/tag/nfc" target="_blank" onclick="LogClickCount(this,336);">NFC</a>
+<a title="WAP" href="http://www.csdn.net/tag/wap" target="_blank" onclick="LogClickCount(this,336);">WAP</a>
+<a title="jQuery" href="http://www.csdn.net/tag/jquery" target="_blank" onclick="LogClickCount(this,336);">jQuery</a>
+<a title="BI" href="http://www.csdn.net/tag/bi" target="_blank" onclick="LogClickCount(this,336);">BI</a>
+<a title="HTML5" href="http://www.csdn.net/tag/html5" target="_blank" onclick="LogClickCount(this,336);">HTML5</a>
+<a title="Spring" href="http://www.csdn.net/tag/spring" target="_blank" onclick="LogClickCount(this,336);">Spring</a>
+<a title="Apache" href="http://www.csdn.net/tag/apache" target="_blank" onclick="LogClickCount(this,336);">Apache</a>
+<a title=".NET" href="http://www.csdn.net/tag/.net" target="_blank" onclick="LogClickCount(this,336);">.NET</a>
+<a title="API" href="http://www.csdn.net/tag/api" target="_blank" onclick="LogClickCount(this,336);">API</a>
+<a title="HTML" href="http://www.csdn.net/tag/html" target="_blank" onclick="LogClickCount(this,336);">HTML</a>
+<a title="SDK" href="http://www.csdn.net/tag/sdk" target="_blank" onclick="LogClickCount(this,336);">SDK</a>
+<a title="IIS" href="http://www.csdn.net/tag/iis" target="_blank" onclick="LogClickCount(this,336);">IIS</a>
+<a title="Fedora" href="http://www.csdn.net/tag/fedora" target="_blank" onclick="LogClickCount(this,336);">Fedora</a>
+<a title="XML" href="http://www.csdn.net/tag/xml" target="_blank" onclick="LogClickCount(this,336);">XML</a>
+<a title="LBS" href="http://www.csdn.net/tag/lbs" target="_blank" onclick="LogClickCount(this,336);">LBS</a>
+<a title="Unity" href="http://www.csdn.net/tag/unity" target="_blank" onclick="LogClickCount(this,336);">Unity</a>
+<a title="Splashtop" href="http://www.csdn.net/tag/splashtop" target="_blank" onclick="LogClickCount(this,336);">Splashtop</a>
+<a title="UML" href="http://www.csdn.net/tag/uml" target="_blank" onclick="LogClickCount(this,336);">UML</a>
+<a title="components" href="http://www.csdn.net/tag/components" target="_blank" onclick="LogClickCount(this,336);">components</a>
+<a title="Windows Mobile" href="http://www.csdn.net/tag/windowsmobile" target="_blank" onclick="LogClickCount(this,336);">Windows Mobile</a>
+<a title="Rails" href="http://www.csdn.net/tag/rails" target="_blank" onclick="LogClickCount(this,336);">Rails</a>
+<a title="QEMU" href="http://www.csdn.net/tag/qemu" target="_blank" onclick="LogClickCount(this,336);">QEMU</a>
+<a title="KDE" href="http://www.csdn.net/tag/kde" target="_blank" onclick="LogClickCount(this,336);">KDE</a>
+<a title="Cassandra" href="http://www.csdn.net/tag/cassandra" target="_blank" onclick="LogClickCount(this,336);">Cassandra</a>
+<a title="CloudStack" href="http://www.csdn.net/tag/cloudstack" target="_blank" onclick="LogClickCount(this,336);">CloudStack</a>
+<a title="FTC" href="http://www.csdn.net/tag/ftc" target="_blank" onclick="LogClickCount(this,336);">FTC</a>
+<a title="coremail" href="http://www.csdn.net/tag/coremail" target="_blank" onclick="LogClickCount(this,336);">coremail</a>
+<a title="OPhone " href="http://www.csdn.net/tag/ophone" target="_blank" onclick="LogClickCount(this,336);">OPhone </a>
+<a title="CouchBase" href="http://www.csdn.net/tag/couchbase" target="_blank" onclick="LogClickCount(this,336);">CouchBase</a>
+<a title="云计算" href="http://www.csdn.net/tag/%E4%BA%91%E8%AE%A1%E7%AE%97" target="_blank" onclick="LogClickCount(this,336);">云计算</a>
+<a title="iOS6" href="http://www.csdn.net/tag/iOS6" target="_blank" onclick="LogClickCount(this,336);">iOS6</a>
+<a title="Rackspace " href="http://www.csdn.net/tag/rackspace" target="_blank" onclick="LogClickCount(this,336);">Rackspace </a>
+<a title="Web App" href="http://www.csdn.net/tag/webapp" target="_blank" onclick="LogClickCount(this,336);">Web App</a>
+<a title="SpringSide" href="http://www.csdn.net/tag/springside" target="_blank" onclick="LogClickCount(this,336);">SpringSide</a>
+<a title="Maemo" href="http://www.csdn.net/tag/maemo" target="_blank" onclick="LogClickCount(this,336);">Maemo</a>
+<a title="Compuware" href="http://www.csdn.net/tag/compuware" target="_blank" onclick="LogClickCount(this,336);">Compuware</a>
+<a title="大数据" href="http://www.csdn.net/tag/%E5%A4%A7%E6%95%B0%E6%8D%AE" target="_blank" onclick="LogClickCount(this,336);">大数据</a>
+<a title="aptech" href="http://www.csdn.net/tag/aptech" target="_blank" onclick="LogClickCount(this,336);">aptech</a>
+<a title="Perl" href="http://www.csdn.net/tag/perl" target="_blank" onclick="LogClickCount(this,336);">Perl</a>
+<a title="Tornado" href="http://www.csdn.net/tag/tornado" target="_blank" onclick="LogClickCount(this,336);">Tornado</a>
+<a title="Ruby" href="http://www.csdn.net/tag/ruby" target="_blank" onclick="LogClickCount(this,336);">Ruby</a>
+<a title="Hibernate" href="http://www.csdn.net/hibernate" target="_blank" onclick="LogClickCount(this,336);">Hibernate</a>
+<a title="ThinkPHP" href="http://www.csdn.net/tag/thinkphp" target="_blank" onclick="LogClickCount(this,336);">ThinkPHP</a>
+<a title="HBase" href="http://www.csdn.net/tag/hbase" target="_blank" onclick="LogClickCount(this,336);">HBase</a>
+<a title="Pure" href="http://www.csdn.net/tag/pure" target="_blank" onclick="LogClickCount(this,336);">Pure</a>
+<a title="Solr" href="http://www.csdn.net/tag/solr" target="_blank" onclick="LogClickCount(this,336);">Solr</a>
+<a title="Angular" href="http://www.csdn.net/tag/angular" target="_blank" onclick="LogClickCount(this,336);">Angular</a>
+<a title="Cloud Foundry" href="http://www.csdn.net/tag/cloudfoundry" target="_blank" onclick="LogClickCount(this,336);">Cloud Foundry</a>
+<a title="Redis" href="http://www.csdn.net/tag/redis" target="_blank" onclick="LogClickCount(this,336);">Redis</a>
+<a title="Scala" href="http://www.csdn.net/tag/scala" target="_blank" onclick="LogClickCount(this,336);">Scala</a>
+<a title="Django" href="http://www.csdn.net/tag/django" target="_blank" onclick="LogClickCount(this,336);">Django</a>
+<a title="Bootstrap" href="http://www.csdn.net/tag/bootstrap" target="_blank" onclick="LogClickCount(this,336);">Bootstrap</a>
+    </div>
+
+</div>
+  <script language="javascript" type="text/javascript">     
+      $(function(){
+              setTimeout(function(){
+                  $.get("/u011453773/svc/GetTagContent",function(data){
+                      $(".tag_list").html(data).show();
+                  });     
+              });
+          },500);                       
+ </script> 
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+    $(function(){
+        setTimeout(function(){
+            $(".comment_body:contains('回复')").each(function(index,item){
+                var u=$(this).text().split('：')[0].toString().replace("回复","")
+                var thisComment=$(this);
+                if(u)
+                {
+                    $.getJSON("https://passport.csdn.net/get/nick?callback=?", {users: u}, function(a) {
+                        if(a!=null&&a.data!=null&&a.data.length>0)
+                        {
+                            nick=a.data[0].n; 
+                            if(u!=nick)
+                            {
+                                thisComment.text(thisComment.text().replace(u,nick));  
+                            }
+                        }       
+                    });  
+                }
+            });
+        },200);  
+        
+        setTimeout(function(){
+            $("a img[src='http://js.tongji.linezing.com/stats.gif']").parent().css({"position":"absolute","left":"50%"});
+        },300);
+    });
+
+    function loginbox(){
+        var $logpop=$("#pop_win");
+        $logpop.html('<iframe src="https://passport.csdn.net/account/loginbox?service=http://static.blog.csdn.net/callback.htm" frameborder="0" height="600" width="400" scrolling="no"></iframe>');
+
+        $('#popup_mask').css({
+            opacity: 0.5,
+            width: $( document ).width() + 'px',
+            height:  $( document ).height() + 'px'
+        });
+        $('#popup_mask').css("display","block");
+ 
+        $logpop.css( {
+            top: ($( window ).height() - $logpop.height())/ 2  + $( window 
+       ).scrollTop() + 'px',
+            left:($( window ).width() - $logpop.width())/ 2
+        } );
+ 
+        setTimeout( function () {
+            $logpop.show();
+            $logpop.css( {
+                opacity: 1
+            } );
+        }, 200 );
+ 
+        $('#popup_mask').unbind("click");
+        $('#popup_mask').bind("click", function(){
+            $('#popup_mask').hide();
+            var $clopop = $("#pop_win");
+            $("#common_ask_div_sc").css("display","none");
+            $clopop.css( {
+                opacity: 0
+            } );
+            setTimeout( function () {
+                $clopop.hide();
+            }, 350 );
+            return false;
+        });
+    }    
+
+</script>
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+                   
+           <div id="side">
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/u011453773" target="_blank">
+    <img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/1_u011453773.jpg" title="访问我的空间" style="max-width:90%">
+    </a>
+    <br>
+    <span><a href="http://my.csdn.net/u011453773" class="user_name" target="_blank">梦里风林</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter" title="[发私信]" onclick="window.open(&#39;http://msg.csdn.net/letters/model?receiver=u011453773&#39;,&#39;_blank&#39;,&#39;height=350,width=700&#39;);_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_sixin&#39;])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>94次</span></li>
+    <li>积分：<span>80</span> </li>    
+    <li>等级： <span style="position:relative;display:inline-block;z-index:1">
+            <img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/blog1.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：80 </div>
+        </span>  </li>
+    <li>排名：<span>千里之外</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>7篇</span></li>
+    <li>转载：<span>1篇</span></li>
+    <li>译文：<span>0篇</span></li>
+    <li>评论：<span>0条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字"></span>
+        <input id="btnSubmit" type="button" value="搜索" title="search in blog">
+        <input type="hidden" name="q" id="inputQ">
+        <input type="hidden" name="t" value="blog">
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {           
+            search();
+        });
+
+        $("#frmSearch").submit(function () {
+            search();
+            return false;
+        });
+
+        function search()
+        {
+            var url = "http://so.csdn.net/so/search/s.do?q=" + encodeURIComponent($("#inputSearch").val()) + "&u=" + username + "&t=blog";
+            window.location.href = url;
+        }   
+    });
+</script><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">    
+                 <li>
+                    <a href="http://blog.csdn.net/u011453773/article/category/6105693" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">Android</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="http://blog.csdn.net/u011453773/article/category/6105749" onclick="_gaq.push([&#39;_trackEvent&#39;,&#39;function&#39;, &#39;onclick&#39;, &#39;blog_articles_wenzhangfenlei&#39;]); ">sqlite</a><span>(0)</span>
+                </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="http://blog.csdn.net/u011453773/article/month/2016/02">2016年02月</a><span>(7)</span></li><li><a href="http://blog.csdn.net/u011453773/article/month/2015/05">2015年05月</a><span>(1)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/45831997" title="java 矩阵包">java 矩阵包</a><span>(60)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731182" title="TASK和BACKSTACK">TASK和BACKSTACK</a><span>(6)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731212" title="多TASK的应用">多TASK的应用</a><span>(6)</span>
+</li>
+<li>
+<a href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET.html" title="SQLITE在ANDROID上的一个BUG">SQLITE在ANDROID上的一个BUG</a><span>(5)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731011" title="ACTIVITY四种LAUNCHMODE">ACTIVITY四种LAUNCHMODE</a><span>(3)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731103" title="Intent Flag">Intent Flag</a><span>(3)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731250" title="从源码看ANDROID中SQLITE是怎么通过CURSORWINDOW读DB的">从源码看ANDROID中SQLITE是怎么通过CURSORWINDOW读DB的</a><span>(2)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731364" title="一个由PROGUARD与FASTJSON引起的血案">一个由PROGUARD与FASTJSON引起的血案</a><span>(2)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/45831997" title="java 矩阵包">java 矩阵包</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731011" title="ACTIVITY四种LAUNCHMODE">ACTIVITY四种LAUNCHMODE</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731103" title="Intent Flag">Intent Flag</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731182" title="TASK和BACKSTACK">TASK和BACKSTACK</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731212" title="多TASK的应用">多TASK的应用</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731250" title="从源码看ANDROID中SQLITE是怎么通过CURSORWINDOW读DB的">从源码看ANDROID中SQLITE是怎么通过CURSORWINDOW读DB的</a><span>(0)</span>
+</li>
+<li>
+<a href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET.html" title="SQLITE在ANDROID上的一个BUG">SQLITE在ANDROID上的一个BUG</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/u011453773/article/details/50731364" title="一个由PROGUARD与FASTJSON引起的血案">一个由PROGUARD与FASTJSON引起的血案</a><span>(0)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/nugongahou110/article/details/50698382" target="_blank">*Android自定义ViewGroup打造各种风格的SlidingMenu</a></li>
+<li><a href="http://blog.csdn.net/lmj623565791/article/details/50709663" target="_blank">* Android 6.0 运行时权限处理完全解析</a></li>
+<li><a href="http://blog.csdn.net/u011225629/article/details/50492403" target="_blank">* 数据库性能优化之SQL语句优化</a></li>
+<li><a href="http://blog.csdn.net/harvic880925/article/details/50598322" target="_blank">*Animation动画详解(七)——ObjectAnimator基本使用</a></li>
+<li><a href="http://blog.csdn.net/luoshengyang/article/details/50527574" target="_blank">* Chromium网页URL加载过程分析</a></li>
+<li><a href="http://jiezhu2007.iteye.com/blog/2277613" target="_blank">* 大数据三种典型云服务模式</a></li>
+
+</ul></ul>
+</div>
+
+
+    </div>
+    <div class="clear">
+    </div>
+ </div>   
+            <div class="clear">
+            </div>
+        </div>
+        
+
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/cnick.js"></script>
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/newblog.min.js"></script>
+
+
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/showblogmedal.ashx"></script>
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/JavaScript1.js"></script><link rel="stylesheet" type="text/css" href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/pub_footer_2014.css"><div class="pub_fo"><div id="pub_footerall" class="pub_footer_new"><dl><dt></dt> <dd class="foot_sub_menu"><a href="http://www.csdn.net/company/about.html" target="_blank">公司简介</a><span>|</span><a href="http://www.csdn.net/company/recruit.html" target="_blank">招贤纳士</a><span>|</span><a href="http://www.csdn.net/company/marketing.html" target="_blank">广告服务</a><span>|</span><a href="http://www.csdn.net/company/account.html" target="_blank">银行汇款帐号</a><span>|</span><a href="http://www.csdn.net/company/contact.html" target="_blank">联系方式</a><span>|</span><a href="http://www.csdn.net/company/statement.html" target="_blank">版权声明</a><span>|</span><a href="http://www.csdn.net/company/layer.html" target="_blank">法律顾问</a><span>|</span><a href="mailto:webmaster@csdn.net">问题报告</a><span>|</span><a target="_blank" href="http://www.csdn.net/friendlink.html">合作伙伴</a><span>|</span><a href="http://bbs.csdn.net/forums/Service" target="_blank">论坛反馈</a></dd><dd class="foot_contact"><a href="http://wpa.qq.com/msgrd?v=3&uin=2355263776&site=qq&menu=yes" target="_blank" class="qq">网站客服</a><a href="http://wpa.qq.com/msgrd?v=3&uin=2251809102&site=qq&menu=yes" target="_blank" class="qq">杂志客服</a><a href="http://e.weibo.com/csdnsupport/profile" target="_blank" class="weibo">微博客服</a><a href="mailto:webmaster@csdn.net" class="email" title="联系邮箱">webmaster@csdn.net</a><span class="phone" title="服务热线">400-600-2320</span><span class="interval">|</span><span>北京创新乐知信息技术有限公司 版权所有</span><span class="interval">|</span><span>江苏乐知网络技术有限公司 提供商务支持</span></dd><dd class="foot_copyright"><span>京&nbsp;ICP&nbsp;证&nbsp;09002463&nbsp;号</span><span class="interval">|</span><span>Copyright © 1999-2014, CSDN.NET, All Rights Reserved&nbsp;</span><a href="http://www.hd315.gov.cn/beian/view.asp?bianhao=010202001032100010" target="_blank"><img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/gongshang_logos.gif" alt="GongshangLogo" title=""></a></dd></dl></div></div><div id="note1" class="csdn_note" style="display:none; position:absolute; z-index:9999; width:440px">  <span class="notice_top_arrow"><span class="inner"></span></span>  <div class="box"></div></div><div class="csdn_notice_tip" style="display: none; position: absolute; z-index: 9990; width: 170px;">  <iframe src="about:blank" frameborder="0" scrolling="no" style="z-index:-1;position:absolute;top:0;left:0;width:100%;height:100%;background:transparent"></iframe>  <div class="tip_text">您有<strong>0</strong>条新通知</div>  <a href="javascript:void 0" class="close2"></a></div><script id="noticeScript" type="text/javascript" btnid="header_notice_num" wrapid="note1" count="5" subcount="5" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/notify.js"></script>
+
+    <script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/login.js"></script>
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script><img src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/pv.aspx" border="0" width="0" height="0">
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/counter.js"></script><script type="text/javascript" charset="UTF-8" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/msg.popup.js"></script>
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ad-blog.js"></script><script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ad-ms1597.js"></script>
+<script type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ad-js1598_2.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                    + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+
+        $(".bar").show();
+    });
+</script>
+
+
+
+
+    </div><input type="hidden" id="aa_g_data_ids">
+      <!--new top-->
+    
+    <script id="csdn-toolbar-id" btnid="header_notice_num" wrapid="note1" count="5" subcount="5" type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/toolbar.js"></script>
+     <!--new top-->
+   
+    <link href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ask_float_block.css" type="text/css" rel="stylesheet">
+    <script language="JavaScript" type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/wmd.js"></script>
+    <script language="JavaScript" type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/showdown.js"></script>
+    <script language="JavaScript" type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/prettify.js"></script>
+    <script language="JavaScript" type="text/javascript" src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ask_float_block.js"></script>
+   
+
+   
+ <div id="tag-suggest-pop">
+  <div class="relative">
+    <div class="close"></div>
+    <div class="content"></div>
+  </div>
+</div><link rel="stylesheet" type="text/css" media="screen" href="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/ask_float_fonts_css-6b30a53970eb5c3a2a045e3df585b475.css"><div data-mod="popu_64" class="tracking-ad" chg-blk="0"><a id="com-quick-reply" title="快速回复" style="top:310px"></a><a id="com-d-top-a" style="top: 348px; display: block;" title="返回顶部" onclick=""></a> </div><div class="pop_edit ask_second comm_ask_second"><h3>提问</h3><span class="ask_float_span">您的问题将会被发布在“<a class="ask_float_channel" href="http://ask.csdn.net/" target="_blank" style="cursor:pointer">技术问答</a>”频道</span><a href="http://blog.csdn.net/u011453773/article/details/50731331#" nodetype="close" class="close">×</a><div class="context"><div class="err_div"><span class="err_ico"></span><span class="err_txt">该问题已存在，请勿重复提问</span></div><div class="input_div"><input id="askInputSecond" type="text" style="font-size:14px;" placeholder="问题标题"></div><div class="cm_box"><div class="cm_dialog"></div> <div class="pop_cm cm_add_link"><input type="text" placeholder="链接内容" id="af_cm_link_txt"><input type="text" placeholder="链接地址" id="af_cm_link_url"><input type="text" placeholder="链接提示" id="af_cm_link_tit"><div class="text-right"><span class="btn btn-default btn-sm" id="add_link_btn">插入链接</span> </div> </div><div class="pop_cm cm_add_img"><div class="nav-tabs"><a class="img_tab active" href="http://blog.csdn.net/u011453773/article/details/50731331#tab_upload">本地上传</a><a class="img_tab" href="http://blog.csdn.net/u011453773/article/details/50731331#tab_weburl">网络图片</a></div><div class="tab_panel active" id="tab_upload"><div class="set_img"><iframe src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/upload.html"></iframe></div></div><div class="tab_panel" id="tab_weburl"><input type="text" placeholder="图片地址" id="af_cm_img_url"><input type="text" placeholder="图片说明" id="af_cm_img_alt"><div class="text-right"><span class="btn btn-default btn-sm" id="add_img_btn">插入图片</span> </div></div> </div></div> <textarea id="editor_all" rows="8" style="display: none;"></textarea><div class="editor-toolbar"><i class="separator">|</i><a class="icon-headline" title="标题一（Ctrl+Alt+1）"></a><a class="icon-heading" title="标题二（Ctrl+Alt+2）"></a><a class="icon-bold" title="粗体（Ctrl+B）"></a><a class="icon-italic" title="斜体（Ctrl+I）"></a><i class="separator">|</i><a class="icon-quote-left" title="引用（Ctrl+’）"></a><a class="icon-code" title="插入代码片（Ctrl+,）"></a><a class="icon-list-ul" title="无序列表（Ctrl+L）"></a><a class="icon-list-ol" title="有序列表（Ctrl+Alt+L）"></a><i class="separator">|</i><a class="icon-link" title="添加链接（Ctrl+K）"></a><a class="icon-picture" title="添加图片（Ctrl+Alt+I）"></a><i class="separator">|</i><a class="icon-reply" title="撤退（Ctrl+Z）"></a><a class="icon-share-alt" title="前进（Ctrl+Shift+Z）"></a><i class="separator">|</i><a class="icon-info" href="http://ask.csdn.net/pages/markdown" target="_blank" title="markdown语法参考"></a><a class="icon-preview" title="预览"></a><i class="separator">|</i></div><div class="CodeMirror cm-s-paper CodeMirror-focused"><div style="overflow: hidden; position: relative; width: 3px; height: 0px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; padding: 0px; width: 1000px; height: 1em; outline: none; font-size: 4px;"></textarea></div><div class="CodeMirror-hscrollbar"><div style="height: 1px;"></div></div><div class="CodeMirror-vscrollbar"><div style="width: 1px;"></div></div><div class="CodeMirror-scrollbar-filler"></div><div class="CodeMirror-gutter-filler"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="min-width: 33px;"><div style="position: relative;"><div class="CodeMirror-lines"><div style="position: relative; outline: none;"><div class="CodeMirror-measure"><pre>&nbsp;<span style="display: inline-block; width: 1px; margin-right: -1px;">&nbsp;</span></pre></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-code"></div><div class="CodeMirror-cursor" style="">&nbsp;</div><div class="CodeMirror-cursor CodeMirror-secondarycursor" style="">&nbsp;</div></div></div></div></div><div style="position: absolute; height: 30px; width: 1px;"></div><div class="CodeMirror-gutters" style="display: none;"></div></div></div><div class="editor-statusbar"><span class="lines">0</span><span class="words">0</span><span class="cursor">0:0</span></div><div class="div_tags clearfix"><div id="divSearchTags" class="tags_con"><input type="text"></div><input type="hidden" name="txtSearchTags"></div><div id="ask2_tagRecomm_div" class="drt_tagRecomm tracking-ad" data-mod="popu_73"><span class="drt_tit">推荐标签：</span></div></div><div class="success"><div class="left_area"><input id="chk_cb" type="checkbox"><span class="wyxs">我要悬赏</span><input id="cb_num" class="cb_num" readonly="true"><span class="phib_rii"><span> 币</span></span></div><a href="http://blog.csdn.net/u011453773/article/details/50731331#" nodetype="cancel" class="cancel">取消</a><a href="http://blog.csdn.net/u011453773/article/details/50731331#" nodetype="ok" class="ok">发布</a></div></div><div id="common_ask_div_sc" class="searchContainer"><div class="sTitle">可能存在类似的问题：</div><div class="sFooter"><a class="sFirstNewAsk">我想提一个新问题</a></div></div><iframe src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/huawei-fusionsphere-q1-cloud-banner1-960-90-30k-0225.html" style="width: 1px; height: 1px; position: absolute; visibility: hidden;"></iframe><iframe src="./SQLITE在ANDROID上的一个BUG - 梦里风林的专栏 - 博客频道 - CSDN.NET_files/1598_2.html" style="width: 1px; height: 1px; position: absolute; visibility: hidden;"></iframe></body></html>

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="12.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>80</x>
+      <y>110</y>
+      <w>320</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Subscriber
+--
+WeakReference&lt;Object&gt; mSubscriber;</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>510</x>
+      <y>160</y>
+      <w>270</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>EventHandler
+--
+Subscriber subscriber;
+EventHandlerMethod method;
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>80</x>
+      <y>240</y>
+      <w>320</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>EventHandler
+--
+private Method mMethod;
+Class&lt;? extends EventBus.Event&gt; eventType;
+--
+void invoke(Object target, EventBus.Event event)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>880</x>
+      <y>0</y>
+      <w>310</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>BroadcastReceiver
+--
+ void onReceive(Context context, Intent intent)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>880</x>
+      <y>160</y>
+      <w>310</w>
+      <h>270</h>
+    </coordinates>
+    <panel_attributes>EventBus
+--
+Subscriber subscriber;
+EventHandlerMethod method;
+--
+void register(Object subscriber, int priority)
+void unregister(Object subscriber)
+public void send(Event event)
+void post(Event event)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>310</x>
+      <y>610</y>
+      <w>100</w>
+      <h>380</h>
+    </coordinates>
+    <panel_attributes>IOAPIC
+bg=red</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SendSignal</type>
+    <coordinates>
+      <x>130</x>
+      <y>640</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>dev 0
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>740</x>
+      <y>610</y>
+      <w>100</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>
+CPU 0
+bg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>540</x>
+      <y>610</y>
+      <w>100</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>Local APIC
+bg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>540</x>
+      <y>730</y>
+      <w>100</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>Local APIC
+bg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>540</x>
+      <y>880</y>
+      <w>100</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>Local APIC
+bg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>740</x>
+      <y>730</y>
+      <w>100</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>CPU 1
+bg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>740</x>
+      <y>890</y>
+      <w>100</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>CPU n
+bg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SendSignal</type>
+    <coordinates>
+      <x>130</x>
+      <y>750</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>dev 1
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>200</x>
+      <y>630</y>
+      <w>130</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>110;30;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>200</x>
+      <y>740</y>
+      <w>130</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>110;30;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SynchBarHorizontal</type>
+    <coordinates>
+      <x>410</x>
+      <y>640</y>
+      <w>130</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SynchBarHorizontal</type>
+    <coordinates>
+      <x>410</x>
+      <y>760</y>
+      <w>130</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SynchBarHorizontal</type>
+    <coordinates>
+      <x>400</x>
+      <y>910</y>
+      <w>140</w>
+      <h>20</h>
+    </coordinates>
+    <panel_attributes/>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>610</x>
+      <y>620</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>130;30;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>610</x>
+      <y>740</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>130;30;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>610</x>
+      <y>890</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>130;30;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.SendSignal</type>
+    <coordinates>
+      <x>130</x>
+      <y>890</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>dev n
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>200</x>
+      <y>880</y>
+      <w>130</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>110;30;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.Systemborder</type>
+    <coordinates>
+      <x>90</x>
+      <y>570</y>
+      <w>810</w>
+      <h>460</h>
+    </coordinates>
+    <panel_attributes>interrupt
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

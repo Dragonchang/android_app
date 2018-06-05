@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<!-- saved from url=(0048)http://www.mamicode.com/info-detail-1295688.html -->
+<html lang="zh-cn"><head id="Head1"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript" charset="utf-8" async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/pa_links_new2_cs_colorconfigurable.app.js"></script><style id="znBdcsStyle" type="text/css">.bdcs-container .bdcs-main,.bdcs-container .bdcs-main *{box-sizing:content-box;margin:0;padding:0;float:none;clear:none;overflow:hidden;white-space:nowrap;word-wrap:normal;border:0;background:0 0;width:auto;height:auto;max-width:none;min-width:none;max-height:none;min-height:none;border-radius:0;box-shadow:none;transition:none;text-align:left}.bdcs-container .bdcs-clearfix:after{content:'';display:block;clear:both;height:0}.bdcs-container .bdcs-clearfix{zoom:1}.bdcs-container .bdcs-main{overflow:visible}.bdcs-container .bdcs-search{display:block;overflow:visible;position:relative;border-style:solid}.bdcs-container .bdcs-search-form-input-wrap{display:inline-block}.bdcs-container .bdcs-search-form-input{border-width:1px;border-style:solid;display:inline-block;vertical-align:top;text-indent:5px;background-color:#fff;float:left}.bdcs-container .bdcs-search-form-input:focus{border-width:1px;border-style:solid;outline:0}.bdcs-container .bdcs-search-form-submit-wrap{display:inline-block}.bdcs-container .bdcs-search-form-submit{display:inline-block;cursor:pointer;border-width:1px;border-style:solid;vertical-align:top;text-align:center;width:50px;//_overflow:hidden}.bdcs-container .bdcs-search-form-submit-magnifier{width:45px;padding:0;text-indent:-999em;overflow:hidden;background:url(http://znsv.baidu.com/static/customer-search/component/search/magnifier-icon.png) no-repeat center center;_background:url(http://znsv.baidu.com/static/customer-search/component/search/magnifier-icon_ie6.png) no-repeat center center}div#default-searchbox .default-channel-meun{position:relative;width:75px;display:inline-block;vertical-align:middle;cursor:pointer;background:#fff;float:left;overflow:visible}div#default-searchbox .default-channel-current{border:1px solid;position:relative;width:100%;border-right:0}div#default-searchbox .default-channel-current span{margin-left:8px}div#default-searchbox .default-channel-current i{overflow:hidden;width:0;height:0;border-width:6px 6px 0;border-color:#9E9E9E #fff;border-style:solid;display:block;position:absolute;right:10px;top:11px}div.cse-default-channel-container{display:block;position:absolute;z-index:30061000000}div.cse-default-channel-container .default-channel-list{display:none;width:99%;list-style:none;background:#fff;border:1px solid #DDD;border-top:0;margin:0;padding:0}div.cse-default-channel-container .default-channel-list li{background:0 0;line-height:24px;list-style:none;display:block;padding-left:7px;cursor:pointer}div.cse-default-channel-container .default-channel-list li:hover{background:#DDD}.bdcs-container .bdcs-search-form-input-wrap{}.bdcs-container .bdcs-search-form-input-notspan{margin-left:0px;font-family:Arial,SimSun,sans-serif;color:#000000;font-size:14px;}.bdcs-container .bdcs-search-form-input .icon-nofocus{left:;right:;top:;height:;width:;}.bdcs-container .bdcs-search{width:299px;height:36px;overflow:hidden;border-color:#1a89ed;border-radius:5px;border-width:2px;box-shadow:none;background-color:none;}.bdcs-container .bdcs-search-form-input{border-color:#ffffff;margin-right:0px;width:246px;height:34px;line-height:34px;font-family:Arial,SimSun,sans-serif;color:#000000;font-size:14px;border-radius:1px;background-color:#FFFFFF;}.bdcs-container .bdcs-search-form-input:focus{border-color:#1a89ed;}.bdcs-container .bdcs-search-form-submit-wrap{}.bdcs-container .bdcs-search-form-submit{border-color:#1c89ea;height:34px;width:50px;background-color:#1c89ea;color:#ffffff;font-family:Arial,SimSun,sans-serif;font-size:14px;border-radius:0px;}.bdcs-container .bdcs-search-form-submit{*height:36px;*margin-top:1px;}.bdcs-container .bdcs-search-form-submit{line-height:34px;}.bdcs-container .bdcs-search-form-input{margin-right:-1px;}#bdcs-rec{display:none;}</style><meta name="keywords" content="码迷,mamicode.com,互联网,软件开发,开源,asp,asp.net,android,apple,jsp,php,Windows,数据库,HTML,JS,CSS,技术文章,游戏,创业,手机相关"><meta name="baidu-site-verification" content="TEj1q15lpz"><meta name="description" content="前方高能~ 
+本文版权所有，转载请注明：http://blog.csdn.net/mr_immortalz/article/details/51168278一.概述
+  网上关于Android 的view坐标挺多的，写这篇的目的是因为网上搜到的文章大多较简单，几乎都是简单的介绍下获取的几个方法坐标的几个方法罢了，但在实战中，你会发现可能你学会的那几个获取坐标的方法并没有正确的使用，导致当你要计算坐标..."><title>
+	那些你应该知道却不一定知道的——View坐标分析汇总
+</title><link href="./那些你应该知道却不一定知道的——View坐标分析汇总_files/css.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom"></script><script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ca-pub-8616102841876629.js"></script><script type="text/javascript" async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom(1)"></script><script type="text/javascript" async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/js"></script><script type="text/javascript" async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom(2)"></script><script type="text/javascript" async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom(3)"></script><script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/jquery-1.8.3.min.js" type="text/javascript" charset="utf-8"></script><link rel="stylesheet" type="text/css" href="./那些你应该知道却不一定知道的——View坐标分析汇总_files/prettify.css">
+    <script type="text/javascript" charset="utf-8" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/prettify.js"></script>
+<script type="text/javascript" charset="gbk" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ui"></script><script type="text/javascript" charset="gbk" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ui(1)"></script><script type="text/javascript" charset="gbk" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ui(2)"></script><script type="text/javascript" charset="gbk" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ui(3)"></script><script type="text/javascript" charset="gbk" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ui(4)"></script></head>
+<body><div id="BAIDU_DUP_fp_wrapper" style="position: absolute; left: -1px; bottom: -1px; z-index: 0; width: 0px; height: 0px; overflow: hidden; visibility: hidden; display: none;"><iframe id="BAIDU_DUP_fp_iframe" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/o.html" style="width: 0px; height: 0px; visibility: hidden; display: none;"></iframe></div><div id="BAIDU_SSP__wrapper_u1987286_0_right" style="box-sizing: content-box; width: 131px; height: 301px; overflow: hidden; z-index: 2147483647; position: fixed; top: 150px; right: 279px;"><div style="box-sizing: content-box;width:120px;height:270px;padding:4px;border:#acacac 1px solid;overflow:hidden;"><iframe id="BAIDU_SSP__wrapper_u1987286_0_right_iframe" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom(4).html" width="120" height="270" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0; vertical-align:bottom;margin:0;" allowtransparency="true"></iframe></div><div id="BAIDU_SSP__wrapper_u1987286_0_right_closebtn" style="box-sizing: content-box;position:absolute;width:131px;height:20px;top:NaNpx;left:0;cursor:pointer;background-color:#999999;color:#fff;font-size:12px;font-family: 微软雅黑;text-align:center;line-height:20px;">关闭</div></div><div id="BAIDU_SSP__wrapper_u1987286_0_left" style="box-sizing: content-box; width: 131px; height: 301px; overflow: hidden; z-index: 2147483647; position: fixed; top: 150px; left: 279px;"><div style="box-sizing: content-box;width:120px;height:270px;padding:4px;border:#acacac 1px solid;overflow:hidden;"><iframe id="BAIDU_SSP__wrapper_u1987286_0_left_iframe" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom.html" width="120" height="270" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0; vertical-align:bottom;margin:0;" allowtransparency="true"></iframe></div><div id="BAIDU_SSP__wrapper_u1987286_0_left_closebtn" style="box-sizing: content-box;position:absolute;width:131px;height:20px;top:NaNpx;left:0;cursor:pointer;background-color:#999999;color:#fff;font-size:12px;font-family: 微软雅黑;text-align:center;line-height:20px;">关闭</div></div>
+    <div class="width100bi height20px divbackgroundcolor">
+    <div class="width1000px divmargin0auto">
+        <div class="divfloatleft">
+        </div>
+        <div class="divfloatright">
+            <div id="logintopdescription" class="paddingtop3"><a href="http://member.mamicode.com/login.aspx">[登录]</a>&nbsp;&nbsp;<a href="http://member.mamicode.com/reg.aspx">[注册]</a></div>
+        </div>
+        <div class="divfloatclear">
+        </div>
+    </div>
+</div>
+<div class="width1000px divmargin0auto margintop20bottom20">
+    <div class="width120px divfloatleft">
+        <a href="http://www.mamicode.com/" title="码迷，mamicode.com">
+            <img src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/logo.png" alt="码迷，mamicode.com" width="109" height="60" border="0">
+        </a>
+    </div>
+    <div class="width880px divfloatright">
+        <div class="menuDiv">
+            <ul>
+                <li class="bottomline width10px">&nbsp;</li>
+                <li id="default-aspx" class="title0"><a href="http://www.mamicode.com/" title="码迷，mamicode.com">首页</a></li>
+                <li id="infolist-2" class="title1"><a href="http://www.mamicode.com/info-list-2-1.html" title="Web开发">Web开发</a></li>
+                <li id="infolist-3" class="title1"><a href="http://www.mamicode.com/info-list-3-1.html" title="Windows程序">Windows程序</a></li>
+                <li id="infolist-4" class="title1"><a href="http://www.mamicode.com/info-list-4-1.html" title="编程语言">编程语言</a></li>
+                <li id="infolist-5" class="title1"><a href="http://www.mamicode.com/info-list-5-1.html" title="数据库">数据库</a></li>
+                <li id="infolist-6" class="title1"><a href="http://www.mamicode.com/info-list-6-1.html" title="移动开发">移动开发</a></li>
+                <li id="infolist-8" class="title1"><a href="http://www.mamicode.com/info-list-8-1.html" title="系统相关">系统相关</a></li>
+                <li id="infolist-9" class="title1"><a href="http://www.mamicode.com/info-list-9-1.html" title="微信">微信</a></li>
+                <li id="infolist-11" class="title1"><a href="http://www.mamicode.com/info-list-11-1.html" title="其他好文">其他好文</a></li>
+                <li id="memberhtml" class="title1"><a href="http://www.mamicode.com/member.html" title="会员">会员</a></li>
+                <li class="bottomline width10px">&nbsp;</li>
+            </ul>
+        </div>
+    </div>
+    <div class="divfloatclear">
+    </div>
+</div>
+<div style="margin: 0px auto; width:1000px;" class="margintop10bottom10">
+    <script type="text/javascript">
+        var cpro_id = "u2192072";
+        (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id] = { at: "3", rsi0: "1000", rsi1: "120", pat: "6", tn: "baiduCustNativeAD", rss1: "#FFFFFF", conBW: "1", adp: "1", ptt: "0", titFF: "%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91", titFS: "14", rss2: "#000000", titSU: "0", ptbg: "90", piw: "0", pih: "0", ptp: "0" }
+    </script>
+    <script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/c.js" type="text/javascript"></script><div id="BAIDU_SSP__wrapper_u2192072_0"><iframe id="iframeu2192072_0" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom(5).html" width="1000" height="120" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0; vertical-align:bottom;margin:0;" allowtransparency="true"></iframe></div>
+</div>
+
+    <div class="divdaohang">
+        <div class="divtitlefont">
+            <a href="http://www.mamicode.com/" title="码迷首页">首页</a>
+            <span id="lbltitle"> &gt; <a href="http://www.mamicode.com/infolist-11-1.html">其他好文</a> &gt; 详细</span>
+        </div>
+    </div>
+    <div class="divmain">
+        <div class="width70bi divfloatleft" style="min-height:2000px;">
+            <div class="marginright20">
+                <div class="divtextaligncenter">
+    <script type="text/javascript">
+        var cpro_id = "u2391650";
+        (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id] = { at: "3", rsi0: "680", rsi1: "250", pat: "6", tn: "baiduCustNativeAD", rss1: "#FFFFFF", conBW: "1", adp: "1", ptt: "0", titFF: "%E5%BE%AE%E8%BD%AF%E9%9B%85%E9%BB%91", titFS: "14", rss2: "#000000", titSU: "0", ptbg: "90", piw: "0", pih: "0", ptp: "0" }
+    </script>
+    <script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/c.js" type="text/javascript"></script><div id="BAIDU_SSP__wrapper_u2391650_0"><iframe id="iframeu2391650_0" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom(7).html" width="680" height="250" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0; vertical-align:bottom;margin:0;" allowtransparency="true"></iframe></div>
+</div>
+
+                <div class="detailtitle divtextaligncenter divborderbottomdotted">
+                    <h1 id="Htitle" class="detailtitle">那些你应该知道却不一定知道的——View坐标分析汇总</h1>
+                </div>
+                <div class="detail1 divtextaligncenter">
+                    时间：<span id="Label2" class="colorlv">2016-04-22 20:58:03</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp; 阅读：<span id="Label1" class="colorCheng">4</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp; 评论：<span id="lblcommentcount" class="colorCheng">0</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp; 收藏：<span id="lblfavorite" class="colorCheng">0</span>
+                    &nbsp;&nbsp;&nbsp;&nbsp; <a id="infofavorite" class="acursorpointer">[点我收藏+]</a>
+                </div>
+                
+                <div class="detailcontennt">
+                    <span id="Label3"><p>标签：</p><div class="markdown_views"><p>前方高能~ <br>
+本文版权所有，转载请注明：<a href="http://blog.csdn.net/mr_immortalz/article/details/51168278">http://blog.csdn.net/mr_immortalz/article/details/51168278</a></p>
+
+
+
+<h1 id="一概述">一.概述</h1>
+
+<blockquote>
+  <p>网上关于Android 的view坐标挺多的，写这篇的目的是因为网上搜到的文章大多较简单，几乎都是简单的介绍下获取的几个方法坐标的几个方法罢了，但在实战中，你会发现可能你学会的那几个获取坐标的方法并没有正确的使用，导致当你要计算坐标的时候可能会试过几遍才找到正确的办法（其实这也正是我容易混淆的地方，所以特地写篇博客记录下）</p>
+</blockquote>
+
+<p>关于那几个获取坐标的方法我就懒得说了 <br>
+（这篇博客有记载，大家可以去看看<a href="http://blog.csdn.net/jason0539/article/details/42743531">http://blog.csdn.net/jason0539/article/details/42743531</a>）</p>
+
+<p>大体的方法就是这些了</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160416151944699" title=""></p>
+
+<p>下面借用那篇博客的一张图：</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160416152117873" title=""></p>
+
+<p><strong>view提供的方法</strong></p>
+
+<blockquote>
+  <p>getTop：获取到的，是view自身的顶边到其父布局顶边的距离 <br>
+  getLeft：获取到的，是view自身的左边到其父布局左边的距离 <br>
+  getRight：获取到的，是view自身的右边到其父布局左边的距离 <br>
+  getBottom：获取到的，是view自身的底边到其父布局顶边的距离</p>
+</blockquote>
+
+<p><strong>MotionEvent提供的方法</strong></p>
+
+<blockquote>
+  <p>getX()：获取点击事件相对控件左边的x轴坐标，即点击事件距离控件左边的距离 <br>
+  getY()：获取点击事件相对控件顶边的y轴坐标，即点击事件距离控件顶边的距离 <br>
+  getRawX()：获取点击事件相对整个屏幕左边的x轴坐标，即点击事件距离整个屏幕左边的距离 <br>
+  getRawY()：获取点击事件相对整个屏幕顶边的y轴坐标，即点击事件距离整个屏幕顶边的距离</p>
+</blockquote>
+
+<p><strong>下面做个测试</strong></p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160416152715709" title=""></p>
+
+<p>分别点击A点，B点后效果</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160416152631572" title=""></p>
+
+<p>这里需要注意的是：</p>
+
+<blockquote>
+  <p>点击B点后（可以看到先是回调TestTextView中的onTouchEvent方法，然后才是MainActivity中的onTouchEvent，因为我在二者的onTouchEvent方法中都没有进行点击事件的消费处理，所以会往上传递，突然扯到了事件分发机制，2333~这里就是突然想补充一点，还是扯回坐标吧）</p>
+  
+  <p>1.TestTextView中getY和getRawY取得的值不一样，这点我们可以理解</p>
+  
+  <p>2.MainActivity中getY和getRawY取得的值一样！（我们注意到点击A,B点都是如此）原因在于，当点击事件没有被消费，往上传递时，此刻onTouchEvent参数列表中的MotionEvent是来自ViewGroup，而对于ViewGroup来说getY和getRawY其实是一样的。</p>
+</blockquote>
+
+
+
+<h2 id="这里我们得到一条规律">这里我们得到一条规律：</h2>
+
+<blockquote>
+  <p><strong>getY和getRawY只有在View中才会导致点击后取得的值不一致，在ViewGroup取得的值是一致的</strong>！</p>
+</blockquote>
+
+<p><strong>测试2：类似在ListView这种有滚动轴的控件中会是什么样的呢？</strong></p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160416170334643" title=""></p>
+
+<p>这个打印我忘记截图完整了，这里我说明下打印的log我是在ListView所在的activity中的dispatchTouchEvent，之所以不在activity的onTouchEvent中打印是因为ListView中的item消费了事件，那么这个activity的onTouchEvent就不会打印出Log了。 <br>
+贴上代码</p>
+
+<pre class="prettyprint"><code class=" hljs cs"><span class="lit">@Override</span><span class="pln">
+    </span><span class="hljs-keyword"><span class="kwd">public</span></span><span class="pln"> </span><span class="kwd">boolean</span><span class="pln"> </span><span class="hljs-title"><span class="pln">dispatchTouchEvent</span></span><span class="pun">(</span><span class="typ">MotionEvent</span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">event</span></span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+        </span><span class="hljs-keyword"><span class="kwd">if</span></span><span class="pln"> </span><span class="pun">(</span><span class="hljs-keyword"><span class="kwd">event</span></span><span class="pun">.</span><span class="pln">getAction</span><span class="pun">()</span><span class="pln"> </span><span class="pun">==</span><span class="pln"> </span><span class="typ">MotionEvent</span><span class="pun">.</span><span class="pln">ACTION_DOWN</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+            </span><span class="typ">LogUtil</span><span class="pun">.</span><span class="pln">m</span><span class="pun">(</span><span class="hljs-string"><span class="str">"SecondActivity  getX "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">event</span></span><span class="pun">.</span><span class="pln">getX</span><span class="pun">()</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-string"><span class="str">" getY "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">event</span></span><span class="pun">.</span><span class="pln">getY</span><span class="pun">());</span><span class="pln">
+            </span><span class="typ">LogUtil</span><span class="pun">.</span><span class="pln">m</span><span class="pun">(</span><span class="hljs-string"><span class="str">"SecondActivity  getrawx "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">event</span></span><span class="pun">.</span><span class="pln">getRawX</span><span class="pun">()</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-string"><span class="str">" getrawy "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">event</span></span><span class="pun">.</span><span class="pln">getRawY</span><span class="pun">());</span><span class="pln">
+        </span><span class="pun">}</span><span class="pln">
+        </span><span class="hljs-keyword"><span class="kwd">return</span></span><span class="pln"> </span><span class="kwd">super</span><span class="pun">.</span><span class="pln">dispatchTouchEvent</span><span class="pun">(</span><span class="hljs-keyword"><span class="kwd">event</span></span><span class="pun">);</span><span class="pln">
+    </span><span class="pun">}</span></code></pre>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160416170406321" title=""></p>
+
+<p>这次我们点击的是item7的顶部，发现一致，按照刚才我们得到的规律应该很好理解，ListView是ViewGroup，所以getY和getRawY取得的值是一样的。 <br>
+（PS：这时可能会有点好奇，我们明明点击的接近是item7的顶部，为啥得到的Y指却不是接近0呢，原因后面讲）</p>
+
+<h2 id="这里我们得到一条启示">这里我们得到一条启示：</h2>
+
+<blockquote>
+  <p>正是因为有这样一条规律：在View中才会导致点击后取得的值不一致，在ViewGroup取得的值是一致，<strong>对于这种滑动的ViewGroup，我们在获取ViewGroup的坐标值时并不需要考虑它到底滑动了多少</strong>（实际滑动的我们应该看作是ViewGroup中的View在滑动），因为我们无论是getY还是getRawY取得的都是点击事件距离整个屏幕顶边的距离。</p>
+</blockquote>
+
+
+
+<h1 id="二获取">二.获取</h1>
+
+<p><strong>在上面我们留下了一个疑问</strong>：我们明明点击的接近是item7的顶部，得到的Y指却不是接近0。 <br>
+原因在于getRawY返回的是点击事件距离整个屏幕顶边的距离，所以点击item7的顶部，得到的Y值其实就是状态栏的值。</p>
+
+<blockquote>
+  <p>当然我们有时候碰到的不仅就只有状态栏，有时候是状态栏与标题栏并存的。所以我们在获取ViewGroup的Y值是一定要注意是否需要减去状态栏，标题栏（如果有）的高度，否则计算得到的Y值并不是正确的。</p>
+</blockquote>
+
+<p>这里为了让大家更清晰的了解，大家可以看看这篇文章<a href="http://bbs.51cto.com/thread-1072344-1.html">http://bbs.51cto.com/thread-1072344-1.html</a>（Android4.0窗口机制和创建过程分析 ）</p>
+
+<p>下面我们用图来初略说明（这是我的理解，有误欢迎指正）</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160416174510452" title=""></p>
+
+<p><strong>现在我们再来说说怎么取得坐标值的时机</strong></p>
+
+<blockquote>
+  <p>因为MotionEvent提供的获取坐标的方法是在页面完完全全显示在用户眼前且用户点击后才会使用到的方法，所以并不存在获取不到的问题，下面就论述下 <br>
+  <strong>view提供的获取坐标方法</strong></p>
+</blockquote>
+
+<p>看到这，你可能会说，那还不简单当布局被加载出来的时候，我们去获取不就OK了吗？ <br>
+于是我们就会看到这样的错误：在一个Activity的onCreate方法中，设置完setContentView后，就开始View的getLeft，getTop等方法，结果发现为0，为啥？</p>
+
+<p>原因就是：</p>
+
+<blockquote>
+  <p><strong>对于View，ViewGroup来说，width、height、top、left等属性值是在Measure与Layout过程完成之后才开始正确赋值的，而Measure与Layout却都晚于onCreate方法执行，所以onCreate中getLeft根本就取不到值！</strong></p>
+</blockquote>
+
+<p>那要是我们想要在onCreate中取到我们想要的值，我们应该怎么做呢？ <br>
+大家可以参考这两篇博文 <br>
+（<a href="http://www.cnblogs.com/kissazi2/p/4133927.html">http://www.cnblogs.com/kissazi2/p/4133927.html</a>） <br>
+（<a href="http://blog.csdn.net/codezjx/article/details/45341309">http://blog.csdn.net/codezjx/article/details/45341309</a>）</p>
+
+<p>我觉得写得很好了</p>
+
+<p>归纳如下：</p>
+
+<ol>
+<li>监听Draw/Layout事件：ViewTreeObserver</li>
+<li>将一个runnable添加到Layout队列中：View.post()</li>
+<li>重写View的onLayout方法</li>
+<li>重写Activity的onWindowFocusChanged方法,在该方法中获取</li>
+</ol>
+
+<p>这里我推荐2,4这两种，即</p>
+
+
+
+<pre class="prettyprint"><code class=" hljs java"><span class="pln">view</span><span class="pun">.</span><span class="pln">post</span><span class="pun">(</span><span class="hljs-keyword"><span class="kwd">new</span></span><span class="pln"> </span><span class="typ">Runnable</span><span class="pun">()</span><span class="pln"> </span><span class="pun">{</span><span class="pln">  
+    </span><span class="hljs-annotation"><span class="lit">@Override</span></span><span class="pln">  
+    </span><span class="hljs-keyword"><span class="kwd">public</span></span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">void</span></span><span class="pln"> </span><span class="hljs-title"><span class="pln">run</span></span><span class="pun">()</span><span class="pln"> </span><span class="pun">{</span><span class="pln">  
+        view</span><span class="pun">.</span><span class="pln">getHeight</span><span class="pun">();</span><span class="pln">  
+    </span><span class="pun">}</span><span class="pln">  
+</span><span class="pun">});</span></code></pre>
+
+<p>或者</p>
+
+
+
+<pre class="prettyprint"><code class=" hljs java"><span class="hljs-annotation"><span class="lit">@Override</span></span><span class="pln">  
+</span><span class="hljs-keyword"><span class="kwd">public</span></span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">void</span></span><span class="pln"> </span><span class="hljs-title"><span class="pln">onWindowFocusChanged</span></span><span class="pun">(</span><span class="hljs-keyword"><span class="kwd">boolean</span></span><span class="pln"> hasFocus</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">  
+    </span><span class="hljs-keyword"><span class="kwd">super</span></span><span class="pun">.</span><span class="pln">onWindowFocusChanged</span><span class="pun">(</span><span class="pln">hasFocus</span><span class="pun">);</span><span class="pln">  
+    </span><span class="hljs-comment"><span class="com">//此处可以正常获取width、height等  </span></span><span class="pln">
+</span><span class="pun">}</span><span class="pln"> </span></code></pre>
+
+
+
+<h1 id="三计算">三.计算</h1>
+
+<blockquote>
+  <p>现在对坐标系是咋样的，我们已经了解了。</p>
+  
+  <p>对啥时候获取，以及获取后是否需要纠正得到正确的Y，我们也已经分析了。</p>
+  
+  <p><strong>下面就来说说本文的重头戏 ——— 坐标的计算。</strong></p>
+  
+  <p>（之所以说是重头戏，是因为我们之前得到的都是一个点的正确坐标，现在我们需要做的是在得到多个正确坐标后，进行正确的计算，这样我们才能实现滑动这样炫酷的效果`(<em>∩_∩</em>)′）</p>
+</blockquote>
+
+
+
+<h2 id="首先我们需要建立一个概念">首先我们需要建立一个概念</h2>
+
+<blockquote>
+  <p><strong>在Android的坐标系中，原点在屏幕左上角，向右x为正，向下y为正。</strong></p>
+</blockquote>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160418223513513" title=""> <br>
+（为了好计算，图片中的坐标单位是px）</p>
+
+<p>（下面就以这个为例，我们要将View从原点移动到（200,400）的位置，即B点与C点重合）</p>
+
+<p><strong>想实现View移动大致有这几种方式（代码见下面）</strong></p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160419001204719" title=""></p>
+
+<p>XML文件</p>
+
+
+
+<pre class="prettyprint"><code class=" hljs xml"><span class="hljs-pi"><span class="pun">&lt;?</span><span class="pln">xml version</span><span class="pun">=</span><span class="str">"1.0"</span><span class="pln"> encoding</span><span class="pun">=</span><span class="str">"utf-8"</span><span class="pun">?&gt;</span></span><span class="pln">
+</span><span class="hljs-tag"><span class="tag">&lt;</span><span class="hljs-title"><span class="tag">LinearLayout</span></span><span class="pln"> </span><span class="hljs-attribute"><span class="atn">xmlns:android</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"http://schemas.android.com/apk/res/android"</span></span><span class="pln">
+    </span><span class="hljs-attribute"><span class="atn">xmlns:tools</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"http://schemas.android.com/tools"</span></span><span class="pln">
+    </span><span class="hljs-attribute"><span class="atn">android:layout_width</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"match_parent"</span></span><span class="pln">
+    </span><span class="hljs-attribute"><span class="atn">android:layout_height</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"match_parent"</span></span><span class="pln">
+    </span><span class="hljs-attribute"><span class="atn">tools:context</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">".MainActivity"</span></span><span class="tag">&gt;</span></span><span class="pln">
+    </span><span class="hljs-tag"><span class="tag">&lt;</span><span class="hljs-title"><span class="tag">LinearLayout</span><span class="pln">
+</span></span><span class="pln">        </span><span class="hljs-attribute"><span class="atn">android:id</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"@+id/ly"</span></span><span class="pln">
+        </span><span class="hljs-attribute"><span class="atn">android:background</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"#EFAA88"</span></span><span class="pln">
+        </span><span class="hljs-attribute"><span class="atn">android:layout_centerInParent</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"true"</span></span><span class="pln">
+        </span><span class="hljs-attribute"><span class="atn">android:layout_width</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"300px"</span></span><span class="pln">
+        </span><span class="hljs-attribute"><span class="atn">android:layout_height</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"500px"</span></span><span class="tag">&gt;</span></span><span class="pln">
+        </span><span class="hljs-tag"><span class="tag">&lt;</span><span class="hljs-title"><span class="tag">mr_immortalz.com.testlocation.TestTextView</span><span class="pln">
+</span></span><span class="pln">            </span><span class="hljs-attribute"><span class="atn">android:background</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"#aabbcc"</span></span><span class="pln">
+            </span><span class="hljs-attribute"><span class="atn">android:id</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"@+id/tv"</span></span><span class="pln">
+            </span><span class="hljs-attribute"><span class="atn">android:text</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"你好"</span></span><span class="pln">
+            </span><span class="hljs-attribute"><span class="atn">android:layout_width</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"100px"</span></span><span class="pln">
+            </span><span class="hljs-attribute"><span class="atn">android:layout_height</span></span><span class="pun">=</span><span class="hljs-value"><span class="atv">"100px"</span></span><span class="pln"> </span><span class="tag">/&gt;</span></span><span class="pln">
+    </span><span class="hljs-tag"><span class="tag">&lt;/</span><span class="hljs-title"><span class="tag">LinearLayout</span></span><span class="tag">&gt;</span></span><span class="pln">
+
+</span><span class="hljs-tag"><span class="tag">&lt;/</span><span class="hljs-title"><span class="tag">LinearLayout</span></span><span class="tag">&gt;</span></span></code></pre>
+
+<p>TestTextView也很简单，就是</p>
+
+
+
+<pre class="prettyprint"><code class=" hljs java"><span class="hljs-javadoc"><span class="com">/**
+ * Created by Mr_immortalZ on 2016/4/16.
+ * email : </span><span class="com">mr_immortalz@qq.com
+ */</span></span><span class="pln">
+</span><span class="hljs-keyword"><span class="kwd">public</span></span><span class="pln"> </span><span class="hljs-class"><span class="hljs-keyword"><span class="kwd">class</span></span><span class="pln"> </span><span class="hljs-title"><span class="typ">TestTextView</span></span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">extends</span></span><span class="pln"> </span><span class="hljs-title"><span class="typ">TextView</span></span><span class="pln"> </span><span class="pun">{</span></span><span class="pln">
+    </span><span class="hljs-keyword"><span class="kwd">public</span></span><span class="pln"> </span><span class="hljs-title"><span class="typ">TestTextView</span></span><span class="pun">(</span><span class="typ">Context</span><span class="pln"> context</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+        </span><span class="hljs-keyword"><span class="kwd">super</span></span><span class="pun">(</span><span class="pln">context</span><span class="pun">);</span><span class="pln">
+    </span><span class="pun">}</span><span class="pln">
+
+    </span><span class="hljs-keyword"><span class="kwd">public</span></span><span class="pln"> </span><span class="hljs-title"><span class="typ">TestTextView</span></span><span class="pun">(</span><span class="typ">Context</span><span class="pln"> context</span><span class="pun">,</span><span class="pln"> </span><span class="typ">AttributeSet</span><span class="pln"> attrs</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+        </span><span class="hljs-keyword"><span class="kwd">super</span></span><span class="pun">(</span><span class="pln">context</span><span class="pun">,</span><span class="pln"> attrs</span><span class="pun">);</span><span class="pln">
+    </span><span class="pun">}</span><span class="pln">
+
+    </span><span class="hljs-keyword"><span class="kwd">public</span></span><span class="pln"> </span><span class="hljs-title"><span class="typ">TestTextView</span></span><span class="pun">(</span><span class="typ">Context</span><span class="pln"> context</span><span class="pun">,</span><span class="pln"> </span><span class="typ">AttributeSet</span><span class="pln"> attrs</span><span class="pun">,</span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">int</span></span><span class="pln"> defStyleAttr</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+        </span><span class="hljs-keyword"><span class="kwd">super</span></span><span class="pun">(</span><span class="pln">context</span><span class="pun">,</span><span class="pln"> attrs</span><span class="pun">,</span><span class="pln"> defStyleAttr</span><span class="pun">);</span><span class="pln">
+    </span><span class="pun">}</span><span class="pln">
+
+    </span><span class="hljs-annotation"><span class="lit">@Override</span></span><span class="pln">
+    </span><span class="hljs-keyword"><span class="kwd">public</span></span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">boolean</span></span><span class="pln"> </span><span class="hljs-title"><span class="pln">onTouchEvent</span></span><span class="pun">(</span><span class="typ">MotionEvent</span><span class="pln"> </span><span class="kwd">event</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+        </span><span class="hljs-keyword"><span class="kwd">switch</span></span><span class="pln"> </span><span class="pun">(</span><span class="kwd">event</span><span class="pun">.</span><span class="pln">getAction</span><span class="pun">())</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+            </span><span class="hljs-keyword"><span class="kwd">case</span></span><span class="pln"> </span><span class="typ">MotionEvent</span><span class="pun">.</span><span class="pln">ACTION_DOWN</span><span class="pun">:</span><span class="pln">
+                </span><span class="hljs-comment"><span class="com">/*LogUtil.m("TestTextView  getX "+event.getX()+" getY "+event.getY());
+                LogUtil.m("TestTextView  getrawx "+event.getRawX()+" getrawy "+event.getRawY());*/</span></span><span class="pln">
+                </span><span class="hljs-comment"><span class="com">//layout(getLeft() + 200, getTop() + 400, getRight() + 200, getBottom() + 400);</span></span><span class="pln">
+
+                </span><span class="hljs-comment"><span class="com">/*offsetLeftAndRight(200);
+                offsetTopAndBottom(400);*/</span></span><span class="pln">
+               </span><span class="hljs-comment"><span class="com">/* ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) getLayoutParams();
+                lp.leftMargin = getLeft() + 200;
+                lp.topMargin = getTop() + 400;
+                setLayoutParams(lp);*/</span></span><span class="pln">
+
+                </span><span class="hljs-comment"><span class="com">//((View)getParent()).scrollTo(-200,-400);</span></span><span class="pln">
+
+                </span><span class="hljs-comment"><span class="com">//scrollTo(-50,-10);</span></span><span class="pln">
+
+                </span><span class="hljs-comment"><span class="com">//scrollTo(300, 500);</span></span><span class="pln">
+
+                </span><span class="hljs-comment"><span class="com">//((View)getParent()).scrollBy(-200,-400);</span></span><span class="pln">
+                </span><span class="hljs-comment"><span class="com">/*AnimatorSet set = new AnimatorSet();
+                set.playTogether(
+                        ObjectAnimator.ofFloat(this, "translationX", 200),
+                        ObjectAnimator.ofFloat(this,"translationY", 400)
+
+                );
+                set.start();*/</span></span><span class="pln">
+                </span><span class="typ">TranslateAnimation</span><span class="pln"> anim </span><span class="pun">=</span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">new</span></span><span class="pln"> </span><span class="typ">TranslateAnimation</span><span class="pun">(</span><span class="hljs-number"><span class="lit">0</span></span><span class="pun">,</span><span class="pln"> </span><span class="hljs-number"><span class="lit">200</span></span><span class="pun">,</span><span class="pln"> </span><span class="hljs-number"><span class="lit">0</span></span><span class="pun">,</span><span class="pln"> </span><span class="hljs-number"><span class="lit">400</span></span><span class="pun">);</span><span class="pln">
+                anim</span><span class="pun">.</span><span class="pln">setFillAfter</span><span class="pun">(</span><span class="hljs-keyword"><span class="kwd">true</span></span><span class="pun">);</span><span class="pln">
+                startAnimation</span><span class="pun">(</span><span class="pln">anim</span><span class="pun">);</span><span class="pln">
+
+                </span><span class="typ">LogUtil</span><span class="pun">.</span><span class="pln">m</span><span class="pun">(</span><span class="hljs-string"><span class="str">"移动后 getX "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> getX</span><span class="pun">()</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-string"><span class="str">"  getY "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> getY</span><span class="pun">());</span><span class="pln">
+                </span><span class="typ">LogUtil</span><span class="pun">.</span><span class="pln">m</span><span class="pun">(</span><span class="hljs-string"><span class="str">"移动后 getLeft "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> getLeft</span><span class="pun">()</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-string"><span class="str">"tv getTop "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> getTop</span><span class="pun">()</span><span class="pln">
+                        </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-string"><span class="str">" tv getRight "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> getRight</span><span class="pun">()</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-string"><span class="str">" tv getBottom "</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> getBottom</span><span class="pun">());</span><span class="pln">
+                </span><span class="hljs-keyword"><span class="kwd">break</span></span><span class="pun">;</span><span class="pln">
+        </span><span class="pun">}</span><span class="pln">
+        </span><span class="hljs-keyword"><span class="kwd">return</span></span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">true</span></span><span class="pun">;</span><span class="pln">
+    </span><span class="pun">}</span><span class="pln">
+</span><span class="pun">}</span></code></pre>
+
+
+
+<h2 id="我们移动到指定位置的有7种方式">我们移动到指定位置的有7种方式</h2>
+
+<hr>
+
+<p><strong>1.layout</strong></p>
+
+
+
+<pre class="prettyprint"><code class=" hljs scss"><span class="hljs-function"><span class="pln">layout</span><span class="pun">(</span><span class="hljs-function"><span class="pln">getLeft</span><span class="pun">()</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-number"><span class="lit">200</span></span><span class="pun">,</span><span class="pln"> </span><span class="hljs-function"><span class="pln">getTop</span><span class="pun">()</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-number"><span class="lit">400</span></span><span class="pun">,</span><span class="pln"> </span><span class="hljs-function"><span class="pln">getRight</span><span class="pun">()</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-number"><span class="lit">200</span></span><span class="pun">,</span><span class="pln"> </span><span class="hljs-function"><span class="pln">getBottom</span><span class="pun">()</span></span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-number"><span class="lit">400</span></span><span class="pun">)</span></span><span class="pun">;</span></code></pre>
+
+<p>移动后getLeft等值改变</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160418230526658" title=""></p>
+
+<p><strong>2.offsetLeftAndRight、offsetTopAndBottom</strong></p>
+
+
+
+<pre class="prettyprint"><code class=" hljs scss"><span class="hljs-function"><span class="pln">offsetLeftAndRight</span><span class="pun">(</span><span class="hljs-number"><span class="lit">200</span></span><span class="pun">)</span></span><span class="pun">;</span><span class="pln">
+</span><span class="hljs-function"><span class="pln">offsetTopAndBottom</span><span class="pun">(</span><span class="hljs-number"><span class="lit">400</span></span><span class="pun">)</span></span><span class="pun">;</span></code></pre>
+
+<p>移动后getLeft等值改变</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160418230526658" title=""></p>
+
+<p><strong>3.修改LayoutParams</strong></p>
+
+
+
+<pre class="prettyprint"><code class=" hljs avrasm"><span class="pln"> </span><span class="typ">ViewGroup</span><span class="hljs-preprocessor"><span class="pun">.</span><span class="typ">MarginLayoutParams</span></span><span class="pln"> lp </span><span class="pun">=</span><span class="pln"> </span><span class="pun">(</span><span class="typ">ViewGroup</span><span class="hljs-preprocessor"><span class="pun">.</span><span class="typ">MarginLayoutParams</span></span><span class="pun">)</span><span class="pln"> getLayoutParams</span><span class="pun">()</span><span class="hljs-comment"><span class="pun">;</span></span><span class="pln">
+                lp</span><span class="hljs-preprocessor"><span class="pun">.</span><span class="pln">leftMargin</span></span><span class="pln"> </span><span class="pun">=</span><span class="pln"> getLeft</span><span class="pun">()</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-number"><span class="lit">200</span></span><span class="hljs-comment"><span class="pun">;</span></span><span class="pln">
+                lp</span><span class="hljs-preprocessor"><span class="pun">.</span><span class="pln">topMargin</span></span><span class="pln"> </span><span class="pun">=</span><span class="pln"> getTop</span><span class="pun">()</span><span class="pln"> </span><span class="pun">+</span><span class="pln"> </span><span class="hljs-number"><span class="lit">400</span></span><span class="hljs-comment"><span class="pun">;</span></span><span class="pln">
+                setLayoutParams</span><span class="pun">(</span><span class="pln">lp</span><span class="pun">)</span><span class="hljs-comment"><span class="pun">;</span></span></code></pre>
+
+<p>移动后getLeft等值不改变</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160418230605195" title=""></p>
+
+<hr>
+
+<p><strong>4.scrollTo</strong></p>
+
+
+
+<pre class="prettyprint"><code class=" hljs avrasm"><span class="pun">((</span><span class="typ">View</span><span class="pun">)</span><span class="pln">getParent</span><span class="pun">())</span><span class="hljs-preprocessor"><span class="pun">.</span><span class="pln">scrollTo</span></span><span class="pun">(-</span><span class="hljs-number"><span class="lit">200</span></span><span class="pun">,-</span><span class="hljs-number"><span class="lit">400</span></span><span class="pun">)</span><span class="hljs-comment"><span class="pun">;</span></span></code></pre>
+
+<p>移动后getLeft等值不改变</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160418230605195" title=""></p>
+
+<p><strong>5.scrollBy</strong></p>
+
+
+
+<pre class="prettyprint"><code class=" hljs avrasm"><span class="pun">((</span><span class="typ">View</span><span class="pun">)</span><span class="pln">getParent</span><span class="pun">())</span><span class="hljs-preprocessor"><span class="pun">.</span><span class="pln">scrollBy</span></span><span class="pun">(-</span><span class="hljs-number"><span class="lit">200</span></span><span class="pun">,-</span><span class="hljs-number"><span class="lit">400</span></span><span class="pun">)</span><span class="hljs-comment"><span class="pun">;</span></span></code></pre>
+
+<p>移动后getLeft等值不改变</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160418230605195" title=""></p>
+
+<p><strong>对于scrollTo、scrollBy需要注意的有两个问题</strong> <br>
+问题1：</p>
+
+<blockquote>
+  <p>移动计算值 =  <strong>最开始点坐标 - 最后移动到的坐标</strong> <br>
+  原因是因为最终会调用这个方法 <br>
+  —— invalidateInternal(l - scrollX, t - scrollY, r - scrollX, b - scrollY, true, false); <br>
+  <strong>其中l,t,r,b为原来坐标点，scrollX,scrollY为目标坐标点，只有当目标坐标点值是负数时，移动到的位置才为正数！</strong> <br>
+       例如scrollTo ，我们要从（0,0）移动到（200,400）这个点，根据上面的公式可知为负值</p>
+</blockquote>
+
+<p>问题2</p>
+
+<p>为什么需要加上 ((View)getParent())</p>
+
+<blockquote>
+  <p>TestTextView本身是View，scrollTo、scrollBy移动的都是View的Content，如果不加的话，使用的效果则是TestTextView的文字位置变化，而TestTextView本身不会变化。 <br>
+  如果在ViewGroup中使用scrollTo、scrollBy，则移动的是ViewGroup中的View.我们这里需要让TestTextView移动，则需要先 ((View)getParent())，然后再((View)getParent()).scrollTo…</p>
+</blockquote>
+
+<hr>
+
+<p><strong>6.属性动画</strong></p>
+
+<p>我就以ObjectAnimator为例子</p>
+
+
+
+<pre class="prettyprint"><code class=" hljs sql"><span class="typ">AnimatorSet</span><span class="pln"> </span><span class="hljs-operator"><span class="hljs-keyword"><span class="kwd">set</span></span><span class="pln"> </span><span class="pun">=</span><span class="pln"> </span><span class="kwd">new</span><span class="pln"> </span><span class="typ">AnimatorSet</span><span class="pun">();</span></span><span class="pln">
+                </span><span class="hljs-operator"><span class="hljs-keyword"><span class="kwd">set</span></span><span class="pun">.</span><span class="pln">playTogether</span><span class="pun">(</span><span class="pln">
+                        </span><span class="typ">ObjectAnimator</span><span class="pun">.</span><span class="pln">ofFloat</span><span class="pun">(</span><span class="kwd">this</span><span class="pun">,</span><span class="pln"> </span><span class="hljs-string"><span class="str">"translationX"</span></span><span class="pun">,</span><span class="pln"> </span><span class="hljs-number"><span class="lit">200</span></span><span class="pun">),</span><span class="pln">
+                        </span><span class="typ">ObjectAnimator</span><span class="pun">.</span><span class="pln">ofFloat</span><span class="pun">(</span><span class="kwd">this</span><span class="pun">,</span><span class="hljs-string"><span class="str">"translationY"</span></span><span class="pun">,</span><span class="pln"> </span><span class="hljs-number"><span class="lit">400</span></span><span class="pun">)</span><span class="pln">
+
+                </span><span class="pun">);</span></span><span class="pln">
+                </span><span class="hljs-operator"><span class="hljs-keyword"><span class="kwd">set</span></span><span class="pun">.</span><span class="hljs-keyword"><span class="pln">start</span></span><span class="pun">();</span></span></code></pre>
+
+<p>移动后getLeft等值不改变</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160418230605195" title=""></p>
+
+<p>7.位移动画</p>
+
+
+
+<pre class="prettyprint"><code class=" hljs cs"><span class="typ">TranslateAnimation</span><span class="pln"> anim </span><span class="pun">=</span><span class="pln"> </span><span class="hljs-keyword"><span class="kwd">new</span></span><span class="pln"> </span><span class="typ">TranslateAnimation</span><span class="pun">(</span><span class="hljs-number"><span class="lit">0</span></span><span class="pun">,</span><span class="hljs-number"><span class="lit">200</span></span><span class="pun">,</span><span class="hljs-number"><span class="lit">0</span></span><span class="pun">,</span><span class="hljs-number"><span class="lit">400</span></span><span class="pun">);</span><span class="pln">
+                anim</span><span class="pun">.</span><span class="pln">setFillAfter</span><span class="pun">(</span><span class="hljs-keyword"><span class="kwd">true</span></span><span class="pun">);</span><span class="pln">
+                startAnimation</span><span class="pun">(</span><span class="pln">anim</span><span class="pun">);</span></code></pre>
+
+<p>移动后getLeft等值不改变</p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160418230605195" title=""></p>
+
+<p><strong>关于位移动画的补充点：</strong></p>
+
+<p>我们经常用这样的需求，要求一个popupwindow从屏幕底部弹出或者从屏幕顶部弹出。 <br>
+这里的位移设置同样还是如此（原点在屏幕左上角，向右x为正，向下y为正）</p>
+
+<p>这篇博文可以参考学习下，下面这张神图也是来自这篇博文（Android动画之translate(位移动画)） <br>
+<a href="http://www.cnblogs.com/bavariama/archive/2013/01/29/2881225.html">http://www.cnblogs.com/bavariama/archive/2013/01/29/2881225.html</a> <br>
+<img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160419000646681" title=""></p>
+
+<p><strong>注意点</strong></p>
+
+<blockquote>
+  <p>属性动画是真实改变View的位置的，虽然属性动画、位移动画的getLeft等没有改变，但是属性动画的getX、getY是改变了的，位移动画的getX、getY仍未改变！</p>
+</blockquote>
+
+<hr>
+
+<p><strong>最后再来回顾下这张图</strong></p>
+
+<p><img alt="技术分享" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/20160419001204719" title=""></p>
+
+
+
+<h1 id="四小结">四.小结</h1>
+
+<blockquote>
+  <p>坐标分析上面都分析完了，基本上涵盖了自定义View坐标计算、滑动、事件分发等常见场景的坐标问题，希望大家能从中得到收获。 <br>
+  水平很菜，有错误的地方欢迎指正，大家一起学习进步！</p>
+  
+  <p>? 反正撸完这篇，我算是对于坐标系有了更深刻的认识，给自己点个赞~?</p>
+</blockquote></div>
+        <script type="text/javascript">
+            $(function () {
+                $(‘pre.prettyprint code‘).each(function () {
+                    var lines = $(this).text().split(‘\n‘).length;
+                    var $numbering = $(‘<ul/>‘).addClass(‘pre-numbering‘).hide();
+                    $(this).addClass(‘has-numbering‘).parent().append($numbering);
+                    for (i = 1; i <= lines; i++) {
+                        $numbering.append($(‘<li/>‘).text(i));
+                    };
+                    $numbering.fadeIn(1700);
+                });
+            });
+        </script><p><a href="./那些你应该知道却不一定知道的——View坐标分析汇总_files/那些你应该知道却不一定知道的——View坐标分析汇总.html" title="那些你应该知道却不一定知道的——View坐标分析汇总,mamicode.com" style="color:#ffffff" target="_blank">那些你应该知道却不一定知道的——View坐标分析汇总</a></p><p>标签：</p></span>
+                </div>
+                <div id="divcomment">
+                    <div>
+                        <div class=" divtextaligncenter">
+                            <div class="detailcai" id="infono">
+                                <div class="detailcai1 colorboldlan">
+                                    踩</div>
+                                <div class="detailcai2 colorboldlan">
+                                    (<span id="spanNo">0</span>)</div>
+                            </div>
+                            <div class="detailzan" id="infoyes">
+                                <div class="detailzan1 colorboldHong">
+                                    赞</div>
+                                <div class="detailzan2 colorboldHong">
+                                    (<span id="spanYes">0</span>)</div>
+                            </div>
+                            <div class="divfloatclear">
+                            </div>
+                        </div>
+                        <div class="divtextalignright margintop10">
+                            <div class="width100bi paddingleft10right10">
+                                <span id="spanYesContent" class="colorboldHong"></span>&nbsp; <span id="spanNoContent" class="colorboldlan"></span>&nbsp; <span id="spanBadContent" class="colorboldHong">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="divtextalignright margintop10">
+                        <span class="detailjubao" id="infobad">举报</span>
+                    </div>
+                    <div class="margintop20bottom20">
+    <div class="divfloatleft">
+        <script async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/adsbygoogle.js"></script>
+        <!-- mamicode-infodetail-336x280-1 -->
+        <ins class="adsbygoogle" style="display: inline-block; width: 336px; height: 280px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="6851602680" data-adsbygoogle-status="done"><ins id="aswift_0_expand" style="display:inline-table;border:none;height:280px;margin:0;padding:0;position:relative;visibility:visible;width:336px;background-color:transparent"><ins id="aswift_0_anchor" style="display:block;border:none;height:280px;margin:0;padding:0;position:relative;visibility:visible;width:336px;background-color:transparent"><iframe width="336" height="280" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_0" name="aswift_0" style="left:0;position:absolute;top:0;"></iframe></ins></ins></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+    <div class="divfloatright">
+        <script async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/adsbygoogle.js"></script>
+        <!-- mamicode-infodetail-336x280-2 -->
+        <ins class="adsbygoogle" style="display: inline-block; width: 336px; height: 280px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="8328335888" data-adsbygoogle-status="done"><ins id="aswift_1_expand" style="display:inline-table;border:none;height:280px;margin:0;padding:0;position:relative;visibility:visible;width:336px;background-color:transparent"><ins id="aswift_1_anchor" style="display:block;border:none;height:280px;margin:0;padding:0;position:relative;visibility:visible;width:336px;background-color:transparent"><iframe width="336" height="280" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_1" name="aswift_1" style="left:0;position:absolute;top:0;"></iframe></ins></ins></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+    <div class="divfloatclear">
+    </div>
+</div>
+
+                    <div id="comment" class="divtextalignleft margintop20">
+                        <div class="detailpinglun1">
+                            <span class="detailpinglun2 title6">评论</span> <span class="detailpinglun3">一句话评论（<span id="commentCount" class="colorboldHong">0</span>）</span>
+                        </div>
+                        <div class="paddingtop20">
+                            
+                            <div id="commentlistend" name="commentlistend" class="divtextaligncenter margintop20">
+                                <span id="lblpage">共<span class="pagecolorc">0</span>条&nbsp;&nbsp;</span>
+                            </div>
+                        </div>
+                        <div class="margintop20">
+                            <form method="post" action="http://www.mamicode.com/ajaxjs/info_detail_commentadd.aspx">
+                            <div class="divtextalignleft paddingtop20">
+                                <div id="commenthf" class="divbackgroundcolor1">
+                                </div>
+                                <div>
+                                    <textarea name="tbcommentcontent" id="tbcommentcontent" class="tb" style="width: 680px;
+                                        height: 120px;"></textarea>
+                                </div>
+                            </div>
+                            <div class="divtextalignright paddingtop10 ">
+                                <span id="addCommentTishi" class="colorboldHong">登录后才能评论！</span>
+                                <span id="loginno"><input type="button" class="mbtn1" value="登录" onclick="location.href=&#39;http://member.mamicode.com/login.aspx?returnUrl=http://www.mamicode.com/infodetail.aspx?id=1295688&#39;;"></span>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="width30bi divfloatright">
+            
+            <div class="paddingbottom20">
+    <script type="text/javascript">        (function () { document.write(unescape('%3Cdiv id="bdcs"%3E%3C/div%3E')); var bdcs = document.createElement('script'); bdcs.type = 'text/javascript'; bdcs.async = true; bdcs.src = 'http://znsv.baidu.com/customer_search/api/js?sid=7490613033886828738' + '&plate_url=' + encodeURIComponent(window.location.href) + '&t=' + Math.ceil(new Date() / 3600000); var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(bdcs, s); })();</script><div id="bdcs"><div class="bdcs-container"><meta http-equiv="x-ua-compatible" content="IE=9">   <!-- 嵌入式 -->  <div class="bdcs-main bdcs-clearfix" id="default-searchbox">      <div class="bdcs-search bdcs-clearfix" id="bdcs-search-inline">          <form action="http://zhannei.baidu.com/cse/search" method="get" target="_blank" class="bdcs-search-form" autocomplete="off" id="bdcs-search-form">              <input type="hidden" name="s" value="7490613033886828738">              <input type="hidden" name="entry" value="1">                                                                        <input type="text" name="q" class="bdcs-search-form-input" id="bdcs-search-form-input" placeholder="请输入关键词" style="height: 34px; line-height: 34px;">              <input type="submit" class="bdcs-search-form-submit " id="bdcs-search-form-submit" value="搜索">                       </form>      </div>                  </div>                           </div></div>
+</div>
+<div class="paddingbottom10">
+    <script async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/adsbygoogle.js"></script>
+    <!-- 1-mamicode-right-300x600 -->
+    <ins class="adsbygoogle" style="display: inline-block; width: 300px; height: 600px" data-ad-client="ca-pub-8616102841876629" data-ad-slot="8947049888" data-adsbygoogle-status="done"><ins id="aswift_2_expand" style="display:inline-table;border:none;height:600px;margin:0;padding:0;position:relative;visibility:visible;width:300px;background-color:transparent"><ins id="aswift_2_anchor" style="display:block;border:none;height:600px;margin:0;padding:0;position:relative;visibility:visible;width:300px;background-color:transparent"><iframe width="300" height="600" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_2" name="aswift_2" style="left:0;position:absolute;top:0;"></iframe></ins></ins></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+    <script type="text/javascript">
+        /*mamicode-infodetail-zuoyouxuanfu-120*300 创建于 2015-03-13*/
+        var cpro_id = "u1987286";
+    </script>
+    <script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/f.js" type="text/javascript"></script><div id="BAIDU_SSP__wrapper_u1987286_0"></div>
+    <script>
+        var baiduImagePlus = {
+            noLogo: true,
+            unionId: 'u2416663',
+            formList: [{ formId: 2}]
+        };
+    </script>
+    <script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/i.js"></script>
+</div>
+<div class="paddingbottom10">
+<script type="text/javascript">
+var sogou_ad_id=547185;
+var sogou_ad_height=250;
+var sogou_ad_width=300;
+</script>
+<script type="text/javascript" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/c(1).js"></script><script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ask"></script><div style="display:none">-</div> <div id="starIframe_wrapper_1" style="height:250px;"><iframe id="starIframe1" onload="document.sogou_ads1_loaded=true;" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ct.html" width="300" height="250" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div><script type="text/javascript" charset="utf-8" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ask_service"></script>
+</div>
+
+<div class="width100bi divborder">
+    <div class="divtitle">
+        <div id="infofile1_div1" class="divfloatleft divtitlefont">
+            分享档案</div>
+        <div class="divfloatright">
+            <a href="http://www.mamicode.com/infotimemore.html" title="分享档案更多" class="colorCheng">更多&gt;</a>
+        </div>
+        <div class="divfloatclear">
+        </div>
+    </div>
+    <div class="divtextalignleft paddingleft10right10 margintop10bottom10 heightline30px">
+        
+                <a class="taga" href="http://www.mamicode.com/info-time-20160512-1.html" target="_blank" title="2016年05月12日技术分享文章">
+                        2016年05月12日
+                        (340)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160511-1.html" target="_blank" title="2016年05月11日技术分享文章">
+                        2016年05月11日
+                        (2228)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160510-1.html" target="_blank" title="2016年05月10日技术分享文章">
+                        2016年05月10日
+                        (2009)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160509-1.html" target="_blank" title="2016年05月09日技术分享文章">
+                        2016年05月09日
+                        (1627)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160508-1.html" target="_blank" title="2016年05月08日技术分享文章">
+                        2016年05月08日
+                        (1368)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160507-1.html" target="_blank" title="2016年05月07日技术分享文章">
+                        2016年05月07日
+                        (2988)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160506-1.html" target="_blank" title="2016年05月06日技术分享文章">
+                        2016年05月06日
+                        (2185)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160505-1.html" target="_blank" title="2016年05月05日技术分享文章">
+                        2016年05月05日
+                        (1691)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160504-1.html" target="_blank" title="2016年05月04日技术分享文章">
+                        2016年05月04日
+                        (1464)</a><br>
+            
+                <a class="taga" href="http://www.mamicode.com/info-time-20160503-1.html" target="_blank" title="2016年05月03日技术分享文章">
+                        2016年05月03日
+                        (2118)</a><br>
+            
+    </div>
+</div>
+
+            
+<div class="width100bi margintop20 divborder">
+    <div class="divtitle">
+        <div id="infotop2_divtitle" class="divfloatleft divtitlefont">周排行</div>
+        <div class="divfloatright">
+            <img src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/j01.jpg" width="14" height="14" alt="mamicode.com排行更多图片"></div>
+        <div class="divfloatright">
+            <a href="http://www.mamicode.com/info-toplist-11-2-1.html" id="infotop2_amore" title="周排行更多">更多</a></div>
+        <div class="divfloatclear">
+        </div>
+    </div>
+    <div>
+        <ul>
+            <li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-63266.html" title="彻底解决_OBJC_CLASS_$_某文件名&quot;, referenced from:问题（转）" target="_blank">
+                        彻底解决_OBJC_CLASS_$_某文件名", referenced from:问题（转）
+                        &nbsp;<span class="colorlan">2014-06-15</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-82436.html" title="百度究竟是哪国的公司" target="_blank">
+                        百度究竟是哪国的公司
+                        &nbsp;<span class="colorlan">2014-06-30</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-149397.html" title="当刷机工具遇到SetupConnection时的解决方法" target="_blank">
+                        当刷机工具遇到SetupConnection时的解决方法
+                        &nbsp;<span class="colorlan">2014-08-09</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-168312.html" title="dubbo管理控制台安装和使用" target="_blank">
+                        dubbo管理控制台安装和使用
+                        &nbsp;<span class="colorlan">2014-08-19</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-188913.html" title="mybatis关系映射之一对多和多对一" target="_blank">
+                        mybatis关系映射之一对多和多对一
+                        &nbsp;<span class="colorlan">2014-09-01</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-247448.html" title="（七）理解angular中的module和injector，即依赖注入" target="_blank">
+                        （七）理解angular中的module和injector，即依赖注入
+                        &nbsp;<span class="colorlan">2014-10-10</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-503562.html" title="Bootstrap 3兼容IE8浏览器（转）" target="_blank">
+                        Bootstrap 3兼容IE8浏览器（转）
+                        &nbsp;<span class="colorlan">2015-03-07</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-507929.html" title="WAMPServer 默认安装启动后，图标显示橙黄色" target="_blank">
+                        WAMPServer 默认安装启动后，图标显示橙黄色
+                        &nbsp;<span class="colorlan">2015-03-10</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-517085.html" title="前端构建之gulp与常用插件" target="_blank">
+                        前端构建之gulp与常用插件
+                        &nbsp;<span class="colorlan">2015-03-14</span> </a></li><li class="divullititle heightline25px divtextalignleft"><a href="http://www.mamicode.com/info-detail-517504.html" title="正则化方法：L1和L2 regularization、数据集扩增、dropout" target="_blank">
+                        正则化方法：L1和L2 regularization、数据集扩增、dropout
+                        &nbsp;<span class="colorlan">2015-03-14</span> </a></li>
+        </ul>
+    </div>
+</div>
+
+            <div id="xuanting" class="width300px" style="position: fixed; left: 1120px; top: 1px; z-index: 1000000;">
+    <div class="margintop10">
+        <script type="text/javascript">
+            var cpro_id = "u2208973";
+            (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id] = { at: "3", rsi0: "300", rsi1: "300", pat: "17", tn: "baiduCustNativeAD", rss1: "#FFFFFF", conBW: "1", adp: "1", ptt: "0", titFF: "", titFS: "14", rss2: "#000000", titSU: "0" }
+        </script>
+        <script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/c.js" type="text/javascript"></script><div id="BAIDU_SSP__wrapper_u2208973_0"><iframe id="iframeu2208973_0" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/ycom(6).html" width="300" height="300" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0; vertical-align:bottom;margin:0;" allowtransparency="true"></iframe></div>
+    </div>
+    <div class="margintop10">
+        <script async="" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/adsbygoogle.js"></script>
+        <!-- mamicode-xuanting-300x250 -->
+        <ins class="adsbygoogle" style="display: inline-block; width: 300px; height: 250px;" data-ad-client="ca-pub-8616102841876629" data-ad-slot="3583171088" data-adsbygoogle-status="done"><ins id="aswift_3_expand" style="display:inline-table;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px;background-color:transparent"><ins id="aswift_3_anchor" style="display:block;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px;background-color:transparent"><iframe width="300" height="250" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" allowfullscreen="true" onload="var i=this.id,s=window.google_iframe_oncopy,H=s&amp;&amp;s.handlers,h=H&amp;&amp;H[i],w=this.contentWindow,d;try{d=w.document}catch(e){}if(h&amp;&amp;d&amp;&amp;(!d.body||!d.body.firstChild)){if(h.call){setTimeout(h,0)}else if(h.match){try{h=s.upd(h,i)}catch(e){}w.location.replace(h)}}" id="aswift_3" name="aswift_3" style="left:0;position:absolute;top:0;"></iframe></ins></ins></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</div>
+
+        </div>
+        <div class="divfloatclear">
+        </div>
+    </div><script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/pe.js"></script>
+    <div class="width1000px divmargin0auto paddingtop20bottom20">
+    <div class="width1000px divborder margintop20">
+        <div class="youqingtitle">
+            <a title="友情链接">友情链接</a>
+        </div>
+        <div class="youqingcontent">
+            <a href="http://www.lightinit.com/" target="_blank" title="互联网产品定制开发专家">兰亭集智</a>&nbsp;&nbsp;<a href="http://www.guozhihua.net/" target="_blank">国之画</a>&nbsp;&nbsp;<a href="http://www.bubufx.com/" target="_blank">布布分享</a>&nbsp;&nbsp;<a href="http://tongji.baidu.com/" target="_blank">百度统计</a>&nbsp;&nbsp; <a href="http://www.cnzz.com/" target="_blank">
+                        站长统计</a>&nbsp;&nbsp;<a href="http://www.aliyun.com/" target="_blank">阿里云</a>&nbsp;&nbsp;
+        </div>
+    </div>
+</div>
+<div class="bottomdiv">
+    <div class="width1000px divmargin0auto paddingtop20">
+        <div class="height30px divtextalignleft">
+            <a href="http://www.mamicode.com/about.html" title="mamicode.com关于我们">关于我们</a> - <a href="http://www.mamicode.com/contactus.html" title="mamicode.com联系我们">联系我们</a> - <a href="http://www.mamicode.com/guest.html" title="mamicode.com留言反馈">留言反馈</a>
+        </div>
+        <div class="height30px divtextalignleft">
+            © 2014 <a href="http://www.mamicode.com/" target="_blank" title="mamicode.com,技术分享">mamicode.com</a>
+            版权所有 京ICP备13008772号-2
+        </div>
+        <div class="divtextalignleft">
+            <span class="colorlan">迷上了代码！</span>
+        </div>
+        <div class="paddingtop20">
+            <script type="text/javascript">                var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://"); document.write(unescape("%3Cspan id='cnzz_stat_icon_1254666564'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1254666564%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script><span id="cnzz_stat_icon_1254666564"><a href="http://www.cnzz.com/stat/website.php?web_id=1254666564" target="_blank" title="站长统计"><img border="0" hspace="0" vspace="0" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/pic1.gif"></a></span><script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/z_stat.php" type="text/javascript"></script><script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/core.php" charset="utf-8" type="text/javascript"></script>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <script type="text/javascript">
+                var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+                document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fb65e01a9bac157f881c4d8cbac4b6995' type='text/javascript'%3E%3C/script%3E"));
+            </script><script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/h.js" type="text/javascript"></script><a href="http://tongji.baidu.com/hm-web/welcome/ico?s=b65e01a9bac157f881c4d8cbac4b6995" target="_blank"><img border="0" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/21.gif" width="20" height="20"></a>
+        </div>
+        <br>
+        <br>
+        <br>
+    </div>
+</div><div style="display: none;"><iframe width="1" height="1" src="javascript:document.write('');" id="UploadContentIframe" name="UploadContentIframe"></iframe></div><div style="display: none;"><form id="UploadContentForm" name="UploadContentForm" action="./那些你应该知道却不一定知道的——View坐标分析汇总_files/log_print.html" target="UploadContentIframe" enctype="application/x-www-form-urlencoded" method="POST"><input type="text" name="url" value="http://www.mamicode.com/info-detail-1295688.html"><textarea name="title">那些你应该知道却不一定知道的——View坐标分析汇总</textarea><textarea name="mypos">首页 &gt; 其他好文 &gt; 详细</textarea><textarea name="metakeywords">码迷,mamicode.com,互联网,软件开发,开源,asp,asp.net,android,apple,jsp,php,Windows,数据库,HTML,JS,CSS,技术文章,游戏,创业,手机相关</textarea><textarea name="metadescription">前方高能~ 
+本文版权所有，转载请注明：http://blog.csdn.net/mr_immortalz/article/details/51168278一.概述
+  网上关于Android 的view坐标挺多的，写这篇的目的是因为网上搜到的文章大多较简单，几乎都是简单的介绍下获取的几个方法坐标的几个方法罢了，但在实战中，你会发现可能你学会的那几个获取坐标的方法并没有正确的使用，导致当你要计算坐标...</textarea><input type="text" name="lastmodified" value="05/12/2016 06:16:22"><input type="text" name="charset" value="UTF-8"><textarea name="maincontent">前方高能~ 本文版权所有，转载请注明：http://blog.csdn.net/mr_immortalz/article/details/51168278一.概述网上关于Android 的view坐标挺多的，写这篇的目的是因为网上搜到的文章大多较简单，几乎都是简单的介绍下获取的几个方法坐标的几个方法罢了，但在实战中，你会发现可能你学会的那几个获取坐标的方法并没有正确的使用，导致当你要计算坐标的时候可能会试过几遍才找到正确的办法（其实这也正是我容易混淆的地方，所以特地写篇博客记录下）关于那几个获取坐标的方法我就懒得说了 （这篇博客有记载，大家可以去看看http://blog.csdn.net/jason0539/article/details/42743531）大体的方法就是这些了下面借用那篇博客的一张图：view提供的方法getTop：获取到的，是view自身的顶边到其父布局顶边的距离   getLeft：获取到的，是view自身的左边到其父布局左边的距离   getRight：获取到的，是view自身的右边到其父布局左边的距离   getBottom：获取到的，是view自身的底边到其父布局顶边的距离MotionEvent提供的方法getX()：获取点击事件相对控件左边的x轴坐标，即点击事件距离控件左边的距离   getY()：获取点击事件相对控件顶边的y轴坐标，即点击事件距离控件顶边的距离   getRawX()：获取点击事件相对整个屏幕左边的x轴坐标，即点击事件距离整个屏幕左边的距离   getRawY()：获取点击事件相对整个屏幕顶边的y轴坐标，即点击事件距离整个屏幕顶边的距离下面做个测试分别点击A点，B点后效果这里需要注意的是：点击B点后（可以看到先是回调TestTextView中的onTouchEvent方法，然后才是MainActivity中的onTouchEvent，因为我在二者的onTouchEvent方法中都没有进行点击事件的消费处理，所以会往上传递，突然扯到了事件分发机制，2333~这里就是突然想补充一点，还是扯回坐标吧）1.TestTextView中getY和getRawY取得的值不一样，这点我们可以理解2.MainActivity中getY和getRawY取得的值一样！（我们注意到点击A,B点都是如此）原因在于，当点击事件没有被消费，往上传递时，此刻onTouchEvent参数列表中的MotionEvent是来自ViewGroup，而对于ViewGroup来说getY和getRawY其实是一样的。这里我们得到一条规律：getY和getRawY只有在View中才会导致点击后取得的值不一致，在ViewGroup取得的值是一致的！测试2：类似在ListView这种有滚动轴的控件中会是什么样的呢？这个打印我忘记截图完整了，这里我说明下打印的log我是在ListView所在的activity中的dispatchTouchEvent，之所以不在activity的onTouchEvent中打印是因为ListView中的item消费了事件，那么这个activity的onTouchEvent就不会打印出Log了。 贴上代码@Override    public boolean dispatchTouchEvent(MotionEvent event) {        if (event.getAction() == MotionEvent.ACTION_DOWN) {            LogUtil.m("SecondActivity  getX " + event.getX() + " getY " + event.getY());            LogUtil.m("SecondActivity  getrawx " + event.getRawX() + " getrawy " + event.getRawY());        }        return super.dispatchTouchEvent(event);    }这次我们点击的是item7的顶部，发现一致，按照刚才我们得到的规律应该很好理解，ListView是ViewGroup，所以getY和getRawY取得的值是一样的。 （PS：这时可能会有点好奇，我们明明点击的接近是item7的顶部，为啥得到的Y指却不是接近0呢，原因后面讲）这里我们得到一条启示：正是因为有这样一条规律：在View中才会导致点击后取得的值不一致，在ViewGroup取得的值是一致，对于这种滑动的ViewGroup，我们在获取ViewGroup的坐标值时并不需要考虑它到底滑动了多少（实际滑动的我们应该看作是ViewGroup中的View在滑动），因为我们无论是getY还是getRawY取得的都是点击事件距离整个屏幕顶边的距离。二.获取在上面我们留下了一个疑问：我们明明点击的接近是item7的顶部，得到的Y指却不是接近0。 原因在于getRawY返回的是点击事件距离整个屏幕顶边的距离，所以点击item7的顶部，得到的Y值其实就是状态栏的值。当然我们有时候碰到的不仅就只有状态栏，有时候是状态栏与标题栏并存的。所以我们在获取ViewGroup的Y值是一定要注意是否需要减去状态栏，标题栏（如果有）的高度，否则计算得到的Y值并不是正确的。这里为了让大家更清晰的了解，大家可以看看这篇文章http://bbs.51cto.com/thread-1072344-1.html（Android4.0窗口机制和创建过程分析 ）下面我们用图来初略说明（这是我的理解，有误欢迎指正）现在我们再来说说怎么取得坐标值的时机因为MotionEvent提供的获取坐标的方法是在页面完完全全显示在用户眼前且用户点击后才会使用到的方法，所以并不存在获取不到的问题，下面就论述下 view提供的获取坐标方法看到这，你可能会说，那还不简单当布局被加载出来的时候，我们去获取不就OK了吗？ 于是我们就会看到这样的错误：在一个Activity的onCreate方法中，设置完setContentView后，就开始View的getLeft，getTop等方法，结果发现为0，为啥？原因就是：对于View，ViewGroup来说，width、height、top、left等属性值是在Measure与Layout过程完成之后才开始正确赋值的，而Measure与Layout却都晚于onCreate方法执行，所以onCreate中getLeft根本就取不到值！那要是我们想要在onCreate中取到我们想要的值，我们应该怎么做呢？ 大家可以参考这两篇博文 （http://www.cnblogs.com/kissazi2/p/4133927.html） （http://blog.csdn.net/codezjx/article/details/45341309）我觉得写得很好了归纳如下：这里我推荐2,4这两种，即view.post(new Runnable() {      @Overridepublicvoidrun() {          view.getHeight();      }  });或者@OverridepublicvoidonWindowFocusChanged(boolean hasFocus) {      super.onWindowFocusChanged(hasFocus);      } 三.计算现在对坐标系是咋样的，我们已经了解了。对啥时候获取，以及获取后是否需要纠正得到正确的Y，我们也已经分析了。下面就来说说本文的重头戏 ——— 坐标的计算。（之所以说是重头戏，是因为我们之前得到的都是一个点的正确坐标，现在我们需要做的是在得到多个正确坐标后，进行正确的计算，这样我们才能实现滑动这样炫酷的效果`(∩_∩)′）首先我们需要建立一个概念在Android的坐标系中，原点在屏幕左上角，向右x为正，向下y为正。（为了好计算，图片中的坐标单位是px）（下面就以这个为例，我们要将View从原点移动到（200,400）的位置，即B点与C点重合）想实现View移动大致有这几种方式（代码见下面）XML文件&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;LinearLayoutxmlns:android="http://schemas.android.com/apk/res/android"xmlns:tools="http://schemas.android.com/tools"android:layout_width="match_parent"android:layout_height="match_parent"tools:context=".MainActivity"&gt;&lt;LinearLayoutandroid:id="@+id/ly"android:background="#EFAA88"android:layout_centerInParent="true"android:layout_width="300px"android:layout_height="500px"&gt;&lt;mr_immortalz.com.testlocation.TestTextViewandroid:background="#aabbcc"android:id="@+id/tv"android:text="你好"android:layout_width="100px"android:layout_height="100px" /&gt;&lt;/LinearLayout&gt;&lt;/LinearLayout&gt;TestTextView也很简单，就是/** * Created by Mr_immortalZ on 2016/4/16. * email : mr_immortalz@qq.com */publicclassTestTextViewextendsTextView {publicTestTextView(Context context) {        super(context);    }    publicTestTextView(Context context, AttributeSet attrs) {        super(context, attrs);    }    publicTestTextView(Context context, AttributeSet attrs, int defStyleAttr) {        super(context, attrs, defStyleAttr);    }    @OverridepublicbooleanonTouchEvent(MotionEvent event) {        switch (event.getAction()) {            case MotionEvent.ACTION_DOWN:                                TranslateAnimation anim = new TranslateAnimation(0, 200, 0, 400);                anim.setFillAfter(true);                startAnimation(anim);                LogUtil.m("移动后 getX " + getX() + "  getY " + getY());                LogUtil.m("移动后 getLeft " + getLeft() + "tv getTop " + getTop()                        + " tv getRight " + getRight() + " tv getBottom " + getBottom());                break;        }        returntrue;    }}我们移动到指定位置的有7种方式1.layoutlayout(getLeft() + 200, getTop() + 400, getRight() + 200, getBottom() + 400);移动后getLeft等值改变2.offsetLeftAndRight、offsetTopAndBottomoffsetLeftAndRight(200);offsetTopAndBottom(400);移动后getLeft等值改变3.修改LayoutParams ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) getLayoutParams()                lp.leftMargin = getLeft() + 200                lp.topMargin = getTop() + 400                setLayoutParams(lp)移动后getLeft等值不改变4.scrollTo((View)getParent()).scrollTo(-200,-400)移动后getLeft等值不改变5.scrollBy((View)getParent()).scrollBy(-200,-400)移动后getLeft等值不改变对于scrollTo、scrollBy需要注意的有两个问题问题1：移动计算值 =  最开始点坐标 - 最后移动到的坐标  原因是因为最终会调用这个方法   —— invalidateInternal(l - scrollX, t - scrollY, r - scrollX, b - scrollY, true, false); 其中l,t,r,b为原来坐标点，scrollX,scrollY为目标坐标点，只有当目标坐标点值是负数时，移动到的位置才为正数！       例如scrollTo ，我们要从（0,0）移动到（200,400）这个点，根据上面的公式可知为负值问题2为什么需要加上 ((View)getParent())TestTextView本身是View，scrollTo、scrollBy移动的都是View的Content，如果不加的话，使用的效果则是TestTextView的文字位置变化，而TestTextView本身不会变化。   如果在ViewGroup中使用scrollTo、scrollBy，则移动的是ViewGroup中的View.我们这里需要让TestTextView移动，则需要先 ((View)getParent())，然后再((View)getParent()).scrollTo…6.属性动画我就以ObjectAnimator为例子AnimatorSet set = new AnimatorSet();set.playTogether(                        ObjectAnimator.ofFloat(this, "translationX", 200),                        ObjectAnimator.ofFloat(this,"translationY", 400)                );set.start();移动后getLeft等值不改变7.位移动画TranslateAnimation anim = new TranslateAnimation(0,200,0,400);                anim.setFillAfter(true);                startAnimation(anim);移动后getLeft等值不改变关于位移动画的补充点：我们经常用这样的需求，要求一个popupwindow从屏幕底部弹出或者从屏幕顶部弹出。 这里的位移设置同样还是如此（原点在屏幕左上角，向右x为正，向下y为正）这篇博文可以参考学习下，下面这张神图也是来自这篇博文（Android动画之translate(位移动画)） http://www.cnblogs.com/bavariama/archive/2013/01/29/2881225.html注意点属性动画是真实改变View的位置的，虽然属性动画、位移动画的getLeft等没有改变，但是属性动画的getX、getY是改变了的，位移动画的getX、getY仍未改变！最后再来回顾下这张图四.小结坐标分析上面都分析完了，基本上涵盖了自定义View坐标计算、滑动、事件分发等常见场景的坐标问题，希望大家能从中得到收获。   水平很菜，有错误的地方欢迎指正，大家一起学习进步！? 反正撸完这篇，我算是对于坐标系有了更深刻的认识，给自己点个赞~?</textarea></form></div><div style="position: absolute; border: 0px; margin: 0px; padding: 0px; height: 0px; overflow: visible; text-align: left; top: 1108px; left: 420px; width: 680px;"><style type="text/css" media="screen" id="s-f21ac82b21eeb7322631b6aa94e17f451cmq8mj">.ad-widget-imageplus-sticker{font:12px/1.5 arial,sans-serif;position:absolute;left:0;width:100%;display:none;overflow:hidden;color:#FFF;background:transparent;-webkit-transition:height .5s,top .5s;transition:height .5s,top .5s}.ad-widget-imageplus-sticker div{background:transparent}.ad-widget-imageplus-sticker-cut{display:block}.ad-widget-imageplus-sticker-bg{position:absolute;z-index:1;left:0;top:0;width:100%;height:100%;background:#000!important;box-shadow:2px 2px 4px #000}.ad-widget-imageplus-sticker-bd{position:relative;z-index:2;left:0;top:0;width:100%;overflow:hidden}.ad-widget-imageplus-sticker-close{position:absolute;z-index:3;right:0;top:5px;width:25px;height:25px;line-height:25px;text-decoration:none;text-align:center;font-size:18px;color:#FFF!important}.ad-widget-imageplus-sticker-close:hover{background-color:#000}
+.ad-widget-imageplus-sticker-theme-white{color:#333}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-bg{background:#FFF!important;box-shadow:2px 2px 4px #FFF}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-close{color:#666!important}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-close:hover{background-color:#FFF!important}.ad-widget-imageplus-sticker-theme-none{color:#333}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-close{color:#666!important}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-close:hover{background-color:#FFF!important}.ad-widget-imageplus-sticker-theme-none-white{color:#333}
+.ad-widget-imageplus-sticker-theme-none-white .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none-white-2 .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none-white-2 .ad-widget-imageplus-sticker-close{top:0;text-indent:-9999px;background:url(http://ecma.bdimg.com/public03/imageplus/v2/dock/close.png) no-repeat 0 0 transparent}.ad-widget-imageplus-sticker-theme-v2 .ad-big-title{position:relative;top:0;opacity:1;filter:alpha(opacity=100);-webkit-transition:top .5s,opacity .6s;transition:top .5s,opacity .6s}.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-showing .ad-big-title{position:relative;top:-36px;opacity:0;filter:alpha(opacity=0)}.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-showing .ad-widget-imageplus-sticker-bg{top:26px}
+.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-close{top:0;text-indent:-9999px;background:url(http://ecma.bdimg.com/public03/imageplus/v2/dock/close.png) no-repeat 0 0 transparent}.ad-widget-imageplus-sticker-thumbnail{font:12px/1.5 arial,sans-serif;position:absolute;right:0;top:0;height:20px;width:100px;overflow:hidden;background:transparent;-webkit-transition:height .5s;-moz-transition:height .5s;-ms-transition:height .5s;-o-transition:height .5s;transition:height .5s;background-color:rgba(0,0,0,0.5);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80000000,endColorstr=#80000000);-ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80000000,endColorstr=#80000000)}.ad-widget-imageplus-sticker-thumbnail a{float:right;width:100px;height:20px;line-height:20px;text-align:center;color:white;background:transparent;text-decoration:none}
+.ad-widget-imageplus-sticker-thumbnail i{width:12px;height:8px;margin-top:6px;margin-left:5px;display:block;float:left;background:url('http://ecma.bdimg.com/adtest/8e547549c94ab88c81b644d5ff63b0d3.png') no-repeat 0 0;background:none \9;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',sizingMethod='corp',src='http://ecma.bdimg.com/adtest/8e547549c94ab88c81b644d5ff63b0d3.png')\9}.ad-widget-imageplus-sticker-close-newstyle{top:0;text-indent:-9999px;background:url(http://ecmb.bdimg.com/public03/v2/dock/iconfont-close.png) no-repeat 0 0 transparent!important}.baiduimageplus-s-pa{position:relative;width:100%;height:101px;overflow:hidden;cursor:default;-webkit-transition:top .5s;-moz-transition:top .5s;-ms-transition:top .5s;-o-transition:top .5s;transition:top .5s}.baiduimageplus-s-pa a{outline:0;text-decoration:none}
+.baiduimageplus-s-pa a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1}.baiduimageplus-s-pa .baiduimageplus-s-pa-ct{position:relative;z-index:2}.baiduimageplus-s-pa .baiduimageplus-s-pa-hd{height:26px;line-height:26px;text-indent:10px}.baiduimageplus-s-pa .baiduimageplus-s-pa-hd a{font-size:14px;color:#FFF}.baiduimageplus-s-pa .baiduimageplus-s-pa-bd{position:relative;margin:10px 0;overflow:hidden;_zoom:1}.baiduimageplus-s-pa .baiduimageplus-s-pa-img{float:left;_display:inline;width:50px;height:50px;margin:5px 12px 0 10px}.baiduimageplus-s-pa .baiduimageplus-s-pa-img img{display:block;width:50px;height:50px;border:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-img-bigoutter{float:left;_display:inline;width:70px;height:70px;_width:65px;_height:65px;margin:-20px 12px 0 10px;_margin:5px 5px 0 5px;_postion:relative}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-img-bigoutter img{width:70px;height:70px;_position:absolute;_top:-20px;_left:5px}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt{margin-right:85px;height:54px;overflow:hidden;zoom:1;line-height:1.5;word-wrap:break-word;font-size:12px;text-align:left;text-decoration:none;-webkit-line-clamp:2}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt a{color:#FFF}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-title,.baiduimageplus-s-pa .baiduimageplus-s-pa-desc,.baiduimageplus-s-pa .baiduimageplus-s-pa-links{float:none;padding:0;border:0;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;margin:0;height:18px;line-height:18px;zoom:1;color:#FFF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-links a{float:left;_display:inline;padding:0 7px;color:#FFF;border-left:1px solid #999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:last-child{margin-right:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:first-child{border-left:none;padding-left:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-title,.baiduimageplus-s-pa .baiduimageplus-s-pa-title a{color:#CCC}.baiduimageplus-s-pa .baiduimageplus-s-pa-bt{position:absolute;top:20px;right:10px;margin:0;width:70px;height:25px;display:block;text-decoration:none;color:#FFF;font-size:14px;text-align:center;line-height:25px;background:#bc0000;box-shadow:2px 2px 4px #000;border-radius:5px}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-bt:hover{-webkit-animation:none;animation:none;text-decoration:none;background-color:#ea2b2b}.baiduimageplus-s-pa .baiduimageplus-s-pa-logo{position:absolute;bottom:0;right:0;z-index:3;height:18px;width:18px;text-indent:-9999px;background:url(http://cpro.baidustatic.com/cpro/ui/noexpire/img/2.0.1/bg.png) no-repeat left top;background-position:0 0;_filter:progid:dximagetransform.microsoft.alphaimageloader(enabled=true,src="http://cpro.baidustatic.com/cpro/ui/noexpire/img/2.0.1/bg.png",sizingMethod="crop");_background:none}.ad-widget-imageplus-sticker-showing .baiduimageplus-s-pa-hd{opacity:0;filter:alpha(opacity=0)}.baiduimageplus-s-pa-links a{background:url(http://ecma.bdimg.com/adtest/5d5a28881dc5b110114e55cf6d4f69ec.png) no-repeat left top;background-position:0 0;_filter:progid:dximagetransform.microsoft.alphaimageloader(enabled=true,src=" http://ecma.bdimg.com/adtest/5d5a28881dc5b110114e55cf6d4f69ec.png",sizingMethod="crop");_background:none;display:inline-block;margin-right:3px!important;padding-left:13px!important;padding-right:7px;border:0!important}
+.baiduimageplus-s-pa-links a:hover{text-decoration:underline}</style><div id="f21ac82b21eeb7322631b6aa94e17f451cmq8mj" data-rendered="true" style="margin: 0px; padding: 0px; border: none; overflow: visible; text-align: left;"><div class="ad-widget-imageplus-sticker ad-widget-imageplus-sticker-theme-v2 ad-widget-imageplus-sticker-cut" id="w-ryfk3i" style="display: block; top: 177px; height: 100px;">
+<div class="ad-widget-imageplus-sticker ad-widget-imageplus-sticker-wrapper ad-widget-imageplus-sticker-box-showing" id="w-ryfk3i-wrapper" style="display: block; top: 74px; height: 26px;">
+<div class="ad-widget-imageplus-sticker-bg" id="w-ryfk3i-background" style="opacity: 0.75;"></div>
+<div class="ad-widget-imageplus-sticker-bd" id="w-ryfk3i-body">
+<div class="baiduimageplus-s-pa" id="w-jzwwd1">
+<div class="baiduimageplus-s-pa-bg" id="w-jzwwd1-background"></div>
+<div class="baiduimageplus-s-pa-ct">
+<div class="baiduimageplus-s-pa-hd">
+<a data-log="2" data-mid="111" href="http://www.baidu.com/cpro.php?ns_K00K0ufVM1YS4o9FyKmsTqbPUVEwz4JyabTa3KS_ZFdbX5b0m1z5jueYqxC-Fu-xrsjeKyRjoYM0QdudZKkmZBdT_soW_yiiOp6QyfqDW-coLVPCAfkjy0DJG.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HR4uW6vujKbmWuWPHD4mHT0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5NNpUgF9RZPkI1b10ZNGTjd3XMK4P77pyZnkU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnHc4nHm0" target="_blank" style="">IT认证考神，hold全场</a>
+</div>
+<div class="baiduimageplus-s-pa-bd">
+<a class="baiduimageplus-s-pa-img " href="http://www.baidu.com/cpro.php?ns_K00K0ufVM1YS4o9FyKmsTqbPUVEwz4JyabTa3KS_ZFdbX5b0m1z5jueYqxC-Fu-xrsjeKyRjoYM0QdudZKkmZBdT_soW_yiiOp6QyfqDW-coLVPCAfkjy0DJG.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HR4uW6vujKbmWuWPHD4mHT0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5NNpUgF9RZPkI1b10ZNGTjd3XMK4P77pyZnkU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnHc4nHm0" data-log="2" data-mid="111" target="_blank">
+<img src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/9a5a76cb8defd0a62eeff4aaf7389d93.jpg">
+</a>
+<div class="baiduimageplus-s-pa-txt">
+<p class="baiduimageplus-s-pa-title">
+<a data-log="2" data-mid="111" href="http://www.baidu.com/cpro.php?ns_K00K0ufVM1YS4o9FyKmsTqbPUVEwz4JyabTa3KS_ZFdbX5b0m1z5jueYqxC-Fu-xrsjeKyRjoYM0QdudZKkmZBdT_soW_yiiOp6QyfqDW-coLVPCAfkjy0DJG.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HR4uW6vujKbmWuWPHD4mHT0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5NNpUgF9RZPkI1b10ZNGTjd3XMK4P77pyZnkU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnHc4nHm0" target="_blank" style="">IT认证考神，hold全场</a>
+</p>
+<p class="baiduimageplus-s-pa-desc" style="height:36px;white-space:normal;">
+<a id="w-jzwwd1-desc" data-log="2" data-mid="111" href="http://www.baidu.com/cpro.php?ns_K00K0ufVM1YS4o9FyKmsTqbPUVEwz4JyabTa3KS_ZFdbX5b0m1z5jueYqxC-Fu-xrsjeKyRjoYM0QdudZKkmZBdT_soW_yiiOp6QyfqDW-coLVPCAfkjy0DJG.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HR4uW6vujKbmWuWPHD4mHT0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5NNpUgF9RZPkI1b10ZNGTjd3XMK4P77pyZnkU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnHc4nHm0" target="_blank" style="">51CTO学院，考试,就要一次通过！ 升值加薪就靠IT认证！</a>
+</p>
+<p class="baiduimageplus-s-pa-links">
+</p>
+</div>
+<a class="baiduimageplus-s-pa-bt" id="w-jzwwd1-lookbtnshake" data-log="2" data-mid="111" href="http://www.baidu.com/cpro.php?ns_K00K0ufVM1YS4o9FyKmsTqbPUVEwz4JyabTa3KS_ZFdbX5b0m1z5jueYqxC-Fu-xrsjeKyRjoYM0QdudZKkmZBdT_soW_yiiOp6QyfqDW-coLVPCAfkjy0DJG.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HR4uW6vujKbmWuWPHD4mHT0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5NNpUgF9RZPkI1b10ZNGTjd3XMK4P77pyZnkU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnHc4nHm0" target="_blank" style="top: 20px;">去看看</a>
+</div>
+</div>
+<a class="baiduimageplus-s-pa-logo" title="百度网盟推广" href="http://wangmeng.baidu.com/" target="_blank" data-ignore=""></a>
+<!-- 新增的推广提示 -->
+<div style="position:absolute;left:0px;bottom:0px;width:29px;height:16px;overflow:hidden;z-index:12;background: url(http://ecmb.bdimg.com/public03/imageplus/leftbottom.png) no-repeat;"></div>
+</div>
+</div>
+</div>
+<a class="ad-widget-imageplus-sticker-close " href="http://www.mamicode.com/info-detail-1295688.html#" id="w-ryfk3i-close" style="display: none;">X</a>
+</div>
+<div class="ad-widget-imageplus-sticker-thumbnail" id="w-ryfk3i-thumbnail" style="display: none; top: 257px;">
+<a href="http://www.mamicode.com/info-detail-1295688.html#" title="点击展开"><i>&nbsp;</i>图片相关信息</a>
+</div></div></div>
+<script type="text/javascript" src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/mamicodejs.js"></script>
+
+    <script type="text/javascript">        var mid = ''; var id = '1295688'; var idm = 'e8ee19'; var commentitemcount = '0'; var memberhost = 'http://member.mamicode.com/'; prettyPrint(); </script>  
+    <script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/infodetail.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/member.js" type="text/javascript" charset="utf-8"></script>
+
+
+<div style="position: absolute; border: 0px; margin: 0px; padding: 0px; height: 0px; overflow: visible; text-align: left; top: 1452px; left: 420px; width: 680px;"><style type="text/css" media="screen" id="s-f21ac82b21eeb7322631b6aa94e17f452ebz8fc">.ad-widget-imageplus-sticker{font:12px/1.5 arial,sans-serif;position:absolute;left:0;width:100%;display:none;overflow:hidden;color:#FFF;background:transparent;-webkit-transition:height .5s,top .5s;transition:height .5s,top .5s}.ad-widget-imageplus-sticker div{background:transparent}.ad-widget-imageplus-sticker-cut{display:block}.ad-widget-imageplus-sticker-bg{position:absolute;z-index:1;left:0;top:0;width:100%;height:100%;background:#000!important;box-shadow:2px 2px 4px #000}.ad-widget-imageplus-sticker-bd{position:relative;z-index:2;left:0;top:0;width:100%;overflow:hidden}.ad-widget-imageplus-sticker-close{position:absolute;z-index:3;right:0;top:5px;width:25px;height:25px;line-height:25px;text-decoration:none;text-align:center;font-size:18px;color:#FFF!important}.ad-widget-imageplus-sticker-close:hover{background-color:#000}
+.ad-widget-imageplus-sticker-theme-white{color:#333}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-bg{background:#FFF!important;box-shadow:2px 2px 4px #FFF}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-close{color:#666!important}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-close:hover{background-color:#FFF!important}.ad-widget-imageplus-sticker-theme-none{color:#333}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-close{color:#666!important}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-close:hover{background-color:#FFF!important}.ad-widget-imageplus-sticker-theme-none-white{color:#333}
+.ad-widget-imageplus-sticker-theme-none-white .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none-white-2 .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none-white-2 .ad-widget-imageplus-sticker-close{top:0;text-indent:-9999px;background:url(http://ecma.bdimg.com/public03/imageplus/v2/dock/close.png) no-repeat 0 0 transparent}.ad-widget-imageplus-sticker-theme-v2 .ad-big-title{position:relative;top:0;opacity:1;filter:alpha(opacity=100);-webkit-transition:top .5s,opacity .6s;transition:top .5s,opacity .6s}.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-showing .ad-big-title{position:relative;top:-36px;opacity:0;filter:alpha(opacity=0)}.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-showing .ad-widget-imageplus-sticker-bg{top:26px}
+.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-close{top:0;text-indent:-9999px;background:url(http://ecma.bdimg.com/public03/imageplus/v2/dock/close.png) no-repeat 0 0 transparent}.ad-widget-imageplus-sticker-thumbnail{font:12px/1.5 arial,sans-serif;position:absolute;right:0;top:0;height:20px;width:100px;overflow:hidden;background:transparent;-webkit-transition:height .5s;-moz-transition:height .5s;-ms-transition:height .5s;-o-transition:height .5s;transition:height .5s;background-color:rgba(0,0,0,0.5);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80000000,endColorstr=#80000000);-ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80000000,endColorstr=#80000000)}.ad-widget-imageplus-sticker-thumbnail a{float:right;width:100px;height:20px;line-height:20px;text-align:center;color:white;background:transparent;text-decoration:none}
+.ad-widget-imageplus-sticker-thumbnail i{width:12px;height:8px;margin-top:6px;margin-left:5px;display:block;float:left;background:url('http://ecma.bdimg.com/adtest/8e547549c94ab88c81b644d5ff63b0d3.png') no-repeat 0 0;background:none \9;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',sizingMethod='corp',src='http://ecma.bdimg.com/adtest/8e547549c94ab88c81b644d5ff63b0d3.png')\9}.ad-widget-imageplus-sticker-close-newstyle{top:0;text-indent:-9999px;background:url(http://ecmb.bdimg.com/public03/v2/dock/iconfont-close.png) no-repeat 0 0 transparent!important}.baiduimageplus-s-pa{position:relative;width:100%;height:101px;overflow:hidden;cursor:default;-webkit-transition:top .5s;-moz-transition:top .5s;-ms-transition:top .5s;-o-transition:top .5s;transition:top .5s}.baiduimageplus-s-pa a{outline:0;text-decoration:none}
+.baiduimageplus-s-pa a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1}.baiduimageplus-s-pa .baiduimageplus-s-pa-ct{position:relative;z-index:2}.baiduimageplus-s-pa .baiduimageplus-s-pa-hd{height:26px;line-height:26px;text-indent:10px}.baiduimageplus-s-pa .baiduimageplus-s-pa-hd a{font-size:14px;color:#FFF}.baiduimageplus-s-pa .baiduimageplus-s-pa-bd{position:relative;margin:10px 0;overflow:hidden;_zoom:1}.baiduimageplus-s-pa .baiduimageplus-s-pa-img{float:left;_display:inline;width:50px;height:50px;margin:5px 12px 0 10px}.baiduimageplus-s-pa .baiduimageplus-s-pa-img img{display:block;width:50px;height:50px;border:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-img-bigoutter{float:left;_display:inline;width:70px;height:70px;_width:65px;_height:65px;margin:-20px 12px 0 10px;_margin:5px 5px 0 5px;_postion:relative}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-img-bigoutter img{width:70px;height:70px;_position:absolute;_top:-20px;_left:5px}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt{margin-right:85px;height:54px;overflow:hidden;zoom:1;line-height:1.5;word-wrap:break-word;font-size:12px;text-align:left;text-decoration:none;-webkit-line-clamp:2}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt a{color:#FFF}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-title,.baiduimageplus-s-pa .baiduimageplus-s-pa-desc,.baiduimageplus-s-pa .baiduimageplus-s-pa-links{float:none;padding:0;border:0;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;margin:0;height:18px;line-height:18px;zoom:1;color:#FFF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-links a{float:left;_display:inline;padding:0 7px;color:#FFF;border-left:1px solid #999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:last-child{margin-right:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:first-child{border-left:none;padding-left:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-title,.baiduimageplus-s-pa .baiduimageplus-s-pa-title a{color:#CCC}.baiduimageplus-s-pa .baiduimageplus-s-pa-bt{position:absolute;top:20px;right:10px;margin:0;width:70px;height:25px;display:block;text-decoration:none;color:#FFF;font-size:14px;text-align:center;line-height:25px;background:#bc0000;box-shadow:2px 2px 4px #000;border-radius:5px}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-bt:hover{-webkit-animation:none;animation:none;text-decoration:none;background-color:#ea2b2b}.baiduimageplus-s-pa .baiduimageplus-s-pa-logo{position:absolute;bottom:0;right:0;z-index:3;height:18px;width:18px;text-indent:-9999px;background:url(http://cpro.baidustatic.com/cpro/ui/noexpire/img/2.0.1/bg.png) no-repeat left top;background-position:0 0;_filter:progid:dximagetransform.microsoft.alphaimageloader(enabled=true,src="http://cpro.baidustatic.com/cpro/ui/noexpire/img/2.0.1/bg.png",sizingMethod="crop");_background:none}.ad-widget-imageplus-sticker-showing .baiduimageplus-s-pa-hd{opacity:0;filter:alpha(opacity=0)}.baiduimageplus-s-pa-links a{background:url(http://ecma.bdimg.com/adtest/5d5a28881dc5b110114e55cf6d4f69ec.png) no-repeat left top;background-position:0 0;_filter:progid:dximagetransform.microsoft.alphaimageloader(enabled=true,src=" http://ecma.bdimg.com/adtest/5d5a28881dc5b110114e55cf6d4f69ec.png",sizingMethod="crop");_background:none;display:inline-block;margin-right:3px!important;padding-left:13px!important;padding-right:7px;border:0!important}
+.baiduimageplus-s-pa-links a:hover{text-decoration:underline}</style><div id="f21ac82b21eeb7322631b6aa94e17f452ebz8fc" data-rendered="true" style="margin: 0px; padding: 0px; border: none; overflow: visible; text-align: left;"><div class="ad-widget-imageplus-sticker ad-widget-imageplus-sticker-theme-v2 ad-widget-imageplus-sticker-cut" id="w-y0js5" style="display: block; top: 764px; height: 100px;">
+<div class="ad-widget-imageplus-sticker ad-widget-imageplus-sticker-wrapper ad-widget-imageplus-sticker-box-showing" id="w-y0js5-wrapper" style="display: block; top: 74px; height: 26px;">
+<div class="ad-widget-imageplus-sticker-bg" id="w-y0js5-background" style="opacity: 0.75;"></div>
+<div class="ad-widget-imageplus-sticker-bd" id="w-y0js5-body">
+<div class="baiduimageplus-s-pa" id="w-c5epxo">
+<div class="baiduimageplus-s-pa-bg" id="w-c5epxo-background"></div>
+<div class="baiduimageplus-s-pa-ct">
+<div class="baiduimageplus-s-pa-hd">
+<a data-log="2" data-mid="112" href="http://www.baidu.com/cpro.php?ns_K00j2UKjVxb_3wCj7bwaotmStx5dA7qZ5K-21j1-CGWnQfd9r6Wv9LqLAkn4d_9oGoiI9_iueoVAqyD-tUAskbOLuBNdpRS3gR06V5yTh8a1ojfJ8Omc-Q33o.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HDLuymdrHDdn1-bnvf1n1D0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdPnZKMPNwKP17sP6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnWmsrjf0" target="_blank" style="">IT认证考神，hold全场</a>
+</div>
+<div class="baiduimageplus-s-pa-bd">
+<a class="baiduimageplus-s-pa-img " href="http://www.baidu.com/cpro.php?ns_K00j2UKjVxb_3wCj7bwaotmStx5dA7qZ5K-21j1-CGWnQfd9r6Wv9LqLAkn4d_9oGoiI9_iueoVAqyD-tUAskbOLuBNdpRS3gR06V5yTh8a1ojfJ8Omc-Q33o.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HDLuymdrHDdn1-bnvf1n1D0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdPnZKMPNwKP17sP6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnWmsrjf0" data-log="2" data-mid="112" target="_blank">
+<img src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/9a5a76cb8defd0a62eeff4aaf7389d93.jpg">
+</a>
+<div class="baiduimageplus-s-pa-txt">
+<p class="baiduimageplus-s-pa-title">
+<a data-log="2" data-mid="112" href="http://www.baidu.com/cpro.php?ns_K00j2UKjVxb_3wCj7bwaotmStx5dA7qZ5K-21j1-CGWnQfd9r6Wv9LqLAkn4d_9oGoiI9_iueoVAqyD-tUAskbOLuBNdpRS3gR06V5yTh8a1ojfJ8Omc-Q33o.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HDLuymdrHDdn1-bnvf1n1D0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdPnZKMPNwKP17sP6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnWmsrjf0" target="_blank" style="">IT认证考神，hold全场</a>
+</p>
+<p class="baiduimageplus-s-pa-desc" style="height:36px;white-space:normal;">
+<a id="w-c5epxo-desc" data-log="2" data-mid="112" href="http://www.baidu.com/cpro.php?ns_K00j2UKjVxb_3wCj7bwaotmStx5dA7qZ5K-21j1-CGWnQfd9r6Wv9LqLAkn4d_9oGoiI9_iueoVAqyD-tUAskbOLuBNdpRS3gR06V5yTh8a1ojfJ8Omc-Q33o.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HDLuymdrHDdn1-bnvf1n1D0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdPnZKMPNwKP17sP6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnWmsrjf0" target="_blank" style="">51CTO学院，考试,就要一次通过！ 升值加薪就靠IT认证！</a>
+</p>
+<p class="baiduimageplus-s-pa-links">
+</p>
+</div>
+<a class="baiduimageplus-s-pa-bt" id="w-c5epxo-lookbtnshake" data-log="2" data-mid="112" href="http://www.baidu.com/cpro.php?ns_K00j2UKjVxb_3wCj7bwaotmStx5dA7qZ5K-21j1-CGWnQfd9r6Wv9LqLAkn4d_9oGoiI9_iueoVAqyD-tUAskbOLuBNdpRS3gR06V5yTh8a1ojfJ8Omc-Q33o.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5Hm40AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPWfs0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HDLuymdrHDdn1-bnvf1n1D0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdPnZKMPNwKP17sP6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqnWmsrjf0" target="_blank" style="top: 20px;">去看看</a>
+</div>
+</div>
+<a class="baiduimageplus-s-pa-logo" title="百度网盟推广" href="http://wangmeng.baidu.com/" target="_blank" data-ignore=""></a>
+<!-- 新增的推广提示 -->
+<div style="position:absolute;left:0px;bottom:0px;width:29px;height:16px;overflow:hidden;z-index:12;background: url(http://ecmb.bdimg.com/public03/imageplus/leftbottom.png) no-repeat;"></div>
+</div>
+</div>
+</div>
+<a class="ad-widget-imageplus-sticker-close " href="http://www.mamicode.com/info-detail-1295688.html#" id="w-y0js5-close" style="display: none;">X</a>
+</div>
+<div class="ad-widget-imageplus-sticker-thumbnail" id="w-y0js5-thumbnail" style="display: none; top: 844px;">
+<a href="http://www.mamicode.com/info-detail-1295688.html#" title="点击展开"><i>&nbsp;</i>图片相关信息</a>
+</div></div></div><div style="position: absolute; border: 0px; margin: 0px; padding: 0px; height: 0px; overflow: visible; text-align: left; top: 2740px; left: 420px; width: 358px;"><style type="text/css" media="screen" id="s-f21ac82b21eeb7322631b6aa94e17f453d0dg6v">.ad-widget-imageplus-sticker{font:12px/1.5 arial,sans-serif;position:absolute;left:0;width:100%;display:none;overflow:hidden;color:#FFF;background:transparent;-webkit-transition:height .5s,top .5s;transition:height .5s,top .5s}.ad-widget-imageplus-sticker div{background:transparent}.ad-widget-imageplus-sticker-cut{display:block}.ad-widget-imageplus-sticker-bg{position:absolute;z-index:1;left:0;top:0;width:100%;height:100%;background:#000!important;box-shadow:2px 2px 4px #000}.ad-widget-imageplus-sticker-bd{position:relative;z-index:2;left:0;top:0;width:100%;overflow:hidden}.ad-widget-imageplus-sticker-close{position:absolute;z-index:3;right:0;top:5px;width:25px;height:25px;line-height:25px;text-decoration:none;text-align:center;font-size:18px;color:#FFF!important}.ad-widget-imageplus-sticker-close:hover{background-color:#000}
+.ad-widget-imageplus-sticker-theme-white{color:#333}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-bg{background:#FFF!important;box-shadow:2px 2px 4px #FFF}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-close{color:#666!important}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-close:hover{background-color:#FFF!important}.ad-widget-imageplus-sticker-theme-none{color:#333}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-close{color:#666!important}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-close:hover{background-color:#FFF!important}.ad-widget-imageplus-sticker-theme-none-white{color:#333}
+.ad-widget-imageplus-sticker-theme-none-white .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none-white-2 .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none-white-2 .ad-widget-imageplus-sticker-close{top:0;text-indent:-9999px;background:url(http://ecma.bdimg.com/public03/imageplus/v2/dock/close.png) no-repeat 0 0 transparent}.ad-widget-imageplus-sticker-theme-v2 .ad-big-title{position:relative;top:0;opacity:1;filter:alpha(opacity=100);-webkit-transition:top .5s,opacity .6s;transition:top .5s,opacity .6s}.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-showing .ad-big-title{position:relative;top:-36px;opacity:0;filter:alpha(opacity=0)}.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-showing .ad-widget-imageplus-sticker-bg{top:26px}
+.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-close{top:0;text-indent:-9999px;background:url(http://ecma.bdimg.com/public03/imageplus/v2/dock/close.png) no-repeat 0 0 transparent}.ad-widget-imageplus-sticker-thumbnail{font:12px/1.5 arial,sans-serif;position:absolute;right:0;top:0;height:20px;width:100px;overflow:hidden;background:transparent;-webkit-transition:height .5s;-moz-transition:height .5s;-ms-transition:height .5s;-o-transition:height .5s;transition:height .5s;background-color:rgba(0,0,0,0.5);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80000000,endColorstr=#80000000);-ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80000000,endColorstr=#80000000)}.ad-widget-imageplus-sticker-thumbnail a{float:right;width:100px;height:20px;line-height:20px;text-align:center;color:white;background:transparent;text-decoration:none}
+.ad-widget-imageplus-sticker-thumbnail i{width:12px;height:8px;margin-top:6px;margin-left:5px;display:block;float:left;background:url('http://ecma.bdimg.com/adtest/8e547549c94ab88c81b644d5ff63b0d3.png') no-repeat 0 0;background:none \9;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',sizingMethod='corp',src='http://ecma.bdimg.com/adtest/8e547549c94ab88c81b644d5ff63b0d3.png')\9}.ad-widget-imageplus-sticker-close-newstyle{top:0;text-indent:-9999px;background:url(http://ecmb.bdimg.com/public03/v2/dock/iconfont-close.png) no-repeat 0 0 transparent!important}.baiduimageplus-s-pa{position:relative;width:100%;height:101px;overflow:hidden;cursor:default;-webkit-transition:top .5s;-moz-transition:top .5s;-ms-transition:top .5s;-o-transition:top .5s;transition:top .5s}.baiduimageplus-s-pa a{outline:0;text-decoration:none}
+.baiduimageplus-s-pa a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1}.baiduimageplus-s-pa .baiduimageplus-s-pa-ct{position:relative;z-index:2}.baiduimageplus-s-pa .baiduimageplus-s-pa-hd{height:26px;line-height:26px;text-indent:10px}.baiduimageplus-s-pa .baiduimageplus-s-pa-hd a{font-size:14px;color:#FFF}.baiduimageplus-s-pa .baiduimageplus-s-pa-bd{position:relative;margin:10px 0;overflow:hidden;_zoom:1}.baiduimageplus-s-pa .baiduimageplus-s-pa-img{float:left;_display:inline;width:50px;height:50px;margin:5px 12px 0 10px}.baiduimageplus-s-pa .baiduimageplus-s-pa-img img{display:block;width:50px;height:50px;border:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-img-bigoutter{float:left;_display:inline;width:70px;height:70px;_width:65px;_height:65px;margin:-20px 12px 0 10px;_margin:5px 5px 0 5px;_postion:relative}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-img-bigoutter img{width:70px;height:70px;_position:absolute;_top:-20px;_left:5px}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt{margin-right:85px;height:54px;overflow:hidden;zoom:1;line-height:1.5;word-wrap:break-word;font-size:12px;text-align:left;text-decoration:none;-webkit-line-clamp:2}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt a{color:#FFF}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-title,.baiduimageplus-s-pa .baiduimageplus-s-pa-desc,.baiduimageplus-s-pa .baiduimageplus-s-pa-links{float:none;padding:0;border:0;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;margin:0;height:18px;line-height:18px;zoom:1;color:#FFF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-links a{float:left;_display:inline;padding:0 7px;color:#FFF;border-left:1px solid #999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:last-child{margin-right:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:first-child{border-left:none;padding-left:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-title,.baiduimageplus-s-pa .baiduimageplus-s-pa-title a{color:#CCC}.baiduimageplus-s-pa .baiduimageplus-s-pa-bt{position:absolute;top:20px;right:10px;margin:0;width:70px;height:25px;display:block;text-decoration:none;color:#FFF;font-size:14px;text-align:center;line-height:25px;background:#bc0000;box-shadow:2px 2px 4px #000;border-radius:5px}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-bt:hover{-webkit-animation:none;animation:none;text-decoration:none;background-color:#ea2b2b}.baiduimageplus-s-pa .baiduimageplus-s-pa-logo{position:absolute;bottom:0;right:0;z-index:3;height:18px;width:18px;text-indent:-9999px;background:url(http://cpro.baidustatic.com/cpro/ui/noexpire/img/2.0.1/bg.png) no-repeat left top;background-position:0 0;_filter:progid:dximagetransform.microsoft.alphaimageloader(enabled=true,src="http://cpro.baidustatic.com/cpro/ui/noexpire/img/2.0.1/bg.png",sizingMethod="crop");_background:none}.ad-widget-imageplus-sticker-showing .baiduimageplus-s-pa-hd{opacity:0;filter:alpha(opacity=0)}.baiduimageplus-s-pa-links a{background:url(http://ecma.bdimg.com/adtest/5d5a28881dc5b110114e55cf6d4f69ec.png) no-repeat left top;background-position:0 0;_filter:progid:dximagetransform.microsoft.alphaimageloader(enabled=true,src=" http://ecma.bdimg.com/adtest/5d5a28881dc5b110114e55cf6d4f69ec.png",sizingMethod="crop");_background:none;display:inline-block;margin-right:3px!important;padding-left:13px!important;padding-right:7px;border:0!important}
+.baiduimageplus-s-pa-links a:hover{text-decoration:underline}</style><div id="f21ac82b21eeb7322631b6aa94e17f453d0dg6v" data-rendered="true" style="margin: 0px; padding: 0px; border: none; overflow: visible; text-align: left;"><div class="ad-widget-imageplus-sticker ad-widget-imageplus-sticker-theme-v2 ad-widget-imageplus-sticker-cut" id="w-uuargt" style="display: block; top: 277px; height: 100px;">
+<div class="ad-widget-imageplus-sticker ad-widget-imageplus-sticker-wrapper ad-widget-imageplus-sticker-box-showing" id="w-uuargt-wrapper" style="display: block; top: 74px; height: 26px;">
+<div class="ad-widget-imageplus-sticker-bg" id="w-uuargt-background" style="opacity: 0.75;"></div>
+<div class="ad-widget-imageplus-sticker-bd" id="w-uuargt-body">
+<div class="baiduimageplus-s-pa" id="w-17zzb6">
+<div class="baiduimageplus-s-pa-bg" id="w-17zzb6-background"></div>
+<div class="baiduimageplus-s-pa-ct">
+<div class="baiduimageplus-s-pa-hd">
+<a data-log="2" data-mid="114" href="http://www.baidu.com/cpro.php?ns_K00aZWS7QQ9Qp_ByvCu4wWr59HGV8de4uSvsxdAdxbiK-42KkE4vOh4hdyQBn4RgRy0cty7_Jgasd63nPkfIJzcFYdP-9Os0H-Hv6WfrKOO3dycUFzB8X1Q86.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTv0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HndmWbLuWRsmy7WPHn1ujR0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjd9ihGuuNqkR1IVU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1bYnHT0" target="_blank" style="">IT认证考神，hold全场</a>
+</div>
+<div class="baiduimageplus-s-pa-bd">
+<a class="baiduimageplus-s-pa-img " href="http://www.baidu.com/cpro.php?ns_K00aZWS7QQ9Qp_ByvCu4wWr59HGV8de4uSvsxdAdxbiK-42KkE4vOh4hdyQBn4RgRy0cty7_Jgasd63nPkfIJzcFYdP-9Os0H-Hv6WfrKOO3dycUFzB8X1Q86.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTv0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HndmWbLuWRsmy7WPHn1ujR0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjd9ihGuuNqkR1IVU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1bYnHT0" data-log="2" data-mid="114" target="_blank">
+<img src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/0f0002shjS3MlscgNXP84s.jpg">
+</a>
+<div class="baiduimageplus-s-pa-txt">
+<p class="baiduimageplus-s-pa-title">
+<a data-log="2" data-mid="114" href="http://www.baidu.com/cpro.php?ns_K00aZWS7QQ9Qp_ByvCu4wWr59HGV8de4uSvsxdAdxbiK-42KkE4vOh4hdyQBn4RgRy0cty7_Jgasd63nPkfIJzcFYdP-9Os0H-Hv6WfrKOO3dycUFzB8X1Q86.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTv0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HndmWbLuWRsmy7WPHn1ujR0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjd9ihGuuNqkR1IVU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1bYnHT0" target="_blank" style="">IT认证考神，hold全场</a>
+</p>
+<p class="baiduimageplus-s-pa-desc" style="height:36px;white-space:normal;">
+<a id="w-17zzb6-desc" data-log="2" data-mid="114" href="http://www.baidu.com/cpro.php?ns_K00aZWS7QQ9Qp_ByvCu4wWr59HGV8de4uSvsxdAdxbiK-42KkE4vOh4hdyQBn4RgRy0cty7_Jgasd63nPkfIJzcFYdP-9Os0H-Hv6WfrKOO3dycUFzB8X1Q86.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTv0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HndmWbLuWRsmy7WPHn1ujR0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjd9ihGuuNqkR1IVU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1bYnHT0" target="_blank" style="">51CTO学院，考试,就要一次通过！ 升值加薪就靠IT认证！</a>
+</p>
+<p class="baiduimageplus-s-pa-links">
+</p>
+</div>
+<a class="baiduimageplus-s-pa-bt" id="w-17zzb6-lookbtnshake" data-log="2" data-mid="114" href="http://www.baidu.com/cpro.php?ns_K00aZWS7QQ9Qp_ByvCu4wWr59HGV8de4uSvsxdAdxbiK-42KkE4vOh4hdyQBn4RgRy0cty7_Jgasd63nPkfIJzcFYdP-9Os0H-Hv6WfrKOO3dycUFzB8X1Q86.7Y_iF8sXyl8A64DDQ_DYpmcgmFCYOoxZf6kuSz1MLEukmnO01hYG1uSzkmhrMIukLNvyT_rrumuCy2qLWEv2.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYv0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTv0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujYdP0KGIA-8uhqGujYznHRYP1TznjR0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15HndmWbLuWRsmy7WPHn1ujR0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjd9ihGuuNqkR1IVU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqmHnsrjb4ujm0UgmqnsK8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1bYnHT0" target="_blank" style="top: 20px;">去看看</a>
+</div>
+</div>
+<a class="baiduimageplus-s-pa-logo" title="百度网盟推广" href="http://wangmeng.baidu.com/" target="_blank" data-ignore=""></a>
+<!-- 新增的推广提示 -->
+<div style="position:absolute;left:0px;bottom:0px;width:29px;height:16px;overflow:hidden;z-index:12;background: url(http://ecmb.bdimg.com/public03/imageplus/leftbottom.png) no-repeat;"></div>
+</div>
+</div>
+</div>
+<a class="ad-widget-imageplus-sticker-close " href="http://www.mamicode.com/info-detail-1295688.html#" id="w-uuargt-close" style="display: none;">X</a>
+</div>
+<div class="ad-widget-imageplus-sticker-thumbnail" id="w-uuargt-thumbnail" style="display: none; top: 357px;">
+<a href="http://www.mamicode.com/info-detail-1295688.html#" title="点击展开"><i>&nbsp;</i>图片相关信息</a>
+</div></div></div><div style="position: absolute; border: 0px; margin: 0px; padding: 0px; height: 0px; overflow: visible; text-align: left; top: 3805px; left: 420px; width: 458px;"><style type="text/css" media="screen" id="s-f21ac82b21eeb7322631b6aa94e17f4545k1h63">.ad-widget-imageplus-sticker{font:12px/1.5 arial,sans-serif;position:absolute;left:0;width:100%;display:none;overflow:hidden;color:#FFF;background:transparent;-webkit-transition:height .5s,top .5s;transition:height .5s,top .5s}.ad-widget-imageplus-sticker div{background:transparent}.ad-widget-imageplus-sticker-cut{display:block}.ad-widget-imageplus-sticker-bg{position:absolute;z-index:1;left:0;top:0;width:100%;height:100%;background:#000!important;box-shadow:2px 2px 4px #000}.ad-widget-imageplus-sticker-bd{position:relative;z-index:2;left:0;top:0;width:100%;overflow:hidden}.ad-widget-imageplus-sticker-close{position:absolute;z-index:3;right:0;top:5px;width:25px;height:25px;line-height:25px;text-decoration:none;text-align:center;font-size:18px;color:#FFF!important}.ad-widget-imageplus-sticker-close:hover{background-color:#000}
+.ad-widget-imageplus-sticker-theme-white{color:#333}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-bg{background:#FFF!important;box-shadow:2px 2px 4px #FFF}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-close{color:#666!important}.ad-widget-imageplus-sticker-theme-white .ad-widget-imageplus-sticker-close:hover{background-color:#FFF!important}.ad-widget-imageplus-sticker-theme-none{color:#333}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-close{color:#666!important}.ad-widget-imageplus-sticker-theme-none .ad-widget-imageplus-sticker-close:hover{background-color:#FFF!important}.ad-widget-imageplus-sticker-theme-none-white{color:#333}
+.ad-widget-imageplus-sticker-theme-none-white .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none-white-2 .ad-widget-imageplus-sticker-bg{background:transparent!important;box-shadow:none}.ad-widget-imageplus-sticker-theme-none-white-2 .ad-widget-imageplus-sticker-close{top:0;text-indent:-9999px;background:url(http://ecma.bdimg.com/public03/imageplus/v2/dock/close.png) no-repeat 0 0 transparent}.ad-widget-imageplus-sticker-theme-v2 .ad-big-title{position:relative;top:0;opacity:1;filter:alpha(opacity=100);-webkit-transition:top .5s,opacity .6s;transition:top .5s,opacity .6s}.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-showing .ad-big-title{position:relative;top:-36px;opacity:0;filter:alpha(opacity=0)}.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-showing .ad-widget-imageplus-sticker-bg{top:26px}
+.ad-widget-imageplus-sticker-theme-v2 .ad-widget-imageplus-sticker-close{top:0;text-indent:-9999px;background:url(http://ecma.bdimg.com/public03/imageplus/v2/dock/close.png) no-repeat 0 0 transparent}.ad-widget-imageplus-sticker-thumbnail{font:12px/1.5 arial,sans-serif;position:absolute;right:0;top:0;height:20px;width:100px;overflow:hidden;background:transparent;-webkit-transition:height .5s;-moz-transition:height .5s;-ms-transition:height .5s;-o-transition:height .5s;transition:height .5s;background-color:rgba(0,0,0,0.5);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80000000,endColorstr=#80000000);-ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80000000,endColorstr=#80000000)}.ad-widget-imageplus-sticker-thumbnail a{float:right;width:100px;height:20px;line-height:20px;text-align:center;color:white;background:transparent;text-decoration:none}
+.ad-widget-imageplus-sticker-thumbnail i{width:12px;height:8px;margin-top:6px;margin-left:5px;display:block;float:left;background:url('http://ecma.bdimg.com/adtest/8e547549c94ab88c81b644d5ff63b0d3.png') no-repeat 0 0;background:none \9;filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true',sizingMethod='corp',src='http://ecma.bdimg.com/adtest/8e547549c94ab88c81b644d5ff63b0d3.png')\9}.ad-widget-imageplus-sticker-close-newstyle{top:0;text-indent:-9999px;background:url(http://ecmb.bdimg.com/public03/v2/dock/iconfont-close.png) no-repeat 0 0 transparent!important}.baiduimageplus-s-pa{position:relative;width:100%;height:101px;overflow:hidden;cursor:default;-webkit-transition:top .5s;-moz-transition:top .5s;-ms-transition:top .5s;-o-transition:top .5s;transition:top .5s}.baiduimageplus-s-pa a{outline:0;text-decoration:none}
+.baiduimageplus-s-pa a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1}.baiduimageplus-s-pa .baiduimageplus-s-pa-ct{position:relative;z-index:2}.baiduimageplus-s-pa .baiduimageplus-s-pa-hd{height:26px;line-height:26px;text-indent:10px}.baiduimageplus-s-pa .baiduimageplus-s-pa-hd a{font-size:14px;color:#FFF}.baiduimageplus-s-pa .baiduimageplus-s-pa-bd{position:relative;margin:10px 0;overflow:hidden;_zoom:1}.baiduimageplus-s-pa .baiduimageplus-s-pa-img{float:left;_display:inline;width:50px;height:50px;margin:5px 12px 0 10px}.baiduimageplus-s-pa .baiduimageplus-s-pa-img img{display:block;width:50px;height:50px;border:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-img-bigoutter{float:left;_display:inline;width:70px;height:70px;_width:65px;_height:65px;margin:-20px 12px 0 10px;_margin:5px 5px 0 5px;_postion:relative}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-img-bigoutter img{width:70px;height:70px;_position:absolute;_top:-20px;_left:5px}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt{margin-right:85px;height:54px;overflow:hidden;zoom:1;line-height:1.5;word-wrap:break-word;font-size:12px;text-align:left;text-decoration:none;-webkit-line-clamp:2}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt a{color:#FFF}.baiduimageplus-s-pa .baiduimageplus-s-pa-txt a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-title,.baiduimageplus-s-pa .baiduimageplus-s-pa-desc,.baiduimageplus-s-pa .baiduimageplus-s-pa-links{float:none;padding:0;border:0;position:static;display:block;visibility:visible;text-align:left;background:transparent;-webkit-box-sizing:content-box;box-sizing:content-box;margin:0;height:18px;line-height:18px;zoom:1;color:#FFF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-links a{float:left;_display:inline;padding:0 7px;color:#FFF;border-left:1px solid #999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:last-child{margin-right:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:first-child{border-left:none;padding-left:0}.baiduimageplus-s-pa .baiduimageplus-s-pa-links a:hover{text-decoration:underline}.baiduimageplus-s-pa .baiduimageplus-s-pa-title,.baiduimageplus-s-pa .baiduimageplus-s-pa-title a{color:#CCC}.baiduimageplus-s-pa .baiduimageplus-s-pa-bt{position:absolute;top:20px;right:10px;margin:0;width:70px;height:25px;display:block;text-decoration:none;color:#FFF;font-size:14px;text-align:center;line-height:25px;background:#bc0000;box-shadow:2px 2px 4px #000;border-radius:5px}
+.baiduimageplus-s-pa .baiduimageplus-s-pa-bt:hover{-webkit-animation:none;animation:none;text-decoration:none;background-color:#ea2b2b}.baiduimageplus-s-pa .baiduimageplus-s-pa-logo{position:absolute;bottom:0;right:0;z-index:3;height:18px;width:18px;text-indent:-9999px;background:url(http://cpro.baidustatic.com/cpro/ui/noexpire/img/2.0.1/bg.png) no-repeat left top;background-position:0 0;_filter:progid:dximagetransform.microsoft.alphaimageloader(enabled=true,src="http://cpro.baidustatic.com/cpro/ui/noexpire/img/2.0.1/bg.png",sizingMethod="crop");_background:none}.ad-widget-imageplus-sticker-showing .baiduimageplus-s-pa-hd{opacity:0;filter:alpha(opacity=0)}.baiduimageplus-s-pa-links a{background:url(http://ecma.bdimg.com/adtest/5d5a28881dc5b110114e55cf6d4f69ec.png) no-repeat left top;background-position:0 0;_filter:progid:dximagetransform.microsoft.alphaimageloader(enabled=true,src=" http://ecma.bdimg.com/adtest/5d5a28881dc5b110114e55cf6d4f69ec.png",sizingMethod="crop");_background:none;display:inline-block;margin-right:3px!important;padding-left:13px!important;padding-right:7px;border:0!important}
+.baiduimageplus-s-pa-links a:hover{text-decoration:underline}</style><div id="f21ac82b21eeb7322631b6aa94e17f4545k1h63" data-rendered="true" style="margin: 0px; padding: 0px; border: none; overflow: visible; text-align: left;"><div class="ad-widget-imageplus-sticker ad-widget-imageplus-sticker-theme-v2 ad-widget-imageplus-sticker-cut" id="w-92lc3k" style="display: block; top: 363px; height: 100px;">
+<div class="ad-widget-imageplus-sticker ad-widget-imageplus-sticker-wrapper ad-widget-imageplus-sticker-box-showing" id="w-92lc3k-wrapper" style="display: block; top: 74px; height: 26px;">
+<div class="ad-widget-imageplus-sticker-bg" id="w-92lc3k-background" style="opacity: 0.75;"></div>
+<div class="ad-widget-imageplus-sticker-bd" id="w-92lc3k-body">
+<div class="baiduimageplus-s-pa" id="w-2fdscx">
+<div class="baiduimageplus-s-pa-bg" id="w-2fdscx-background"></div>
+<div class="baiduimageplus-s-pa-ct">
+<div class="baiduimageplus-s-pa-hd">
+<a data-log="2" data-mid="116" href="http://www.baidu.com/cpro.php?ns_K00KPtLWT0-T4Hhzxrr6ukR96A_AkDpSjFfEgtf5Nm_kMtnCVXVbpYYZ0qdVFLDpdBS-rmH6wg9c7fiZS3_WgygTKkRpP8M3e5k41wSmfuQoia2Ct2_FJe2z1.7R_iup5-ZN-CS1wTBa5Ah7ePAjQZsYrxOf3P54xqo5SgOpzdTZjMqMjYX15sTrxvR7BmlIdMZIguuzs34-9h9mlX5ZI3J0.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYk0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTd0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujY1P6KGIA-8uhqGujYznHcYrjnLn1D0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15H7-uAF9mhubnh7WPhD1mHf0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdWI-Fpn7-znHKjU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqryPWn1TsPjm0Ugmqn6K8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1fdnjm0" target="_blank" style="">南京有不手术去眼袋的技术吗?</a>
+</div>
+<div class="baiduimageplus-s-pa-bd">
+<a class="baiduimageplus-s-pa-img " href="http://www.baidu.com/cpro.php?ns_K00KPtLWT0-T4Hhzxrr6ukR96A_AkDpSjFfEgtf5Nm_kMtnCVXVbpYYZ0qdVFLDpdBS-rmH6wg9c7fiZS3_WgygTKkRpP8M3e5k41wSmfuQoia2Ct2_FJe2z1.7R_iup5-ZN-CS1wTBa5Ah7ePAjQZsYrxOf3P54xqo5SgOpzdTZjMqMjYX15sTrxvR7BmlIdMZIguuzs34-9h9mlX5ZI3J0.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYk0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTd0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujY1P6KGIA-8uhqGujYznHcYrjnLn1D0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15H7-uAF9mhubnh7WPhD1mHf0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdWI-Fpn7-znHKjU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqryPWn1TsPjm0Ugmqn6K8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1fdnjm0" data-log="2" data-mid="116" target="_blank">
+<img src="./那些你应该知道却不一定知道的——View坐标分析汇总_files/9a5a76cb8defd0a62eeff4aaf7389d93.jpg">
+</a>
+<div class="baiduimageplus-s-pa-txt">
+<p class="baiduimageplus-s-pa-title">
+<a data-log="2" data-mid="116" href="http://www.baidu.com/cpro.php?ns_K00KPtLWT0-T4Hhzxrr6ukR96A_AkDpSjFfEgtf5Nm_kMtnCVXVbpYYZ0qdVFLDpdBS-rmH6wg9c7fiZS3_WgygTKkRpP8M3e5k41wSmfuQoia2Ct2_FJe2z1.7R_iup5-ZN-CS1wTBa5Ah7ePAjQZsYrxOf3P54xqo5SgOpzdTZjMqMjYX15sTrxvR7BmlIdMZIguuzs34-9h9mlX5ZI3J0.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYk0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTd0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujY1P6KGIA-8uhqGujYznHcYrjnLn1D0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15H7-uAF9mhubnh7WPhD1mHf0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdWI-Fpn7-znHKjU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqryPWn1TsPjm0Ugmqn6K8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1fdnjm0" target="_blank" style="">南京有不手术去眼袋的技术吗?</a>
+</p>
+<p class="baiduimageplus-s-pa-desc" style="height:36px;white-space:normal;">
+<a id="w-2fdscx-desc" data-log="2" data-mid="116" href="http://www.baidu.com/cpro.php?ns_K00KPtLWT0-T4Hhzxrr6ukR96A_AkDpSjFfEgtf5Nm_kMtnCVXVbpYYZ0qdVFLDpdBS-rmH6wg9c7fiZS3_WgygTKkRpP8M3e5k41wSmfuQoia2Ct2_FJe2z1.7R_iup5-ZN-CS1wTBa5Ah7ePAjQZsYrxOf3P54xqo5SgOpzdTZjMqMjYX15sTrxvR7BmlIdMZIguuzs34-9h9mlX5ZI3J0.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYk0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTd0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujY1P6KGIA-8uhqGujYznHcYrjnLn1D0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15H7-uAF9mhubnh7WPhD1mHf0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdWI-Fpn7-znHKjU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqryPWn1TsPjm0Ugmqn6K8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1fdnjm0" target="_blank" style="">去眼袋到[南京健丽]专利认证不开刀去眼袋! [健丽]明星去眼袋御用机构预约立减1000元</a>
+</p>
+<p class="baiduimageplus-s-pa-links">
+</p>
+</div>
+<a class="baiduimageplus-s-pa-bt" id="w-2fdscx-lookbtnshake" data-log="2" data-mid="116" href="http://www.baidu.com/cpro.php?ns_K00KPtLWT0-T4Hhzxrr6ukR96A_AkDpSjFfEgtf5Nm_kMtnCVXVbpYYZ0qdVFLDpdBS-rmH6wg9c7fiZS3_WgygTKkRpP8M3e5k41wSmfuQoia2Ct2_FJe2z1.7R_iup5-ZN-CS1wTBa5Ah7ePAjQZsYrxOf3P54xqo5SgOpzdTZjMqMjYX15sTrxvR7BmlIdMZIguuzs34-9h9mlX5ZI3J0.IgF_5y9YIZ0lQzqLILT8Uy7VpyPEuAR8mvqVQv-8uhtVuANYmy-_QHDzrHRvrj68pZwVU0KYUHYzPW63Pjmknj60IZRqIHcYnHmvPWn0IAfqn0KLUjYk0AP8IA3qPWRsn1RknjKxmLKz0APCUyfqnfK1mv9VujYk0ZPs5HTd0AN3IjYs0A7bmvk9TLnqn0K1uAVxIWYs0Aq15HT0mMcqnHc0Iv-bIA6qPjms0A9-pyICIjYvn0KLpHYk0Z9GTjY0TvN_uWYs0ZPbpdqvugF1pyq85fK8mgPYTjYs0ZF15H00mvmqn0KWIAYqmh7GuZNjIgPYiMPEU6K8mgwd5Hb0pgwGujY1P6KGIA-8uhqGujYznHcYrjnLn1D0uLKGujYs0ZF-uMKGujYs0APsThqGujdDwHR1rH6LP16YnHT3PYRsf1c3rj04fY7AnYu7nbczP6KWUvdsUARqn0K9u7q15H7-uAF9mhubnh7WPhD1mHf0UA7_5fK9IA-b5fK9IZw45fKLTLFW5H00myNxIA7z5fKGTdqoIADq0ZP_TLFW5H00TvkWp1Ys0ZP_pv-b5H00mMNbuvNYgvN3TA-b5H00my-s5RNMuRNLnYPiTv9x0ZNGTjdWI-Fpn7-znHKjU6KWpjYs0Zw9TWYknW60uZws5HD0TvN_UANzgv-b5HR0pgPxmgKs5H00mgKsgv-b5H00mLN1IjY0pgPxIv-zuyk-TLnqn0KLmgKxIZ-suHYs0ZK_5H00UynqryPWn1TsPjm0Ugmqn6K8IM0qna3snj0snj0sn0KMrHYs0AuGTMPYgLF-uv-EUWYznfK1uyPEUhwxThNMpyq85HnLP6K1TL0qPfK1TL0z5HD0IZws5HD0uA-1IZ0qn0K9mWYs0A7bXjYk0ZKhIZF9uARqP0KsTLwzmyw-5Hfsn6Kspyfqn0KLTA-b5H00mywYXgK-5H00Tv-zuy4bugcqn0K1Iv-b5H00TLw4TARqn0KWThnqn1fdnjm0" target="_blank" style="top: 20px;">去看看</a>
+</div>
+</div>
+<a class="baiduimageplus-s-pa-logo" title="百度网盟推广" href="http://wangmeng.baidu.com/" target="_blank" data-ignore=""></a>
+<!-- 新增的推广提示 -->
+<div style="position:absolute;left:0px;bottom:0px;width:29px;height:16px;overflow:hidden;z-index:12;background: url(http://ecmb.bdimg.com/public03/imageplus/leftbottom.png) no-repeat;"></div>
+</div>
+</div>
+</div>
+<a class="ad-widget-imageplus-sticker-close " href="http://www.mamicode.com/info-detail-1295688.html#" id="w-92lc3k-close" style="display: none;">X</a>
+</div>
+<div class="ad-widget-imageplus-sticker-thumbnail" id="w-92lc3k-thumbnail" style="display: none; top: 443px;">
+<a href="http://www.mamicode.com/info-detail-1295688.html#" title="点击展开"><i>&nbsp;</i>图片相关信息</a>
+</div></div></div></body></html>
