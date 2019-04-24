@@ -4,8 +4,8 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>640</x>
-      <y>210</y>
+      <x>360</x>
+      <y>160</y>
       <w>110</w>
       <h>40</h>
     </coordinates>
@@ -16,8 +16,8 @@ ViewParent</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>460</x>
-      <y>210</y>
+      <x>180</x>
+      <y>160</y>
       <w>110</w>
       <h>40</h>
     </coordinates>
@@ -28,8 +28,8 @@ ViewManager</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>280</x>
-      <y>340</y>
+      <x>0</x>
+      <y>290</y>
       <w>110</w>
       <h>40</h>
     </coordinates>
@@ -40,8 +40,8 @@ ViewGroup</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>280</x>
-      <y>210</y>
+      <x>0</x>
+      <y>160</y>
       <w>110</w>
       <h>40</h>
     </coordinates>
@@ -52,13 +52,35 @@ View</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>830</x>
-      <y>350</y>
+      <x>550</x>
+      <y>300</y>
       <w>110</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>bt=*
 ActiveClass</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>920</x>
+      <y>280</y>
+      <w>90</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>state</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.custom.State</type>
+    <coordinates>
+      <x>1210</x>
+      <y>290</y>
+      <w>90</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>state</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

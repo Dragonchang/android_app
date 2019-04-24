@@ -1,0 +1,195 @@
+12-25 10:57:48.908  2885  2885 D StatusBarWindowView: onInterceptTouchEvent22222222 intercept: false
+//开始遍历StatusBarWindowView  childrenCount: 8
+12-25 10:57:48.908  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent canceled: false intercepted: false this: com.android.systemui.statusbar.phone.StatusBarWindowView{7585816 V.ED..... ........ 0,0-1280,720}
+12-25 10:57:48.908  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent childrenCount: 8 newTouchTarget == null: true this: com.android.systemui.statusbar.phone.StatusBarWindowView{7585816 V.ED..... ........ 0,0-1280,720}
+
+//第一个子view ScrimView
+12-25 10:57:48.909  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 7 )child: com.android.systemui.statusbar.ScrimView{2b20765 VFED..... ........ 0,0-1280,720 #7f0b0317 app:id/scrim_in_front}
+12-25 10:57:48.909  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222 ( i= 7 )this: com.android.systemui.statusbar.phone.StatusBarWindowView{7585816 V.ED..... ........ 0,0-1280,720}
+12-25 10:57:48.909  2885  2885 I ViewGroup_ActivatableNotificationView:  dispatchTransformedTouchEvent1111111 child: com.android.systemui.statusbar.ScrimView{2b20765 VFED..... ........ 0,0-1280,720 #7f0b0317 app:id/scrim_in_front}
+12-25 10:57:48.909  2885  2885 W view--ActivatableNotificationView: onTouchEvent this :com.android.systemui.statusbar.ScrimView{2b20765 VFED..... ........ 0,0-1280,720 #7f0b0317 app:id/scrim_in_front}
+12-25 10:57:48.909  2885  2885 I view--ActivatableNotificationView: onTouchEvent action: 0 clickable= false
+12-25 10:57:48.909  2885  2885 I view--ActivatableNotificationView: onTouchEvent 4444 
+
+//不遍历brightness_mirror view
+12-25 10:57:48.913  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 6 )child: android.widget.FrameLayout{12c1c3a I.E...... ......ID -5,0-1083,80 #7f0b0085 app:id/brightness_mirror}
+12-25 10:57:48.915  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 6 )child: android.widget.FrameLayout{12c1c3a I.E...... ......ID -5,0-1083,80 #7f0b0085 app:id/brightness_mirror}
+
+//遍历子第6个子view NotificationPanelView 
+12-25 10:57:48.915  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 5 )child: com.android.systemui.statusbar.phone.NotificationPanelView{c9e3c05 V.E...... ........ 0,0-1179,720 #7f0b0273 app:id/notification_panel}
+12-25 10:57:48.915  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222 ( i= 5 )this: com.android.systemui.statusbar.phone.StatusBarWindowView{7585816 V.ED..... ........ 0,0-1280,720}
+12-25 10:57:48.915  2885  2885 I ViewGroup_ActivatableNotificationView:  dispatchTransformedTouchEvent1111111 child: com.android.systemui.statusbar.phone.NotificationPanelView{c9e3c05 V.E...... ........ 0,0-1179,720 #7f0b0273 app:id/notification_panel}
+12-25 10:57:48.916  2885  2885 D PanelView: PanelView onInterceptTouchEvent:  touch at (668,703) Action:0
+12-25 10:57:48.917  2885  2885 D PanelView: PanelView onInterceptTouchEvent66666 return false: touch at (668,703) Action:0
+12-25 10:57:48.917  2885  2885 D PanelView: NotificationPanelView onInterceptTouchEvent 444 intercept: false
+
+//开始对NotificationPanelView进行遍历 childrenCount: 5
+12-25 10:57:48.917  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent canceled: false intercepted: false this: com.android.systemui.statusbar.phone.NotificationPanelView{c9e3c05 V.E...... ........ 0,0-1179,720 #7f0b0273 app:id/notification_panel}
+12-25 10:57:48.917  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent childrenCount: 5 newTouchTarget == null: true this: com.android.systemui.statusbar.phone.NotificationPanelView{c9e3c05 V.E...... ........ 0,0-1179,720 #7f0b0273 app:id/notification_panel}
+
+//不遍历qs_navbar_scrim
+12-25 10:57:48.917  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 4 )child: com.android.systemui.statusbar.AlphaOptimizedView{f3de0eb I.ED..... ......I. 0,528-1179,720 #7f0b02bd app:id/qs_navbar_scrim}
+12-25 10:57:48.917  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 4 )child: com.android.systemui.statusbar.AlphaOptimizedView{f3de0eb I.ED..... ......I. 0,528-1179,720 #7f0b02bd app:id/qs_navbar_scrim}
+
+//不遍历button_footer_container
+12-25 10:57:48.917  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 3 )child: com.android.systemui.keyguard.HtcButtonFooterContainer{8a28e48 G.E...... ......ID 0,0-1280,720 #7f0b0094 app:id/button_footer_container}
+12-25 10:57:48.917  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 3 )child: com.android.systemui.keyguard.HtcButtonFooterContainer{8a28e48 G.E...... ......ID 0,0-1280,720 #7f0b0094 app:id/button_footer_container}
+
+    //遍历到第3个子view NotificationsQuickSettingsContainer 
+12-25 10:57:48.918  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 2 )child: com.android.systemui.statusbar.phone.NotificationsQuickSettingsContainer{ee5f573 V.E...... ........ 0,0-1179,720 #7f0b0268 app:id/notification_container_parent}
+12-25 10:57:48.918  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222 ( i= 2 )this: com.android.systemui.statusbar.phone.NotificationPanelView{c9e3c05 V.E...... ........ 0,0-1179,720 #7f0b0273 app:id/notification_panel}
+
+   //遍历NotificationsQuickSettingsContainer子view childrenCount: 5
+12-25 10:57:48.918  2885  2885 I ViewGroup_ActivatableNotificationView:  dispatchTransformedTouchEvent1111111 child: com.android.systemui.statusbar.phone.NotificationsQuickSettingsContainer{ee5f573 V.E...... ........ 0,0-1179,720 #7f0b0268 app:id/notification_container_parent}
+12-25 10:57:48.918  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent canceled: false intercepted: false this: com.android.systemui.statusbar.phone.NotificationsQuickSettingsContainer{ee5f573 V.E...... ........ 0,0-1179,720 #7f0b0268 app:id/notification_container_parent}
+12-25 10:57:48.918  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent childrenCount: 5 newTouchTarget == null: true this: com.android.systemui.statusbar.phone.NotificationsQuickSettingsContainer{ee5f573 V.E...... ........ 0,0-1179,720 #7f0b0268 app:id/notification_container_parent}
+
+//忽略report_rejected_touch
+12-25 10:57:48.919  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 4 )child: android.widget.Button{2a4bc30 IFED..C.. ......I. 0,48-391,144 #7f0b02d8 app:id/report_rejected_touch}
+12-25 10:57:48.919  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 4 )child: android.widget.Button{2a4bc30 IFED..C.. ......I. 0,48-391,144 #7f0b02d8 app:id/report_rejected_touch}
+//忽略keyguard_header
+12-25 10:57:48.919  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 3 )child: com.android.systemui.statusbar.phone.KeyguardStatusBarView{e9af0a9 I.E...... ......ID 0,0-1179,48 #7f0b01a8 app:id/keyguard_header}
+12-25 10:57:48.919  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 3 )child: com.android.systemui.statusbar.phone.KeyguardStatusBarView{e9af0a9 I.E...... ......ID 0,0-1179,48 #7f0b01a8 app:id/keyguard_header}
+//忽略keyguard_user_switcher
+12-25 10:57:48.919  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 2 )child: android.view.ViewStub{902262e G.E...... ......I. 0,0-0,0 #7f0b01b8 app:id/keyguard_user_switcher}
+12-25 10:57:48.919  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 2 )child: android.view.ViewStub{902262e G.E...... ......I. 0,0-0,0 #7f0b01b8 app:id/keyguard_user_switcher}
+
+  //遍历到NotificationsQuickSettingsContainer第2个子view NotificationStackScrollLayout
+12-25 10:57:48.920  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 1 )child: com.android.systemui.statusbar.stack.NotificationStackScrollLayout{32075cf VFED..... ........ 45,0-1133,720 #7f0b0279 app:id/notification_stack_scroller}
+12-25 10:57:48.920  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222 ( i= 1 )this: com.android.systemui.statusbar.phone.NotificationsQuickSettingsContainer{ee5f573 V.E...... ........ 0,0-1179,720 #7f0b0268 app:id/notification_container_parent}
+12-25 10:57:48.920  2885  2885 I ViewGroup_ActivatableNotificationView:  dispatchTransformedTouchEvent1111111 child: com.android.systemui.statusbar.stack.NotificationStackScrollLayout{32075cf VFED..... ........ 45,0-1133,720 #7f0b0279 app:id/notification_stack_scroller}
+12-25 10:57:48.920  2885  2885 D StackScroller: NotificationStackScrollLayout onInterceptTouchEvent1111:  touch at (623,703) Action:0
+12-25 10:57:48.920  2885  2885 D StackScroller: onInterceptTouchEvent mSwipingInProgress:false mExpandingNotification: false
+12-25 10:57:48.921  2885  2885 D StackScroller: onInterceptTouchEventScroll 111111
+12-25 10:57:48.921  2885  2885 D StackScroller: onInterceptTouchEventScroll setIsBeingDragged false!!!!!!!!!!
+12-25 10:57:48.921  2885  2885 D StackScroller: onInterceptTouchEventScroll mIsBeingDragged: false
+12-25 10:57:48.921  2885  2885 D StackScroller: NotificationStackScrollLayout onInterceptTouchEvent333  swipeWantsIt: false scrollWantsIt: false expandWantsIt: false intercept: false
+
+    //遍历NotificationStackScrollLayout子view childrenCount: 7
+12-25 10:57:48.921  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent canceled: false intercepted: false this: com.android.systemui.statusbar.stack.NotificationStackScrollLayout{32075cf VFED..... ........ 45,0-1133,720 #7f0b0279 app:id/notification_stack_scroller}
+12-25 10:57:48.921  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent childrenCount: 7 newTouchTarget == null: true this: com.android.systemui.statusbar.stack.NotificationStackScrollLayout{32075cf VFED..... ........ 45,0-1133,720 #7f0b0279 app:id/notification_stack_scroller}
+
+   //FooterView
+12-25 10:57:48.921  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 6 )child: com.android.systemui.statusbar.FooterView{760cad5 V.E...... ........ 8,0-1080,96}
+12-25 10:57:48.921  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222 ( i= 6 )this: com.android.systemui.statusbar.stack.NotificationStackScrollLayout{32075cf VFED..... ........ 45,0-1133,720 #7f0b0279 app:id/notification_stack_scroller}
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView:  dispatchTransformedTouchEvent3333333 child: com.android.systemui.statusbar.FooterView{760cad5 V.E...... ........ 8,0-1080,96}
+
+//开始遍历FooterView子view childrenCount: 1
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent canceled: false intercepted: false this: com.android.systemui.statusbar.FooterView{760cad5 V.E...... ........ 8,0-1080,96}
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent childrenCount: 1 newTouchTarget == null: true this: com.android.systemui.statusbar.FooterView{760cad5 V.E...... ........ 8,0-1080,96}
+
+//遍历到FooterView子view AlphaOptimizedFrameLayout
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 0 )child: com.android.systemui.statusbar.AlphaOptimizedFrameLayout{d1bdc89 V.E...... ........ 8,0-1064,96 #7f0b00c6 app:id/content}
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222 ( i= 0 )this: com.android.systemui.statusbar.FooterView{760cad5 V.E...... ........ 8,0-1080,96}
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView:  dispatchTransformedTouchEvent1111111 child: com.android.systemui.statusbar.AlphaOptimizedFrameLayout{d1bdc89 V.E...... ........ 8,0-1064,96 #7f0b00c6 app:id/content}
+
+//开始遍历AlphaOptimizedFrameLayout子view childrenCount: 3
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent canceled: false intercepted: false this: com.android.systemui.statusbar.AlphaOptimizedFrameLayout{d1bdc89 V.E...... ........ 8,0-1064,96 #7f0b00c6 app:id/content}
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent childrenCount: 3 newTouchTarget == null: true this: com.android.systemui.statusbar.AlphaOptimizedFrameLayout{d1bdc89 V.E...... ........ 8,0-1064,96 #7f0b00c6 app:id/content}
+
+//忽略dismiss_drawable
+12-25 10:57:48.922  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 2 )child: com.android.systemui.statusbar.DismissViewImage{d04d48e GFED..C.. ......I. 0,0-0,0 #7f0b00fc app:id/dismiss_drawable}
+12-25 10:57:48.923  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 2 )child: com.android.systemui.statusbar.DismissViewImage{d04d48e GFED..C.. ......I. 0,0-0,0 #7f0b00fc app:id/dismiss_drawable}
+//忽略dismiss_text
+12-25 10:57:48.923  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 1 )child: com.android.systemui.statusbar.FooterViewButton{7a5f4af VFED..C.. ........ 867,0-1056,96 #7f0b00fe app:id/dismiss_text}
+12-25 10:57:48.923  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 1 )child: com.android.systemui.statusbar.FooterViewButton{7a5f4af VFED..C.. ........ 867,0-1056,96 #7f0b00fe app:id/dismiss_text}
+
+//遍历到FooterView子view AlphaOptimizedFrameLayout
+12-25 10:57:48.923  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 0 )child: com.android.systemui.statusbar.FooterViewButton{90b0bc VFED..C.. ........ 0,0-313,96 #7f0b01fc app:id/manage_text}
+12-25 10:57:48.923  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 0 )child: com.android.systemui.statusbar.FooterViewButton{90b0bc VFED..C.. ........ 0,0-313,96 #7f0b01fc app:id/manage_text}
+
+//mFirstTouchTarget == null
+//遍历AlphaOptimizedFrameLayout结束
+12-25 10:57:48.923  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222222222222 this: com.android.systemui.statusbar.AlphaOptimizedFrameLayout{d1bdc89 V.E...... ........ 8,0-1064,96 #7f0b00c6 app:id/content}
+12-25 10:57:48.923  2885  2885 W view--ActivatableNotificationView: onTouchEvent this :com.android.systemui.statusbar.AlphaOptimizedFrameLayout{d1bdc89 V.E...... ........ 8,0-1064,96 #7f0b00c6 app:id/content}
+12-25 10:57:48.923  2885  2885 I view--ActivatableNotificationView: onTouchEvent action: 0 clickable= false
+12-25 10:57:48.923  2885  2885 I view--ActivatableNotificationView: onTouchEvent 4444 
+
+//返回到遍历FooterView（因为只有一个子view 跑到mFirstTouchTarget == null）
+//遍历FooterView结束
+12-25 10:57:48.924  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222222222222 this: com.android.systemui.statusbar.FooterView{760cad5 V.E...... ........ 8,0-1080,96}
+12-25 10:57:48.924  2885  2885 W view--ActivatableNotificationView: onTouchEvent this :com.android.systemui.statusbar.FooterView{760cad5 V.E...... ........ 8,0-1080,96}
+12-25 10:57:48.924  2885  2885 I view--ActivatableNotificationView: onTouchEvent action: 0 clickable= false
+12-25 10:57:48.924  2885  2885 I view--ActivatableNotificationView: onTouchEvent 4444 
+
+//返回遍历NotificationStackScrollLayout
+//忽略EmptyShadeView
+12-25 10:57:48.924  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 5 )child: com.android.systemui.statusbar.EmptyShadeView{9c6338c G.E...... ......ID 8,0-1080,128}
+12-25 10:57:48.924  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 5 )child: com.android.systemui.statusbar.EmptyShadeView{9c6338c G.E...... ......ID 8,0-1080,128}
+
+//忽略NotificationShelf
+12-25 10:57:48.924  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 4 )child: com.android.systemui.statusbar.NotificationShelf{12780bf V.E...... ........ 8,0-1080,64}
+12-25 10:57:48.924  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 4 )child: com.android.systemui.statusbar.NotificationShelf{12780bf V.E...... ........ 8,0-1080,64}
+
+//忽略ExpandableNotificationRow d2cb3a4
+12-25 10:57:48.924  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 3 )child: com.android.systemui.statusbar.ExpandableNotificationRow{d2cb3a4 IFE...C.. ......ID 8,0-1080,268}
+12-25 10:57:48.924  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 3 )child: com.android.systemui.statusbar.ExpandableNotificationRow{d2cb3a4 IFE...C.. ......ID 8,0-1080,268}
+
+//忽略ExpandableNotificationRow 35c52f4
+12-25 10:57:48.925  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 2 )child: com.android.systemui.statusbar.ExpandableNotificationRow{35c52f4 IFE...C.. ......ID 8,0-1080,268}
+12-25 10:57:48.925  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 2 )child: com.android.systemui.statusbar.ExpandableNotificationRow{35c52f4 IFE...C.. ......ID 8,0-1080,268}
+
+//忽略ExpandableNotificationRow 2f2f1fd
+12-25 10:57:48.925  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 1 )child: com.android.systemui.statusbar.ExpandableNotificationRow{2f2f1fd VFE...C.. ........ 8,0-1080,268}
+12-25 10:57:48.925  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 1 )child: com.android.systemui.statusbar.ExpandableNotificationRow{2f2f1fd VFE...C.. ........ 8,0-1080,268}
+
+//忽略ExpandableNotificationRow ef95d3b
+12-25 10:57:48.925  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11111111 ( i= 0 )child: com.android.systemui.statusbar.ExpandableNotificationRow{ef95d3b VFE...C.. ........ 8,0-1080,268}
+12-25 10:57:48.925  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent11bbbb ( i= 0 )child: com.android.systemui.statusbar.ExpandableNotificationRow{ef95d3b VFE...C.. ........ 8,0-1080,268}
+
+//遍历NotificationStackScrollLayout结束
+//mFirstTouchTarget == null
+12-25 10:57:48.925  2885  2885 I ViewGroup_ActivatableNotificationView: dispatchTouchEvent222222222222 this: com.android.systemui.statusbar.stack.NotificationStackScrollLayout{32075cf VFED..... ........ 45,0-1133,720 #7f0b0279 app:id/notification_stack_scroller}
+12-25 10:57:48.925  2885  2885 W view--ActivatableNotificationView: onTouchEvent this :com.android.systemui.statusbar.stack.NotificationStackScrollLayout{32075cf VFED..... ........ 45,0-1133,720 #7f0b0279 app:id/notification_stack_scroller}
+12-25 10:57:48.925  2885  2885 D StackScroller: NotificationStackScrollLayout onTouchEvent:  touch at (623,703) Action:0
+12-25 10:57:48.926  2885  2885 I StackScroller: onTouchEvent callstack = 
+12-25 10:57:48.926  2885  2885 I StackScroller: java.lang.Throwable: onTouchEvent
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at com.android.systemui.statusbar.stack.NotificationStackScrollLayout.onTouchEvent(NotificationStackScrollLayout.java:1526)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.View.dispatchTouchEvent(View.java:12537)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3050)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:2719)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3057)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:2674)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3057)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:2674)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3057)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:2674)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at com.android.systemui.statusbar.phone.StatusBarWindowView.dispatchTouchEvent(StatusBarWindowView.java:311)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.View.dispatchPointerEvent(View.java:12800)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$ViewPostImeInputStage.processPointerEvent(ViewRootImpl.java:5313)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:5116)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:4633)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:4686)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:4652)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:4792)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:4660)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:4849)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:4633)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:4686)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:4652)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:4660)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:4633)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl.deliverInputEvent(ViewRootImpl.java:7332)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl.doProcessInputEvents(ViewRootImpl.java:7295)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl.enqueueInputEvent(ViewRootImpl.java:7249)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.ViewRootImpl$WindowInputEventReceiver.onInputEvent(ViewRootImpl.java:7435)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.view.InputEventReceiver.dispatchInputEvent(InputEventReceiver.java:217)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.os.MessageQueue.next(MessageQueue.java:326)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.os.Looper.loop(Looper.java:166)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at android.app.ActivityThread.main(ActivityThread.java:7075)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at java.lang.reflect.Method.invoke(Native Method)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:493)
+12-25 10:57:48.926  2885  2885 I StackScroller: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:898)
+12-25 10:57:48.927  2885  2885 E StackScroller: onScrollTouch mActivePointerId=0
+12-25 10:57:48.927  2885  2885 I view--ActivatableNotificationView: onTouchEvent action: 0 clickable= false
+12-25 10:57:48.927  2885  2885 I view--ActivatableNotificationView: onTouchEvent 4444 
+12-25 10:57:48.927  2885  2885 D StackScroller: horizontalSwipeWantsIt:false scrollerWantsIt: true expandWantsIt: false onTouchEvent: false
+12-25 10:57:48.927  2885  2885 W StatusBarWindowView: StatusBarWindowView dispatchTouchEvent isDown:true dispatch: true
+
+
+
+
+
+
+
