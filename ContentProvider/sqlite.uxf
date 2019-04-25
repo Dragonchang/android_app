@@ -4,7 +4,7 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>250</x>
+      <x>350</x>
       <y>670</y>
       <w>130</w>
       <h>30</h>
@@ -16,9 +16,9 @@ SQLiteDatabase</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>430</x>
-      <y>820</y>
-      <w>110</w>
+      <x>810</x>
+      <y>760</y>
+      <w>170</w>
       <h>30</h>
     </coordinates>
     <panel_attributes>bt=*
@@ -28,9 +28,9 @@ SQLiteSession</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>430</x>
+      <x>530</x>
       <y>670</y>
-      <w>190</w>
+      <w>210</w>
       <h>30</h>
     </coordinates>
     <panel_attributes>bt=*
@@ -40,7 +40,7 @@ SQLiteConnectionPool</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>70</x>
+      <x>170</x>
       <y>670</y>
       <w>130</w>
       <h>30</h>
@@ -52,7 +52,7 @@ SQLiteOpenHelper</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>670</x>
+      <x>810</x>
       <y>670</y>
       <w>170</w>
       <h>30</h>
@@ -64,7 +64,7 @@ SQLiteConnection</panel_attributes>
   <element>
     <type>com.umlet.element.custom.Node</type>
     <coordinates>
-      <x>0</x>
+      <x>100</x>
       <y>0</y>
       <w>250</w>
       <h>80</h>
@@ -76,7 +76,7 @@ SQLiteConnection</panel_attributes>
   <element>
     <type>com.umlet.element.custom.Node</type>
     <coordinates>
-      <x>0</x>
+      <x>100</x>
       <y>120</y>
       <w>250</w>
       <h>80</h>
@@ -88,7 +88,7 @@ SQLiteConnection</panel_attributes>
   <element>
     <type>com.umlet.element.custom.Node</type>
     <coordinates>
-      <x>0</x>
+      <x>100</x>
       <y>250</y>
       <w>250</w>
       <h>80</h>
@@ -100,9 +100,9 @@ SQLiteConnection</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>80</x>
+      <x>180</x>
       <y>50</y>
-      <w>76</w>
+      <w>78</w>
       <h>90</h>
     </coordinates>
     <panel_attributes>lt=&lt;
@@ -113,7 +113,7 @@ JNI
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>90</x>
+      <x>190</x>
       <y>170</y>
       <w>50</w>
       <h>100</h>
@@ -124,7 +124,7 @@ JNI
   <element>
     <type>com.umlet.element.Note</type>
     <coordinates>
-      <x>0</x>
+      <x>100</x>
       <y>450</y>
       <w>1510</w>
       <h>780</h>
@@ -135,7 +135,7 @@ JNI
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>170</x>
+      <x>270</x>
       <y>650</y>
       <w>100</w>
       <h>50</h>
@@ -146,7 +146,7 @@ JNI
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>250</x>
+      <x>350</x>
       <y>590</y>
       <w>130</w>
       <h>30</h>
@@ -158,7 +158,7 @@ SQLiteClosable</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>280</x>
+      <x>380</x>
       <y>590</y>
       <w>50</w>
       <h>100</h>
@@ -169,7 +169,7 @@ SQLiteClosable</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>250</x>
+      <x>350</x>
       <y>820</y>
       <w>130</w>
       <h>30</h>
@@ -181,7 +181,7 @@ SQLiteStatement</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>350</x>
+      <x>450</x>
       <y>650</y>
       <w>100</w>
       <h>50</h>
@@ -192,18 +192,19 @@ SQLiteStatement</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>590</x>
-      <y>650</y>
-      <w>100</w>
-      <h>50</h>
+      <x>710</x>
+      <y>630</y>
+      <w>120</w>
+      <h>70</h>
     </coordinates>
-    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>80;30;30;30</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1对多</panel_attributes>
+    <additional_attributes>100;50;30;50</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>280</x>
+      <x>380</x>
       <y>670</y>
       <w>50</w>
       <h>170</h>
@@ -214,7 +215,7 @@ SQLiteStatement</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>250</x>
+      <x>350</x>
       <y>890</y>
       <w>130</w>
       <h>30</h>
@@ -226,7 +227,7 @@ SQLiteProgram</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>250</x>
+      <x>350</x>
       <y>960</y>
       <w>130</w>
       <h>30</h>
@@ -238,7 +239,7 @@ SQLiteClosable</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>280</x>
+      <x>380</x>
       <y>820</y>
       <w>50</w>
       <h>90</h>
@@ -249,7 +250,7 @@ SQLiteClosable</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>280</x>
+      <x>380</x>
       <y>890</y>
       <w>50</w>
       <h>90</h>
@@ -260,31 +261,19 @@ SQLiteClosable</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>970</x>
-      <y>1010</y>
+      <x>1420</x>
+      <y>660</y>
       <w>140</w>
       <h>30</h>
     </coordinates>
     <panel_attributes>bt=*
-Closeable</panel_attributes>
+SQLiteCursor</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>970</x>
-      <y>940</y>
-      <w>140</w>
-      <h>30</h>
-    </coordinates>
-    <panel_attributes>bt=*
-Cursor</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <type>com.umlet.element.Class</type>
-    <coordinates>
-      <x>970</x>
+      <x>1420</x>
       <y>880</y>
       <w>140</w>
       <h>30</h>
@@ -296,7 +285,7 @@ CrossProcessCursor</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>970</x>
+      <x>1420</x>
       <y>810</y>
       <w>140</w>
       <h>30</h>
@@ -308,7 +297,7 @@ AbstractCursor</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>970</x>
+      <x>1420</x>
       <y>730</y>
       <w>160</w>
       <h>30</h>
@@ -320,13 +309,73 @@ AbstractWindowedCursor</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>970</x>
-      <y>660</y>
+      <x>1420</x>
+      <y>940</y>
       <w>140</w>
       <h>30</h>
     </coordinates>
     <panel_attributes>bt=*
-SQLiteCursor</panel_attributes>
+Cursor</panel_attributes>
     <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>1420</x>
+      <y>1010</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>bt=*
+Closeable</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>530</x>
+      <y>750</y>
+      <w>210</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>bt=*
+ThreadLocal&lt;SQLiteSession&gt;</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>450</x>
+      <y>670</y>
+      <w>100</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>80;100;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>710</x>
+      <y>720</y>
+      <w>120</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+1对多</panel_attributes>
+    <additional_attributes>100;50;30;50</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>850</x>
+      <y>670</y>
+      <w>84</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+ 
+1对1</panel_attributes>
+    <additional_attributes>50;30;50;90</additional_attributes>
   </element>
 </diagram>
