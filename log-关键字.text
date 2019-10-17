@@ -1,0 +1,220 @@
+1、查看信号强度
+radio log中： 
+22236 04-10 11:49:44.331 1083 1083 W SignalStrength: getHtcLteLevel: mLteRsrp = -127 mLteRsrq = -16 mLteRssnr = 2147483647 mLteCqi = 2147483647maxLevel = 5
+22237 04-10 11:49:44.331 1083 1083 W SignalStrength: getHtcLevel=0 
+
+2、GPS kernel log的关键字：
+Normal case:
+04-17 14:15:57.066 836 918 D GpsLocationProvider: startNavigating, singleShot is false
+04-17 14:15:58.609 836 918 V GpsLocationProvider: reportStatus status: 3
+04-17 14:15:58.609 836 918 V GpsLocationProvider: reportStatus status: 1
+//Show GPS icon
+04-17 14:16:33.470 836 918 D GpsLocationProvider: stopNavigating
+04-17 14:16:33.571 836 1934 D gps_mtk : mnld_to_gps_handler: line = 3195sta.status = GPS_STATUS_SESSION_END
+04-17 14:16:33.571 836 1934 D gps_mtk : mnld_to_gps_handler: line = 3197sta.status = GPS_STATUS_ENGINE_OFF
+04-17 14:16:33.569 836 1934 V GpsLocationProvider: reportStatus status: 2
+04-17 14:16:33.571 836 1934 V GpsLocationProvider: reportStatus status: 4
+//Dismiss GPS icon
+//Fail case
+04-17 14:38:16.636 836 918 D GpsLocationProvider: startNavigating, singleShot is false
+04-17 14:38:18.060 836 918 V GpsLocationProvider: reportStatus status: 3
+04-17 14:38:18.060 836 918 V GpsLocationProvider: reportStatus status: 1
+//Show icon
+04-17 14:41:35.566 836 918 D GpsLocationProvider: stopNavigating
+... no GPS_STATUS_SESSION_END and GPS_STATUS_ENGINE_OFF reportStatus callback
+
+3、查看手电筒状态：
+
+4、ANR:
+ANR in //anr时间点 device log
+Cmd Line:  //anr的trace bugreport
+
+
+
+
+5、binder transactions: //binder通信情况
+示例：
+1598311760=5f444d50=DUMP_TRANSACTION
+04-12 18:09:47.689 910 2700 I binder_sample: [com.android.server.am.ActivityManagerService,1598311760,784,execTransact,100]
+04-12 18:10:01.575 910 1628 I binder_sample: [com.android.server.input.InputManagerService,1598311760,6129,execTransact,100]
+04-12 18:10:02.733 910 933 I binder_sample: [com.android.server.am.ProcessStatsService,1598311760,1126,execTransact,100]
+04-12 18:10:16.057 910 1614 I binder_sample: [com.android.server.am.ActivityManagerService$MemBinder,1598311760,13260,execTransact,100]
+04-12 18:10:17.517 910 945 I am_anr : [0,910,system,1086897673,Input dispatching timed out (Waiting to send non-key event because the touched window has not finished processing certain input events that were delivered to it over 500.0ms ago. Wait queue length: 6. Wait queue head age: 8130.9ms.)]
+04-12 18:10:36.345 910 28142 I binder_sample: [com.android.server.input.InputManagerService,1598311760,4300,execTransact,100]
+04-12 18:10:41.674 910 1618 I binder_sample: [com.android.server.am.ProcessStatsService,1598311760,1412,execTransact,100]
+04-12 18:10:44.155 910 1614 I binder_sample: [com.android.server.am.ActivityManagerService,1598311760,883,execTransact,100]
+proc 910
+thread 1300: l 01
+incoming transaction 27399230: ffffffc00654cc80 from 0:0 to 910:1300 code 5f444d50 flags 10 pri -20 r1 node 1309 size 40:8 data ffffff800a200400
+thread 1663: l 01
+incoming transaction 27401540: ffffffc012940600 from 0:0 to 910:1663 code 5f444d50 flags 10 pri -20 r1 node 1309 size 40:8 data ffffff800a2000a8
+thread 1705: l 01
+incoming transaction 27399554: ffffffc02c07d800 from 0:0 to 910:1705 code 5f444d50 flags 10 pri -20 r1 node 1305 size 28:8 data ffffff800a200260
+thread 2700: l 01
+incoming transaction 27402087: ffffffc02565bc80 from 7211:7211 to 910:2700 code 5f444d50 flags 10 pri -20 r1 node 1305 size 28:8 data ffffff800a200388
+这个说明910 在做DUMP_TRANSACTION这个binder请求。
+
+
+
+
+6、kernel log：
+CPU Usage //cpu使用率
+Update: //当前kernel log中对应的标准时间 //Update: [2015/04/22 14:49:41 (19072.775072751)]
+
+7、input 中keyevent 处理信息：
+device 中关键字：interceptKeyTq keycode= 
+说明：位置PhoneWindowManager.java、 keycode值位置：KeyEvent.java
+
+
+
+8、灭屏亮屏
+//亮屏
+04-24 15:05:45.825   884  1009 D PMS     : wakeUp(156930,884,1000,android.os.PowerManager.wakeUp:878 com.android.internal.policy.impl.PhoneWindowManager.interceptKeyBeforeQueueing:5485 com.android.server.wm.InputMonitor.interceptKeyBeforeQueueing:516 )
+04-24 15:05:45.826   884  1009 D PMS     :  	|----com.android.server.power.PowerManagerService.wakeUpNoUpdateLocked(PowerManagerService.java:2405)
+04-24 15:05:45.826   884  1009 D PMS     :  	|----com.android.server.power.PowerManagerService.wakeUpInternal(PowerManagerService.java:2389)
+04-24 15:05:45.826   884  1009 D PMS     :  	|----com.android.server.power.PowerManagerService.access$8700(PowerManagerService.java:114)
+04-24 15:05:45.826   884  1009 D PMS     :  	|----com.android.server.power.PowerManagerService$BinderService.wakeUp(PowerManagerService.java:5866)
+04-24 15:05:45.826   884  1009 D PMS     :  	|----android.os.PowerManager.wakeUp(PowerManager.java:878)
+04-24 15:05:45.826   884  1009 D PMS     : wakeUpNoUpdateLocked: eventTime=156930, uid=1000
+04-24 15:05:45.826   884  1009 D PMS     :  	|----com.android.internal.policy.impl.PhoneWindowManager.interceptKeyBeforeQueueing(PhoneWindowManager.java:5485)
+04-24 15:05:45.826   884  1009 D PMS     :  	|----com.android.server.wm.InputMonitor.interceptKeyBeforeQueueing(InputMonitor.java:516)
+04-24 15:05:45.826   884  1009 I PMS     : Waking up from sleep (uid 1000)...
+04-24 15:05:45.826   884  1009 D PMS     :  	|----com.android.server.input.InputManagerService.interceptKeyBeforeQueueing(InputManagerService.java:2091)
+
+9、灭屏
+04-24 15:07:27.533   884  1009 D PMS     : goToSleep(258010,4,0,884,1000,android.os.PowerManager.goToSleep:849 com.android.internal.policy.impl.PhoneWindowManager.powerShortPress:1077 com.android.internal.policy.impl.PhoneWindowManager.interceptKeyBeforeQueueing:5352 )
+04-24 15:07:27.533   884  1009 D PMS     : goToSleepNoUpdateLocked: eventTime=258010, reason=4, flags=0, uid=1000
+04-24 15:07:27.533   884  1009 I PMS     : Going to sleep due to power button (uid 1000)...
+04-24 15:07:27.533   884  1009 D PMS     :  	|----com.android.server.power.PowerManagerService.goToSleepNoUpdateLocked(PowerManagerService.java:2469)
+04-24 15:07:27.533   884  1009 D PMS     :  	|----com.android.server.power.PowerManagerService.goToSleepInternal(PowerManagerService.java:2458)
+04-24 15:07:27.533   884  1009 D PMS     : wakelock list dump: mLocks.size=2:
+04-24 15:07:27.533   884  1009 D PMS     :  	|----com.android.server.power.PowerManagerService.access$8800(PowerManagerService.java:114)
+04-24 15:07:27.533   884  1009 D PMS     : No.0: PARTIAL_WAKE_LOCK 'ConnectivityService'activated(flags=1, uid=1000, pid=884) total=50156ms)
+04-24 15:07:27.533   884  1009 D PMS     :  	|----com.android.server.power.PowerManagerService$BinderService.goToSleep(PowerManagerService.java:5908)
+04-24 15:07:27.533   884  1009 D PMS     : No.1: PARTIAL_WAKE_LOCK 'DHCP_WAKELOCK'activated(flags=1, uid=1000, pid=884) total=422ms)
+04-24 15:07:27.533   884  1009 D PMS     :  	|----android.os.PowerManager.goToSleep(PowerManager.java:849)
+04-24 15:07:27.533   884  1009 D PMS     : updatePSL(0x1,true) (repeat:5)
+04-24 15:07:27.533   884  1009 D PMS     :  	|----com.android.internal.policy.impl.PhoneWindowManager.powerShortPress(PhoneWindowManager.java:1077)
+04-24 15:07:27.533   884  1009 D PMS     : updatePSL(0x2,true)
+04-24 15:07:27.533   884  1009 D PMS     :  	|----com.android.internal.policy.impl.PhoneWindowManager.interceptKeyBeforeQueueing(PhoneWindowManager.java:5352)
+04-24 15:07:27.533   884  1009 D PMS     : updateWakeLockSummaryLocked: mWakefulness=Dozing, mWakeLockSummary=0x1
+04-24 15:07:27.533   884  1009 D PMS     :  	|----com.android.server.wm.InputMonitor.interceptKeyBeforeQueueing(InputMonitor.java:516)
+04-24 15:07:27.533   884  1009 D PMS     : updateWakeLockSummaryLocked: mWakefulness=Dozing, mWakeLockSummary=0x1
+04-24 15:07:27.533   884  1009 D PMS     :  	|----com.android.server.input.InputManagerService.interceptKeyBeforeQueueing(InputManagerService.java:2091)
+
+10、屏幕状态
+XAN-DPC : requestPowerState: policy=OFF
+XAN-DPC : requestPowerState: policy=BRIGHT
+
+11、内存使用信息
+ VSS- Virtual Set Size 虚拟耗用内存（包含共享库占用的内存）
+ RSS- Resident Set Size 实际使用物理内存（包含共享库占用的内存）
+ PSS- Proportional Set Size 实际使用的物理内存（比例分配共享库占用的内存）
+ USS- Unique Set Size 进程独自占用的物理内存（不包含共享库占用的内存） 
+
+12、双击醒屏（SENSOR_ACTION_DOUBLETOUCH）
+03-19 20:15:42.437  1700  1700 D HtcLockScreen: EasyAccessCtrl: onReceive>
+03-19 20:15:42.438  1700  1700 I HtcLockScreen: EasyAccessCtrl: SENSOR_ACTION_DOUBLETOUCH
+03-19 20:15:42.440  1700  1700 D HtcLockScreen: LSState: pokeWakeLock
+03-19 20:15:42.440  1700  1700 D PowerManager: wakeUp
+03-19 20:15:42.445   817   817 D PMN     : onInteractiveChangeStarted: mPolicy.wakingUp(unblocker)
+03-19 20:15:42.445   817   817 I WindowManager: Waking up...
+
+13、同时搜索两个关键字（或关系）
+grep -E "abc|123" -nr ./myfile
+
+14、同时搜索两个关键字（与关系）
+grep "com.htc" -nr ./myfile | grep "com.facebook.orca"
+
+
+15、进程crash\died
+signal 11 (段错误)
+signal 3  (abort)
+
+16.MessageLogger 的查看方法
+（1）MessageLogger: MSG HISTORY IN MAIN THREAD:
+//MessageLogger的作用：查看发生ANR之前的消息处理情况
+//主线程中所有消息的处理情况-》从下往上分析（Dispatching to Handler-》Finished to Handler）
+27228:04-24 00:29:28.520  1884  1905 D MessageLogger: Msg#:401297 <<<<< Finished to Handler (android.app.ActivityThread$H) {3a3bfd0d} android.app.LoadedApk$ReceiverDispatcher$Args@3e780150 elapsedTime:0 ms/upTime:1 ms//消耗的时间
+27229:04-24 00:29:28.520  1884  1905 D MessageLogger: Msg#:401296 >>>>> Dispatching to Handler (android.app.ActivityThread$H) {3a3bfd0d} android.app.LoadedApk$ReceiverDispatcher$Args@3e780150: 0 from 2015-04-24 00:29:24.711//开始处理时间
+（2）=== LONGER MSG HISTORY IN MAIN THREAD ===
+//消息处理消耗时间过长的消息信息
+38501:04-24 00:29:59.521  1884  1906 D MessageLogger: Msg#:401523 <<<<< Finished to Handler (android.view.Choreographer$FrameHandler) {2b916b31} android.view.Choreographer$FrameDisplayEventReceiver@3479c216 from 2015-04-24 00:29:51.361 elapsedTime:1082 ms/upTime:1083ms（处理时间和耗时时间）
+
+17.broadcast ANR 时关键字
+04-24 00:29:28.290   841   903 W BroadcastQueue: Timeout of broadcast BroadcastRecord{1a04372d u-1 android.intent.action.SCREEN_OFF callingPid=841 callingUid=1000} - receiver=android.os.BinderProxy@123cb77f, started 10000ms ago
+04-24 00:29:28.290   841   903 W BroadcastQueue: Receiver during timeout: BroadcastFilter{359d0838 u0 ReceiverList{2efd034c 1884 com.android.systemui/10015/u0 remote:123cb77f}}
+
+18.services ANR 时关键字
+Timeout executing service:ServiceRecord{
+
+19.input ANR
+WindowManager: Input event dispatching timed out sending to application AppWindowToken
+
+
+20.截屏
+05-05 00:36:28.352   847  1422 I WindowManager: POWER+HOME to screenshot
+
+21.查看binder信息打印的时间点
+[DUMP BINDER INFO START at
+
+22、cpu 使用限制（num_limit_pnpmgr' = '2'）
+05-08 09:07:30.037   322   352 I PnPMgr  : Write '/proc/hps/num_limit_pnpmgr' = '2' <Rule: Foreground Apps>
+
+23.systemUI 更新statusbar上的时间
+1827 1827 I Clock : updateClock:
+
+24.systemUI 有notification
+05-14 14:26:55.153   826   826 I notification_sound: [0,0,0,null,-1,-1,0]
+05-14 14:26:55.153   826   826 I notification_vibrate: [0,0,0,0,0,2]
+05-14 14:26:55.153   826   826 I notification_skip_light: [1,0,1,0,0]
+05-14 14:26:55.166   826   849 I notification_enqueue: [10400,10289,com.whatsapp,1,NULL,0,Notification(pri=1 contentView=null vibrate=default sound=content://settings/system/notification_sound defaults=0x2 flags=0x200 color=0xff075e54 category=msg groupKey=group_key_messages vis=PRIVATE)]
+
+25.查看app端的Perf
+Perf    :
+
+26.电量信息关键字
+//device log
+BatteryService: Battery Others is (false,false,2,2,true,-2,3306,270,Li-ion,5,false,0,false,0,0,false,124617)
+//event log
+battery_level: [-4,3334,270]
+
+27.wifi信号
+android.net.wifi.WIFI_STATE_CHANGED //开始链接\断开
+android.net.wifi.STATE_CHANGE  //链接状态
+android.net.wifi.RSSI_CHANGED  //信号强度
+
+关键字：updateWifiState
+
+28.Expanded statusBar
+//隐藏
+06-05 11:14:29.253  2012  2012 D PhoneStatusBar: makeExpandedInvisible: mExpandedVisible=true mExpandedVisible=true
+//显示
+06-05 11:14:29.346  2012  2012 V View    : onTouchEvent com.android.systemui.statusbar.phone.PhoneStatusBarView{86c89b3 V.E..... .......D 0,0-1440,100 #7f1001bb app:id/status_bar}
+
+29.网络信号显示
+06-11 12:46:49.658 16340 16340 D SignalClusterView: wifi=G,stat_sys_wifi_signal_connected_0 air=G,stat_sys_signal_flightmode data[0]=V,stat_sys_data_connected_lte sig[0]=V,cdma_stat_sys_s1_5signal_5 data[1]=G,(null) sig[1]=G,(null)
+06-11 12:57:25.572 16340 16340 D CarrierLabel: update Slot(1), Sim State = (UNKNOWN), Service State = (1)
+06-11 12:57:25.581 16340 16340 D CarrierLabel: update Slot(2), Sim State = (READY), Service State = (3)
+
+[Strength]
+[SrvState]
+[CallState]
+[DataConnect]
+
+30.andriod自带的工具
+
+31. adb logcat -b events
+
+
+
+
+
+
+
+
+
+
+
+
+

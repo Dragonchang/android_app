@@ -1,0 +1,206 @@
+ 136  git branch 
+  137  git branch  -r
+  138  git checkout -b htc/common/master-m-rel origin/htc/common/master-m-rel
+  139  git log --format=oneline
+  140  git log --format=oneline > /work/sys.txt
+  141  git format-patch -1 b31303fe24640ca4e1ffa36f3bfd7b064488ce34
+  142  vim 0001-MR-1479-support-Quick-Setting-framework-mechanism.patch 
+  143  gedit 0001-MR-1479-support-Quick-Setting-framework-mechanism.patch
+  144  git branch 
+  145  ll
+  146  git log
+  147  git branch 
+  148  git checkout htc/common/master-m-mr1-rel
+
+
+
+131  git clone git://mirrors.ustc.edu.cn/aosp/platform/frameworks/base
+  132  ls
+  133  cd base/
+  134  git branch  -r
+  135  git checkout -b marshmallow-mr1-release origin/marshmallow-mr1-release
+  136  git branch 
+  137  git remote add htc /work1/N-Porting/M-Framework_base/base
+  138  git fetch htc 
+  139  ls
+  140  diff packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java /work1/N-Porting/M-Framework_base/base/packages/SystemUI_GP/src/com/android/systemui/statusbar/phone/QSTileHost.java > QSTileHost.patch
+  141  vim QSTileHost.patch 
+  142  rm QSTileHost.patch 
+  143  git branch 
+  144  git branch  -r
+  145  git checkout -b htc/common/master-m-mr1-rel htc/htc/common/master-m-mr1-rel
+  146  nautilus .
+  147  git st
+  148  git status 
+  149  git add -u
+  150  git status
+  151  git add -a
+  152  git add .
+  153  git status
+  154  git commit -m "replace"
+  155  git status
+  156  git branch 
+  157  git diff marshmallow-mr1-release..htc/common/master-m-mr1-rel packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java > QSTileHost.patch
+  158  vim QSTileHost.patch 
+
+
+
+ 172  git status .
+  173  git am  /work1/N-Porting/M-Framework_base/base/0001-MR-1479-support-Quick-Setting-framework-mechanism.patch
+  174  git am --abort
+  175  git am  /work1/N-Porting/M-Framework_base/base/0001-MR-1479-support-Quick-Setting-framework-mechanism.patch
+  176  git apply --reject   /work1/N-Porting/Android-N_8996/Android-N/frameworks/base/packages/0001-HPKB-1479-QS-U16-SystemUI-QuickSetting-support-quick.patch
+  177  git st
+  178  git status
+  179  vim   /work1/N-Porting/M-Framework_base/base/0001-MR-1479-support-Quick-Setting-framework-mechanism.patch
+  180  git st
+  181  git status 
+  182  vim src/com/android/systemui/SystemUIApplication.java.rej
+  183  vim src/com/android/systemui/statusbar/phone/PhoneStatusBar.java.rej
+  184  vim src/com/android/systemui/statusbar/phone/QSTileHost.java.rej
+  185  vim src/com/android/systemui/statusbar/phone/PhoneStatusBar.java.rej
+  186  git branch 
+  187  rm src/com/android/systemui/statusbar/phone/QSTileHost.java.rej
+  188  git apply --reject /work1/N-Porting/M_AOSP_FrameWork_Base/base/QSTileHost.patch
+  189  git st
+  190  git status
+  191  gedit src/com/android/systemui/statusbar/phone/QSTileHost.java.rej src/com/android/systemui/statusbar/phone/QSTileHost.java
+  192  git status
+  193  git diff src/com/android/systemui/statusbar/phone/QSTileHost.java
+  194  git status
+  195  git add res/drawable-hdpi/icon_btn_auto_rotate_dark_l.png res/drawable-hdpi/icon_btn_auto_rotate_dark_xl.png res/drawable-hdpi/icon_btn_auto_rotate_light.png res/drawable-xxhdpi/icon_btn_auto_rotate_dark_l.png res/drawable-xxhdpi/icon_btn_auto_rotate_dark_xl.png res/drawable-xxhdpi/icon_btn_auto_rotate_light.png res/layout/quick_settings_tile_rotation_lock.xml res/layout/quick_settings_tile_rotation_lock_simple.xml res/values/dimens_notification.xml res/values/styles_notification.xml src/com/android/systemui/qs/tiles/LevelIndicator.java src/com/android/systemui/qs/tiles/QSTileImageView.java src/com/android/systemui/qs/tiles/QuickSettingRotate.java src/com/android/systemui/statusbar/NotificationUtil.java
+  196  git status
+  197  rm src/com/android/systemui/statusbar/phone/QSTileHost.java.rej src/com/android/systemui/statusbar/phone/QSTileHost.java~
+  198  git status
+  199  gedit src/com/android/systemui/SystemUIApplication.java.rej
+  200  git diff src/com/android/systemui/statusbar/phone/QSTileHost.java
+  201  git status
+  202  git reset res/drawable-hdpi/icon_btn_auto_rotate_dark_l.png res/drawable-hdpi/icon_btn_auto_rotate_dark_xl.png res/drawable-hdpi/icon_btn_auto_rotate_light.png res/drawable-xxhdpi/icon_btn_auto_rotate_dark_l.png res/drawable-xxhdpi/icon_btn_auto_rotate_dark_xl.png res/drawable-xxhdpi/icon_btn_auto_rotate_light.png res/layout/quick_settings_tile_rotation_lock.xml res/layout/quick_settings_tile_rotation_lock_simple.xml res/values/dimens_notification.xml res/values/styles_notification.xml src/com/android/systemui/qs/tiles/LevelIndicator.java src/com/android/systemui/qs/tiles/QSTileImageView.java src/com/android/systemui/qs/tiles/QuickSettingRotate.java src/com/android/systemui/statusbar/NotificationUtil.java
+  203  git st
+  204  git status
+  205  git add src/com/android/systemui/statusbar/phone/QSTileHost.java
+  206  git am --continue 
+  207  git log
+  208  git show 
+  209  git st
+  210  git show 
+  211  git status 
+  212  git show 
+  213  git commit --amend 
+  214  git log
+  215  git show 
+  216  vim packages/SystemUI/src/com/android/systemui/statusbar/phone/QSTileHost.java
+  217  vim src/com/android/systemui/statusbar/phone/QSTileHost.java
+  218  git status
+  219  git add src/com/android/systemui/statusbar/phone/QSTileHost.java
+  220  git commit --amend 
+  221  git log
+  222  git show 
+  223  git config --global core.editor vim
+  224  vim src/com/android/systemui/statusbar/phone/QSTileHost.java
+  225  git add src/com/android/systemui/statusbar/phone/QSTileHost.java
+  226  git commit --amend 
+
+
+git am /work1/N-Porting/M-Framework_base/base/packages/SystemUI_GP/0001-feature-support-mis-click-on-QS-BI-data-with-proximi.patch
+git stash apply
+git stash apply stash@{1}
+
+git fetch ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/local/platform/frameworks/base refs/changes/26/2326/3 && git cherry-pick FETCH_HEAD
+git am --continue
+git add src/com/android/systemui/statusbar/phone/ScrimController.java
+git am --continue 
+git commit --amend
+
+git push origin HEAD:refs/for/htc/common/master-n-rel
+git log origin/htc/aosp/n-release --format=oneline | grep "Fix DownloadManager tests"
+
+/work1/N-Porting/Android-N/frameworks/base/.git/.COMMIT_EDITMSG.swp
+
+
+//将别人提交的patch下到本地
+  551  git fetch ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/local/platform/frameworks/base refs/changes/26/2326/3 && git cherry-pick FETCH_HEAD
+  552  git status
+  553  vim res/values/config.xml
+  554  vim src/com/android/systemui/CustomizationUtil.java
+  555  git add res/values/config.xml src/com/android/systemui/CustomizationUtil.java
+  556  git cherry-pick --continue 
+  557  git log
+  558  git status
+  559  rm /work1/N-Porting/Android-N/frameworks/base/.git/.COMMIT_EDITMSG.swp
+  560  git log .
+  561  git status
+  562  git stash 
+  563  git rebase 
+  564  git rebase -i
+  565  git status
+  566  vim res/values/config.xml
+  567  git add res/values/config.xml
+  568  git rebase --continue 
+  569  git status
+  570  vim res/values/config.xml
+  571  git status
+  572  git diff res/values/config.xml
+  573  git status
+  574  git add res/values/config.xml
+  575  git rebase --continue 
+  576  git st
+  577  git status
+  578  git log
+  579  git stash apply 
+  580  history
+
+
+　build/core/config.mk 将　JXmx 改为了　4096M export _JAVA_OPTIONS=-Xmx4096m 
+jack-admin kill-server
+jack-admin start-server
+
+commit 51303aca4ed6b925f877503e795d8e09b287d657
+Author: Jimmy.CM Chen <jimmy.cm_chen@htc.com>
+Date:   Thu Nov 27 21:04:26 2014 +0800
+
+    wifi: porting MDM and Spring Extension for MASD
+
+./out/target/common/obj/JAVA_LIBRARIES/framework-protos_intermediates/src/proto/src/com/android/internal/logging/MetricsProto.java
+
+
+local/platform/packages/providers/DownloadProvider
+git push ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/local/platform/frameworks/base HEAD:refs/for/htc/crc/master-n-rel+aug-hima
+git push ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/local/platform/packages/providers/DownloadProvider HEAD:refs/for/htc/common/master-o-rel
+
+git push ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/local/platform/frameworks/base HEAD:refs/for/htc/common/master-o-rel
+git push ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/app/packages/apps/ScreenCapture.git HEAD:refs/for/htc/app/apps/ScreenCapture/1.00/api24/screencaptrue
+adb shell am start -n com.android.systemui/.navigation.NavbarEditActivity
+	[QuickSetting] set always listening (receiver, observer) for QS items
+2097 RotationLockTile
+2104 DndTile
+3750 ColorInversion
+
+
+git push ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/local/platform/frameworks/base HEAD:refs/for/htc/common/master-p-rel-stock-ui
+
+git push ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/local/platform/frameworks/base HEAD:refs/for/htc/common/master-p-rel
+
+[HPKB#7220][Sense feature] support tips on quick setting
+[HPKB#7227][Sense feature] support mis-click on QS BI data with proximity sensor
+[HPKB#1479][Sense feature] support Quick Setting framework mechanism
+
+	修改:         ../../core/java/com/android/internal/logging/MetricsLogger.java
+	新文件:       res/drawable-hdpi/icon_btn_nfc_dark_l.png
+	新文件:       res/drawable-xxhdpi/icon_btn_nfc_dark_l.png
+	修改:         res/values/htc_strings.xml
+	新文件:       src/com/android/systemui/IntentController.java
+	修改:         src/com/android/systemui/qs/QSIconView.java
+	修改:         src/com/android/systemui/qs/QSTile.java
+	新文件:       src/com/android/systemui/qs/tiles/NfcTile.java
+	修改:         src/com/android/systemui/statusbar/phone/QSTileHost.java
+
+
+
+
+
+
+
+
+
+

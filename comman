@@ -1,0 +1,258 @@
+CITS
+ 用户名：HTC.amt_masd_fl_zhang
+ 密码：Zhang,123
+as:识别码：1234
+3187
+amtcm,2014
+邮箱：
+amt_masd_yan_shang@htc.com
+amt_masd_min_hu@htc.com
+amt_masd_sy_tian@htc.com
+AMT_MASD_Fei.W_Wang@htc.com
+
+http://dashboard.htc.com.tw/information/line_detail/?line=A56DJUHL_Generic_WWE_M601_CRC_Sense80GP_SHEP
+10.13.11.39
+Build command for HIAU:
+export HTC_USERDATA_APK=""; export PRIVATE_RCMS_APP="HIAU_ML_TUHL_L50_SENSE70"; export HTC_DASHBOARD_BUILD="true"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="HIAU_ML_TUHL_L50_SENSE70"; export PRIVATE_RCMS_SKU=""; export PRIVATE_SKU_NAME="HIAUMLTUHL_Generic_WWE_L50_Mainline_Sense70_SHEP";
+env > env.txt; source build/envsetup.sh; lunch htc_hiau_ml_tuhl-userdebug DEBUG;
+
+Build command for A55:
+export HTC_USERDATA_APK="Facebook_Client"; export PRIVATE_RCMS_APP="A55ML_DTUL_L50_DESIRE_SENSE70"; export HTC_DASHBOARD_BUILD="true"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="A55ML_DTUL_L50_DESIRE_SENSE70"; export PRIVATE_RCMS_SKU="HTC Generic"; export PRIVATE_SKU_NAME="A55MLDTUL_Generic_WWE_L50_Mainline_DesireSense70_Stable_AMT";
+env > env.txt; source build/envsetup.sh; lunch htc_a55ml_dtul-userdebug DEBUG;
+
+ export HTC_USERDATA_APK=""; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="HIMA_WL_M60_SENSE70_VZW_MR"; export BCMS_SENSE_VERSION="Sense 7.0"; export PRIVATE_SKU_NAME="HIMAWL_Generic_WWE_M60_Mainline_Sense70_SHEP_MR2"; export PRIVATE_RCMS_APP="HIMA_WL_M60_SENSE70_VZW_MR"; export PRIVATE_RCMS_SKU="HTC Generic";
+env > env.txt; source build/envsetup.sh; lunch htc_himawl-userdebug DEBUG 
+
+//M_60
+export HTC_USERDATA_APK="Flashlight"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="M8_UL_M60_SENSE70_MR"; export BCMS_SENSE_VERSION="Sense 7.0"; export PRIVATE_SKU_NAME="M8UL_Generic_WWE_M60_Mainline_Sense70_MR"; export PRIVATE_RCMS_APP="M8_UL_M60_SENSE70_MR"; export PRIVATE_RCMS_SKU="HTC Generic";
+env > env.txt; source build/envsetup.sh; lunch htc_m8-userdebug DEBUG && make -j8 > out-log.txt 2>&1; ;
+
+export HTC_USERDATA_APK="Flashlight"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="M8_EYE_TUHL_M60_SENSE70_MR"; export BCMS_SENSE_VERSION="Sense 7.0"; export PRIVATE_SKU_NAME="M8EyeTUHL_Generic_WWE_M601_CRC_Sense70_Stable_MR2"; export PRIVATE_RCMS_APP="M8_EYE_TUHL_M60_SENSE70_MR"; export PRIVATE_RCMS_SKU="HTC Generic";
+env > env.txt; source build/envsetup.sh; lunch htc_melstuhl-userdebug DEBUG
+
+//N_70
+10.13.11.46
+/work1/code/QCT8996_N70
+export HTC_USERDATA_APK=""; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="PERFUME_UHL_N70_SENSE80GP_MR"; export BCMS_SENSE_VERSION="Sense 8.0_GP"; export PRIVATE_SKU_NAME="PMEUHL_Generic_WWE_N70_Mainline_Sense80GP_SHEP_MR"; export PRIVATE_RCMS_APP="PERFUME_UHL_N70_SENSE80GP_MR"; export PRIVATE_RCMS_SKU="HTC Generic";
+env > env.txt; source build/envsetup.sh; lunch htc_pmeuhl-userdebug DEBUG
+
+
+export HTC_USERDATA_APK="Facebook_Client Flashlight Boost+"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="HIMA_UHL_N70_SENSE80_MR"; export BCMS_SENSE_VERSION="Sense 8.0"; export PRIVATE_SKU_NAME="HIMAUHL_Generic_WWE_N70_CRC_Sense80_Stable_MR"; export PRIVATE_RCMS_APP="HIMA_UHL_N70_SENSE80_MR"; export PRIVATE_RCMS_SKU="HTC Generic";
+env > env.txt; source build/envsetup.sh; lunch htc_himauhl-userdebug DEBUG
+
+
+//N_71
+repo sync -j8;
+
+export HTC_USERDATA_APK="Boost+ UAR_Stub";
+
+export HTC_BUILD_STUBS_FLAG="false";
+
+export PRIVATE_RCMS_NAME="OCEAN_DTWL_N71_SENSE90GP";
+
+export BCMS_SENSE_VERSION="Sense 9.0_GP";
+
+export PRIVATE_SKU_NAME="OceanDTWL_Generic_WWE_N71_Mainline_Sense90GP_Stable";
+
+export PRIVATE_RCMS_APP="OCEAN_DTWL_N71_SENSE90GP";
+
+export PRIVATE_RCMS_SKU="HTC Generic"; export IS_PAI=true;
+
+env > env.txt;
+
+source build/envsetup.sh;
+
+lunch htc_ocndtwl-userdebug DEBUG;
+
+make idegen;
+
+./development/tools/idegen/idegen.sh;
+
+run cts --disable-reboot --skip-preconditions -m CtsLibcoreTestCases -t libcore.java.nio.channels.DatagramChannelMulticastTest#test_multicastLoopOption_IPv6
+
+export HTC_USERDATA_APK="Alipay Weibo DianPing HTCCN_WangyiyunMusic HTCCN_TodayNews News_Republic SougouSearch HTCCN_HTCRadio HTCCN_Gamehall amap HTCCN_Weibo HTCCN_Multiple_Accounts HTCCNGamehall WPSOffice"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="OCEAN_NOTE_DTWL_N70_SENSE80GP"; export BCMS_SENSE_VERSION="Sense 8.0_GP"; export PRIVATE_SKU_NAME="OceanNoteDTWL_ChinaOC_CHS_N70_CRC_Sense80GP_Stable"; export PRIVATE_RCMS_APP="OCEAN_NOTE_DTWL_N70_SENSE80GP"; export PRIVATE_RCMS_SKU="HTCCN CHS 2";
+env > env.txt; source build/envsetup.sh; lunch htc_ocedtwl-userdebug DEBUG
+
+PodSlider
+adb shell setenforce 0;
+O80:
+export HTC_USERDATA_APK=""; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="OCEAN_DUGL_O80_SENSE90GP_MR"; export BCMS_SENSE_VERSION="Sense 9.0_GP"; export PRIVATE_SKU_NAME="OceanDUGL_Generic_WWE_O80_Mainline_Sense90GP_SHEP_MR"; export PRIVATE_RCMS_APP="OCEAN_DUGL_O80_SENSE90GP_MR"; export PRIVATE_RCMS_SKU="HTC Generic";
+env > env.txt; source build/envsetup.sh; lunch htc_ocndugl-userdebug DEBUG
+
+
+export HTC_USERDATA_APK="Flashlight Viveport_Inst Boost+ UAR_Stub"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="IMAGINE_DUGL_O80_SENSE10GP"; export BCMS_SENSE_VERSION="Sense 10.0_GP"; export PRIVATE_SKU_NAME="IMEDUGL_Generic_WWE_O80_Mainline_Sense100GP_Stable"; export PRIVATE_RCMS_APP="IMAGINE_DUGL_O80_SENSE10GP"; export PRIVATE_RCMS_SKU="HTC Generic"; export IS_PAI=true;
+env > env.txt; source build/envsetup.sh; lunch htc_imedugl-userdebug DEBUG
+
+N_OCean_NOTE_DUGL:
+export HTC_USERDATA_APK="Viveport_Inst Boost+ UAR_Stub"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="OCEAN_NOTE_DUGL_N70_SENSE80GP"; export BCMS_SENSE_VERSION="Sense 8.0_GP"; export PRIVATE_SKU_NAME="OceanNoteDUGL_Generic_WWE_N70_CRC_Sense80GP_Stable"; export PRIVATE_RCMS_APP="OCEAN_NOTE_DUGL_N70_SENSE80GP"; export PRIVATE_RCMS_SKU="HTC Generic"; export IS_PAI=true;
+env > env.txt; source build/envsetup.sh; lunch htc_ocedugl-userdebug DEBUG
+
+
+HarmonyDUGL:
+export HTC_USERDATA_APK="Flashlight Viveport_Inst Boost+ UAR_Stub"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="HARMONY_DUGL_N71_SENSE90GP"; export BCMS_SENSE_VERSION="Sense 9.0_GP"; export PRIVATE_SKU_NAME="HarmonyDUGL_Generic_WWE_N71_Mainline_Sense90GP_Stable"; export PRIVATE_RCMS_APP="HARMONY_DUGL_N71_SENSE90GP"; export PRIVATE_RCMS_SKU="HTC Generic"; export IS_PAI=true;
+env > env.txt; source build/envsetup.sh; lunch htc_haydugl-userdebug DEBUG
+
+OCEAN_WHL
+repo sync --force-sync -j8;
+export HTC_USERDATA_APK="Flashlight Viveport_Inst Boost+ UAR_Stub"; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="OCEAN_WHL_O80_SENSE90GP_MR"; export BCMS_SENSE_VERSION="Sense 9.0_GP"; export PRIVATE_SKU_NAME="OceanWHL_Sprint_WWE_O80_Mainline_Sense90GP_Stable_MR"; export PRIVATE_RCMS_APP="OCEAN_WHL_O80_SENSE90GP_MR"; export PRIVATE_RCMS_SKU="Sprint WWE"; export IS_PAI=true;
+env > env.txt; source build/envsetup.sh; lunch htc_ocnwhl-userdebug DEBUG;
+make services -j4;
+
+
+export HTC_USERDATA_APK=""; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="OCEAN_LIFE_UHL_P90_SENSE10A1_MR"; export BCMS_SENSE_VERSION="Sense 10.0_GP"; export PRIVATE_SKU_NAME="OceanLifeUHL_Generic_WWE_P90_Mainline_Sense10A1_StockUI_MR"; export PRIVATE_RCMS_APP="OCEAN_LIFE_UHL_P90_SENSE10A1_MR"; export PRIVATE_RCMS_SKU="HTC Generic"; 
+env > env.txt; rm -rf external/HtcBuildFlag/a1_app; rm -rf packages/apps/GMS_Base/; source build/envsetup.sh; lunch htc_ocluhl-userdebug
+
+
+oceanDUGL_P:
+
+export HTC_USERDATA_APK=""; export HTC_BUILD_STUBS_FLAG="false"; export PRIVATE_RCMS_NAME="OCEAN_DUGL_P90_SENSE10GP_MR"; export BCMS_SENSE_VERSION="Sense 10.0_GP"; export PRIVATE_SKU_NAME="OceanDUGL_Generic_WWE_P90_Mainline_Sense100GP_SHEP_MR2"; export PRIVATE_RCMS_APP="OCEAN_DUGL_P90_SENSE10GP_MR"; export PRIVATE_RCMS_SKU="HTC Generic";
+env > env.txt; source build/envsetup.sh; lunch htc_ocndugl-userdebug DEBUG
+
+
+sudo openconnect vpncn.htc.com/vendor
+amtuser8 2ngtux4q 
+rm -rf *
+repo sync --force-sync -j8;
+
+
+//++[Issue Fix][Feilong][2017/03/06][SystemUI] HPKB29258 Init ExpandedHeight & mExpandedFraction to avoid Dim blinking 
+
+git push ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/local/platform/frameworks/base HEAD:refs/for/htc/crc/master-n-rel+aug-hima
+
+ftp://10.13.11.154/
+
+locate skia | grep `pwd`
+dumpsys window tokens
+
+
+1. AMT dashboard :http://10.33.9.37/
+         username: amt_masd_yan_shang; pwd: abc@123
+2. sftp:180.166.111.23 port :22
+         username: Yan_Shang;  动态密码
+3. Log search:http://10.33.8.135 
+         username: amt_masd_yan_shang; pwd: abc@123
+4. git server: http://amtodc.git.htc.com:8081/: 配置ssh public key
+         username: amt_masd_yan_shang; pwd: abc@123
+_http://eService.mediatek.com
+  MIN_HU
+  amt@601
+adb shell setenforce 0
+
+Exception e = new Exception("call trace");
+e.printStackTrace();
+Xlog.d(VIEW_LOG_TAG, "handleFocusGainInternal: this = " + this + ", callstack = " ,
+                    new Throwable("ViewFocus"));
+
+			Slog.i("zfl-surfaceflinger-wms", "session::windowAddedLocked callstack = " ,
+                    new Throwable("windowAddedLocked"));
+
+CN-CAS.HTC.COM.TW
+amt_masd_fl_zhang@htc.com
+
+sudo update-alternatives --config java
+
+
+adb reboot-bootloader
+./htc_fastboot oem writeconfig 7 40000
+./htc_fastboot reboot
+
+
+
+export JAVA_HOME="/usr/lib/jvm/java-7-openjdk-amd64"
+export PATH="$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH"
+export CLASS_PATH="$JAVA_HOME/lib:$JAVA_HOME/jre/lib"
+
+
+ln -s manifests/l-rel_shep_mtk6795_sense70.xml manifest.xml
+
+run cts --abi armeabi-v7a -m CtsHostsideNetworkTests -t com.android.cts.net.HostsideVpnTests
+
+//查看所有监听的端口
+netstat -tan | grep LISTEN
+
+//在手机中进行抓包
+tcpdump -i any -p -s 0 -w ./sdcard/capture.pcap
+
+//让手机使用pc的网络
+adb reverse tcp:8083 tcp:8083
+adb reverse --list
+//为wifi设置代理
+
+
+SI3US-361500-17409
+aarch64-linux-android-addr2line  -C -f -e out/target/product/htc_hiau_ml_tuhl/system/lib64/libsurfaceflinger.so 000000000003f31c
+aarch64-linux-android-objdump out/target/product/htc_hiau_ml_tuhl/system/lib64/libsurfaceflinger.so >dump.s
+
+1.       配置hosts 文件 ：C:\Windows\System32\drivers\etc\hosts
+用记事本打开后再文件最后添加最后两行
+219.87.71.174 epqcs.htc.com
+220.128.71.174 epqcs.htc.com
+
+mindguest2006
+
+dumpsys -t 30 activity service all
+
+
+git clone ssh://amt_masd_fl_zhang@amtodc.git.htc.com:29419/app/packages/apps/ScreenCapture.git
+
+(18时18分26秒) AMT_MASD YU_GUO(郭雨): [user]
+    email = amt_masd_yu_guo@htc.com
+    name = amt_masd_yu_guo
+[color]
+    ui = auto
+[push]
+    default = simple
+[https]
+    proxy = _http://003153:abc%40123@10.13.20.3:3128
+[http]
+    proxy = _http://003153:abc%40123@10.13.20.3:3128
+
+(18时18分34秒) AMT_MASD YU_GUO(郭雨): ~/.gitconfig
+(18时19分55秒) AMT_MASD YU_GUO(郭雨): 
+设置
+git config --global http.proxy _http://003153:abc%40123@10.13.20.3:3128
+git config --global https.proxy _http://003153:abc%40123@10.13.20.3:3128
+Acquire::http {Proxy "http://10.13.20.5:3142";};
+撤销
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+
+检查
+git config --global --get http.proxy
+git config --global --get https.proxy
+
+Acquire::http { Proxy "http://10.13.20.5:3142"; };
+
+ipconfig  /flushdns
+
+scp -r archermind@10.13.11.32:/work/HS501/AP.tar.gz /BYD/
+scp -r archermind@10.13.11.32:/work/HS501/BP.tar.gz /你自己的目录/
+
+
+zhang,123456
+amt
+https://jq.qq.com/?_wv=1027&k=5RqriVF
+https://webmail.archermind.com
+1.5G 4G 用户不指定的时候使用设置SubscriptionController.getDefaultDataSubId中为5G卡。
+主要的工作在PhoneSwitcher中。
+2.settings中设置默认data 数据卡setDefaultDataSubId
+Slog.i(TAG, "showValidationNotification callstack = " ,new Throwable("showValidationNotification"));
+
+http://dl.google.com/dl/android/cts/android-cts-2.3_r10-linux_x86-arm.zip
+
+https://xiapac.com/305167995/8114187.pac
+https://source.android.google.cn/compatibility/cts/downloads?hl=zh-cn
+
+006762
+abc@123
+
+https://onlinedisassembler.com/static/home/index.html
+
+Id: masd_amtsftp ;password: abc@123
+
+adb shell settings put global airplane_mode_radios  "cell,wifi,nfc,wimax"
+
+
+
+ export COMPILE_TOOLS_ROOT=/work3/BREEZE2/Breeze2_Exodus_Tool/BuildTools/ARM9_Build_Tools && cd ARM9/MSM8953; cp ../../ARM11/htc_build/msm8940_build_all_images.sh ./ && ./msm8940_build_all_images.sh HTC_M1015_A03_R16; cd ../../ARM11/  && source zprojects/envsetup.sh htc_m1015_a03 normal && make update-api
+
